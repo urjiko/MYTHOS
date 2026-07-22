@@ -1,0 +1,37 @@
+# MYTHOS — Generated asset prompts
+
+All six images were generated with the built-in image generation tool. The five game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
+
+## Mandatory 360° projection contract
+
+Every game-scene prompt begins with this contract:
+
+> Create a true monoscopic 360-degree spherical panorama texture, not a merely wide cinematic image. Output a flat 2:1 equirectangular projection covering the full 360 degrees horizontally and full 180 degrees vertically, suitable for mapping to the inside of a sphere with the camera at its exact centre. Keep the horizon at mid-height. The left and right edges must describe the same physical boundary and join seamlessly. Zenith is sky or ceiling and nadir is ground or floor, with normal equirectangular pole stretching. One continuous environment; no split panels, mirrored halves, fisheye circle, cubemap, border, text, UI, watermark, visible photographer, body, hands, or camera. Preserve realistic perspective when sampled into ordinary 90-degree views in every yaw direction.
+
+## Shared style contract
+
+> Mythic fresco realism: cinematic spatial depth and believable ancient architecture fused with subtle aged fresco and oil-paint texture. Bone white, terracotta, obsidian, muted Aegean teal, and restrained oracle gold. Original artwork; no text, letters, logo, watermark, modern objects, superhero styling, neon fantasy, or interface graphics.
+
+## `hero-olympus.webp`
+
+> A majestic vision of Mount Olympus at the threshold between the mortal world and the divine realm. Monumental ancient Greek architecture emerges from layered clouds; an enormous ceremonial stairway leads toward distant silhouettes of gods and a luminous sunrise. Wide composition with a strong centred circular focal area for a bronze fate-disc crop. Weathered marble, oxidised bronze, sacred dawn light, severe rather than sentimental.
+
+## `scene-labyrinth.webp` — spherical scene
+
+> The viewer stands at the centre of a four-way corridor inside the vast Labyrinth beneath Knossos. Architecturally plausible branching Bronze Age stone corridors surround the viewer with Minoan plaster fragments, partial double-axe motifs, narrow warm daylight shafts and cool black-green shadow. A red wool thread crosses the floor through several directions; a distant ambiguous horned shadow and a dropped bronze sword provide subtle clues.
+
+## `scene-medusa.webp`
+
+> First-person approach into the Gorgon’s remote coastal cavern-temple before Perseus completes his quest. Archaic ruined columns, wet stone, shallow reflective water and warriors and animals transformed into weathered stone. A polished bronze shield in the foreground reflects only a distant, fully robed, abstract serpentine-crowned silhouette; a curved bronze sword rests at the edge. Cold verdigris light, no violence shown, no close-up character.
+
+## `scene-sirens.webp`
+
+> Immersive deck-level view aboard Odysseus’s Bronze Age ship passing dangerous musical rocks. Dark Aegean water, plausible archaic wooden vessel, storm-cleared sunset and ruins partly swallowed by cliffs. A fully clothed captain is bound to the central mast, rowers wear small beeswax ear plugs, and only distant winged stone-silhouettes suggest the source of the song. No mermaids, pirate styling or modern rigging.
+
+## `scene-trojan-horse.webp`
+
+> Dawn outside and just inside the gates of Bronze Age Troy as citizens discover the enormous wooden horse left by the vanished Greek fleet. Archaeologically inspired mudbrick and stone walls, timber gate, dry Anatolian plain and abandoned shoreline. The rough-timber horse stands off-centre with drag ropes and rollers; a worried robed priest gestures from the wall. Cold violet dawn turns to restrained gold; the mood is false relief and quiet foreboding.
+
+## `scene-prometheus.webp`
+
+> Clandestine first-person view through the sacred workshops and terraces of Olympus as Prometheus carries a stolen ember toward the mortal world. Severe high-altitude sanctuary and bronze forge terraces above clouds at night. A tall robed Titan seen from behind conceals a bright coal inside a hollow giant fennel stalk; an unattended divine brazier glows behind him; an eagle silhouette waits in storm clouds. Secretive midnight blue with concentrated ember orange.
