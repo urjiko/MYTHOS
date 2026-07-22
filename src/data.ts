@@ -1,14 +1,17 @@
 export type Point = { lat: number; lng: number }
 
 export type MapConfidence = 'attested' | 'traditional' | 'mythic'
+export type MythCategory = 'gods' | 'heroes' | 'odyssey' | 'trojan'
 
 export type MythScene = {
   id: string
   title: string
   eyebrow: string
   cycle: string
+  category: MythCategory
   location: string
   coordinates: Point
+  accuracyRadiusKm: number
   mapConfidence: MapConfidence
   geographyNote: string
   pleiadesUrl?: string
@@ -29,8 +32,10 @@ export const mythScenes: MythScene[] = [
     title: 'Theseus and the Minotaur',
     eyebrow: 'Cretan Cycle',
     cycle: 'Age of Heroes',
+    category: 'heroes',
     location: 'Knossos, Crete',
     coordinates: { lat: 35.2989, lng: 25.1603 },
+    accuracyRadiusKm: 90,
     mapConfidence: 'attested',
     geographyNote: 'The myth is associated with Knossos; the archaeological palace is not literally the maze of the story.',
     pleiadesUrl: 'https://pleiades.stoa.org/places/589872',
@@ -54,8 +59,10 @@ export const mythScenes: MythScene[] = [
     title: 'Perseus and Medusa',
     eyebrow: 'Perseus Cycle',
     cycle: 'Age of Heroes',
+    category: 'heroes',
     location: 'The far western edge of Oceanus',
     coordinates: { lat: 35.9, lng: -7.2 },
+    accuracyRadiusKm: 500,
     mapConfidence: 'mythic',
     geographyNote: 'Ancient poetry places the Gorgons in the distant west; this pin visualises a mythic direction, not an excavated site.',
     image: './assets/scene-medusa.webp',
@@ -78,8 +85,10 @@ export const mythScenes: MythScene[] = [
     title: 'Odysseus and the Sirens',
     eyebrow: 'The Odyssey',
     cycle: 'After Troy',
+    category: 'odyssey',
     location: 'The Siren Rocks, traditional Campanian placement',
     coordinates: { lat: 40.5808, lng: 14.4296 },
+    accuracyRadiusKm: 240,
     mapConfidence: 'traditional',
     geographyNote: 'Homer gives no secure coordinates; later tradition often identifies the Sirens with islands off Campania.',
     image: './assets/scene-sirens.webp',
@@ -102,8 +111,10 @@ export const mythScenes: MythScene[] = [
     title: 'The Trojan Horse',
     eyebrow: 'Trojan Cycle',
     cycle: 'Trojan War',
+    category: 'trojan',
     location: 'Ilion / Troy, Anatolia',
     coordinates: { lat: 39.9575, lng: 26.2389 },
+    accuracyRadiusKm: 90,
     mapConfidence: 'attested',
     geographyNote: 'The pin marks the archaeological mound at Hisarlık, identified with ancient Ilion/Troy.',
     pleiadesUrl: 'https://pleiades.stoa.org/places/550595',
@@ -127,8 +138,10 @@ export const mythScenes: MythScene[] = [
     title: 'Prometheus Steals Fire',
     eyebrow: 'Age of the Gods',
     cycle: 'Olympian Order',
+    category: 'gods',
     location: 'Mount Olympus',
     coordinates: { lat: 40.0856, lng: 22.3586 },
+    accuracyRadiusKm: 150,
     mapConfidence: 'traditional',
     geographyNote: 'The pin marks Mount Olympus, the dominant Greek location of the gods’ dwelling.',
     pleiadesUrl: 'https://pleiades.stoa.org/places/491677',
@@ -152,8 +165,10 @@ export const mythScenes: MythScene[] = [
     title: 'Apollo and Python',
     eyebrow: 'Delphic Cycle',
     cycle: 'Olympian Order',
+    category: 'gods',
     location: 'Delphi, Phocis',
     coordinates: { lat: 38.4824, lng: 22.501 },
+    accuracyRadiusKm: 80,
     mapConfidence: 'attested',
     geographyNote: 'The pin marks the sanctuary of Delphi beneath the Phaedriades cliffs.',
     pleiadesUrl: 'https://pleiades.stoa.org/places/540726',
@@ -171,6 +186,84 @@ export const mythScenes: MythScene[] = [
     source: 'Homeric Hymn to Apollo 300–374; Apollodorus — Bibliotheca I.4.1',
     sourceNote: 'The sanctuary is real; the combat and its chronology belong to mythic aetiology.',
     symbol: '☀',
+  },
+  {
+    id: 'polyphemus',
+    title: 'Odysseus and Polyphemus',
+    eyebrow: 'The Odyssey',
+    cycle: 'After Troy',
+    category: 'odyssey',
+    location: 'The Cyclopes’ Coast, traditional eastern Sicily',
+    coordinates: { lat: 37.5633, lng: 15.1619 },
+    accuracyRadiusKm: 220,
+    mapConfidence: 'traditional',
+    geographyNote: 'Homer does not name Sicily; the eastern Sicilian Cyclops coast is a later and influential geographic association.',
+    image: './assets/scene-polyphemus.webp',
+    fallback: 'linear-gradient(125deg, #0b0c0c 0%, #49382b 48%, #8b6a45 100%)',
+    prompt: 'Search the immense cave for a giant wine bowl, a fire-hardened olive stake, and sailors hidden beneath rams.',
+    clues: [
+      'The traveller gives his captor wine and says that his name is Nobody.',
+      'The cave entrance is sealed by a stone that only its giant owner can move.',
+      'The survivors escape beneath the flock instead of walking beside it.',
+    ],
+    options: ['Theseus and the Minotaur', 'Odysseus and Polyphemus', 'Jason and the Harpies', 'Heracles and Cacus'],
+    reveal:
+      'Odysseus blinds the Cyclops after naming himself “Nobody,” then escapes by fastening his companions beneath Polyphemus’s rams. His later boast brings Poseidon’s anger upon the voyage.',
+    source: 'Homer — Odyssey IX',
+    sourceNote: 'The Sicilian location belongs to later geographic tradition rather than a precise coordinate supplied by Homer.',
+    symbol: '◌',
+  },
+  {
+    id: 'circe',
+    title: 'Odysseus and Circe',
+    eyebrow: 'The Odyssey',
+    cycle: 'After Troy',
+    category: 'odyssey',
+    location: 'Aeaea, traditional Monte Circeo association',
+    coordinates: { lat: 41.232, lng: 13.055 },
+    accuracyRadiusKm: 300,
+    mapConfidence: 'traditional',
+    geographyNote: 'Aeaea is a mythic island without secure coordinates; Monte Circeo represents one long-lived Italian association.',
+    image: './assets/scene-circe.webp',
+    fallback: 'linear-gradient(126deg, #10130d 0%, #3e4a2b 46%, #b08c50 100%)',
+    prompt: 'Find the loom, the herb-filled cup, tame lions and wolves, swine in the court, and the white moly flower.',
+    clues: [
+      'Hermes gives the traveller a white-flowered herb that protects him from the cup.',
+      'The missing crew have not left the palace; their shapes have been changed.',
+      'The enchantress later warns the crew about the Sirens and the two dangers of the strait.',
+    ],
+    options: ['Medea and the Argonauts', 'Calypso and Odysseus', 'Odysseus and Circe', 'Demeter and Metaneira'],
+    reveal:
+      'Circe transforms Odysseus’s companions into swine, but Hermes’s moly protects the hero from her potion. She restores the crew and later becomes their guide to the dangers ahead.',
+    source: 'Homer — Odyssey X–XII',
+    sourceNote: 'Ancient and later authors proposed several locations for Aeaea; none is historically certain.',
+    symbol: '✺',
+  },
+  {
+    id: 'scylla-charybdis',
+    title: 'Scylla and Charybdis',
+    eyebrow: 'The Odyssey',
+    cycle: 'After Troy',
+    category: 'odyssey',
+    location: 'Strait of Messina, traditional placement',
+    coordinates: { lat: 38.254, lng: 15.64 },
+    accuracyRadiusKm: 180,
+    mapConfidence: 'traditional',
+    geographyNote: 'The Strait of Messina became the dominant ancient and later identification of Homer’s opposing sea dangers.',
+    image: './assets/scene-scylla-charybdis.webp',
+    fallback: 'linear-gradient(124deg, #07191d 0%, #285a62 48%, #b7a16d 100%)',
+    prompt: 'Turn between the cliff’s many canine shadows and the enormous whirlpool pulling foam and driftwood from the opposite side.',
+    clues: [
+      'Circe warns that the ship cannot avoid both dangers completely.',
+      'One threat lives high in a cave; the other swallows and releases the sea.',
+      'Sailors still describe impossible choices as being caught between these two names.',
+    ],
+    options: ['The Symplegades', 'Poseidon and Minos', 'The Flood of Deucalion', 'Scylla and Charybdis'],
+    reveal:
+      'Odysseus steers closer to Scylla because Charybdis could destroy the entire ship. The passage costs six companions, making the episode one of the poem’s starkest choices between unequal disasters.',
+    source: 'Homer — Odyssey XII',
+    sourceNote: 'The Messina identification is traditional; Homer’s poetic geography does not function as a modern nautical chart.',
+    symbol: '↯',
   },
 ]
 
@@ -195,6 +288,9 @@ export const atlasPlaces: AtlasPlace[] = [
   { name: 'Delos', lat: 37.4009, lng: 25.2674, type: 'Sanctuary', period: 'Archaic–Roman', confidence: 'attested' },
   { name: 'Sparta', lat: 37.0755, lng: 22.4303, type: 'Polis', period: 'Archaic–Roman', confidence: 'attested' },
   { name: 'Tainaron', lat: 36.3972, lng: 22.4772, type: 'Underworld', period: 'Mythic landscape', confidence: 'traditional' },
+  { name: 'Cyclopes’ Coast', lat: 37.5633, lng: 15.1619, type: 'Odyssey', period: 'Traditional placement', confidence: 'traditional' },
+  { name: 'Aeaea / Circeo', lat: 41.232, lng: 13.055, type: 'Odyssey', period: 'Traditional placement', confidence: 'traditional' },
+  { name: 'Messina Strait', lat: 38.254, lng: 15.64, type: 'Odyssey', period: 'Traditional placement', confidence: 'traditional' },
 ]
 
 export const ancientRegions: Array<Point & { name: string; kind: 'land' | 'sea' }> = [
@@ -206,14 +302,15 @@ export const ancientRegions: Array<Point & { name: string; kind: 'land' | 'sea' 
   { name: 'CRETE', lat: 35.15, lng: 24.6, kind: 'land' },
   { name: 'AEGEAN SEA', lat: 38.3, lng: 25.2, kind: 'sea' },
   { name: 'IONIAN SEA', lat: 37.4, lng: 18.7, kind: 'sea' },
+  { name: 'SICILIA', lat: 37.6, lng: 13.7, kind: 'land' },
 ]
 
 export const odysseyRoute: Point[] = [
   { lat: 39.9575, lng: 26.2389 },
-  { lat: 38.65, lng: 22.8 },
-  { lat: 36.8, lng: 18.8 },
+  { lat: 37.5633, lng: 15.1619 },
+  { lat: 41.232, lng: 13.055 },
   { lat: 40.5808, lng: 14.4296 },
-  { lat: 37.2, lng: 17.0 },
+  { lat: 38.254, lng: 15.64 },
   { lat: 38.367, lng: 20.718 },
 ]
 

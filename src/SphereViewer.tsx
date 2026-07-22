@@ -171,7 +171,7 @@ export function SphereViewer({ scene }: { scene: MythScene }) {
       onPointerMove={(event) => {
         if (!drag.current || drag.current.pointerId !== event.pointerId) return
         updateView({
-          yaw: drag.current.yaw - (event.clientX - drag.current.x) * 0.12,
+          yaw: drag.current.yaw + (event.clientX - drag.current.x) * 0.12,
           pitch: drag.current.pitch + (event.clientY - drag.current.y) * 0.1,
         })
       }}

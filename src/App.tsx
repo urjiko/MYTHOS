@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { collections, mythScenes } from './data'
+import { DEFAULT_ROUND_COUNT, type GameMode } from './gameDeck'
 import {
   ArrowRight,
   Compass,
@@ -16,13 +17,21 @@ import {
 
 type View = 'home' | 'game' | 'atlas' | 'archive'
 
-const maximumScore = mythScenes.length * 10_000
+const maximumScore = DEFAULT_ROUND_COUNT * 10_000
 
-const modes = [
-  { type: 'daily', title: 'Daily Oracle', note: 'The same six myths for everyone. One chance, one score.', badge: 'NEW' },
-  { type: 'journey', title: 'Classic Journey', note: 'Six panoramic scenes. Follow fate at your own pace.' },
-  { type: 'duel', title: 'Duel of the Gods', note: 'Live one-on-one encounters planned for a later chapter.', badge: 'SOON' },
-  { type: 'archive', title: 'Myth Archive', note: 'Explore gods, heroes, monsters, and ancient sources.' },
+const modes: Array<{
+  type: string
+  title: string
+  note: string
+  badge?: string
+  gameMode?: GameMode
+  destination?: View
+  muted?: boolean
+}> = [
+  { type: 'journey', title: 'Classic Journey', note: 'Six myths drawn from the full archive in a new order every game.', badge: 'RANDOM', gameMode: 'all' },
+  { type: 'odyssey', title: 'Odysseus’s Route', note: 'Only the Odyssey voyage: four encounters, shuffled on every run.', badge: 'NEW', gameMode: 'odyssey' },
+  { type: 'duel', title: 'Duel of the Gods', note: 'Live one-on-one encounters planned for a later chapter.', badge: 'SOON', muted: true },
+  { type: 'archive', title: 'Myth Archive', note: 'Explore gods, heroes, monsters, and ancient sources.', destination: 'archive' },
 ]
 
 function FateDisk() {
@@ -48,7 +57,12 @@ function FateDisk() {
   )
 }
 
-function Header({ onNavigate }: { onNavigate: (view: View) => void }) {
+type NavigationProps = {
+  onNavigate: (view: View) => void
+  onStartGame: (mode: GameMode) => void
+}
+
+function Header({ onNavigate, onStartGame }: NavigationProps) {
   const [open, setOpen] = useState(false)
   return (
     <header className="site-header">
@@ -57,7 +71,7 @@ function Header({ onNavigate }: { onNavigate: (view: View) => void }) {
         <button onClick={() => { onNavigate('archive'); setOpen(false) }}>Archive</button>
         <button onClick={() => { onNavigate('atlas'); setOpen(false) }}>Atlas</button>
         <a href="#manifesto" onClick={() => setOpen(false)}>About</a>
-        <button className="nav-play" onClick={() => { onNavigate('game'); setOpen(false) }}><Sparkles size={15} /> Begin the oracle</button>
+        <button className="nav-play" onClick={() => { onStartGame('all'); setOpen(false) }}><Sparkles size={15} /> Begin the oracle</button>
       </nav>
       <button className="mobile-menu" onClick={() => setOpen(!open)} aria-label="Open or close menu">
         {open ? <X /> : <Menu />}
@@ -66,13 +80,13 @@ function Header({ onNavigate }: { onNavigate: (view: View) => void }) {
   )
 }
 
-function Home({ onNavigate }: { onNavigate: (view: View) => void }) {
+function Home({ onNavigate, onStartGame }: NavigationProps) {
   const [best, setBest] = useState(0)
   useEffect(() => setBest(Number(localStorage.getItem('mythos-best-score') || 0)), [])
 
   return (
     <>
-      <Header onNavigate={onNavigate} />
+      <Header onNavigate={onNavigate} onStartGame={onStartGame} />
       <main>
         <section className="hero">
           <div className="hero__noise" />
@@ -81,7 +95,7 @@ function Home({ onNavigate }: { onNavigate: (view: View) => void }) {
             <h1>Enter the<br /><em>legend.</em></h1>
             <p>Step into the world of gods, heroes, and monsters. Read the clues, identify the myth, and place it on the ancient map.</p>
             <div className="hero__actions">
-              <button className="button button--terracotta" onClick={() => onNavigate('game')}>
+              <button className="button button--terracotta" onClick={() => onStartGame('all')}>
                 Begin the oracle <ArrowRight size={17} />
               </button>
               <button className="button button--ghost" onClick={() => onNavigate('atlas')}>
@@ -89,7 +103,7 @@ function Home({ onNavigate }: { onNavigate: (view: View) => void }) {
               </button>
             </div>
             <div className="hero__meta">
-              <span><strong>{mythScenes.length}</strong> scenes / game</span>
+              <span><strong>{DEFAULT_ROUND_COUNT}</strong> random scenes / game</span>
               <span><strong>{maximumScore.toLocaleString('en-US')}</strong> max OP</span>
               <span><strong>{best ? best.toLocaleString('en-US') : '—'}</strong> personal best</span>
             </div>
@@ -108,8 +122,8 @@ function Home({ onNavigate }: { onNavigate: (view: View) => void }) {
             {modes.map((mode, index) => (
               <button
                 key={mode.title}
-                className={`mode-card ${index > 1 ? 'mode-card--muted' : ''}`}
-                onClick={() => index < 2 ? onNavigate('game') : index === 3 ? onNavigate('archive') : undefined}
+                className={`mode-card ${mode.muted ? 'mode-card--muted' : ''}`}
+                onClick={() => mode.gameMode ? onStartGame(mode.gameMode) : mode.destination ? onNavigate(mode.destination) : undefined}
               >
                 <span className="mode-card__number">0{index + 1}</span>
                 <span className="mode-card__icon"><IconForMode type={mode.type} /></span>
@@ -148,8 +162,8 @@ function Home({ onNavigate }: { onNavigate: (view: View) => void }) {
             <h2>Legends did not<br /><em>live in a void.</em></h2>
             <p>From Olympus to Troy and Delphi to Crete, each story gathers around a mountain, island, sanctuary, or city. Zoom, pan, and open the sites to explore their ancient context.</p>
             <div className="atlas-preview__stats">
-              <span><strong>12</strong><small>Mapped places</small></span>
-              <span><strong>06</strong><small>Playable myths</small></span>
+              <span><strong>15</strong><small>Mapped places</small></span>
+              <span><strong>09</strong><small>Playable myths</small></span>
               <span><strong>01</strong><small>Living atlas</small></span>
             </div>
             <button className="button button--ink" onClick={() => onNavigate('atlas')}>Explore the atlas <Compass size={17} /></button>
@@ -166,18 +180,18 @@ function Home({ onNavigate }: { onNavigate: (view: View) => void }) {
           <span className="manifesto__symbol">Ω</span>
           <blockquote>“Myths are not lies left in the past;<br /><em>they are the oldest truths we tell ourselves.</em>”</blockquote>
           <p>MYTHOS turns Greek mythology from a list to memorise into a world to explore, play, question, and trace back to its sources.</p>
-          <button className="button button--gold" onClick={() => onNavigate('game')}>Make your first oracle <ArrowRight size={17} /></button>
+          <button className="button button--gold" onClick={() => onStartGame('all')}>Make your first oracle <ArrowRight size={17} /></button>
         </section>
       </main>
-      <Footer onNavigate={onNavigate} />
+      <Footer onNavigate={onNavigate} onStartGame={onStartGame} />
     </>
   )
 }
 
-function AtlasPage({ onNavigate }: { onNavigate: (view: View) => void }) {
+function AtlasPage({ onNavigate, onStartGame }: NavigationProps) {
   return (
     <div className="inner-page">
-      <Header onNavigate={onNavigate} />
+      <Header onNavigate={onNavigate} onStartGame={onStartGame} />
       <main className="inner-page__main section-shell">
         <span className="kicker">SACRED GEOGRAPHY</span>
         <h1>Mythic <em>Atlas</em></h1>
@@ -190,26 +204,29 @@ function AtlasPage({ onNavigate }: { onNavigate: (view: View) => void }) {
             <p>The route from Troy to Ithaca is not a literal sailing chart. Ancient geography, epic poetry, and centuries of interpretation overlap here.</p>
             <ol>
               <li><i>01</i> Troy <small>The war ends</small></li>
-              <li><i>02</i> Siren Rocks <small>The forbidden song</small></li>
-              <li><i>03</i> Ithaca <small>The homecoming</small></li>
+              <li><i>02</i> Cyclopes’ Coast <small>Nobody and the giant</small></li>
+              <li><i>03</i> Aeaea <small>Circe’s enchantment</small></li>
+              <li><i>04</i> Siren Rocks <small>The forbidden song</small></li>
+              <li><i>05</i> Messina Strait <small>Two sea dangers</small></li>
+              <li><i>06</i> Ithaca <small>The homecoming</small></li>
             </ol>
-            <button className="button button--terracotta" onClick={() => onNavigate('game')}>Play the route <ArrowRight size={17} /></button>
+            <button className="button button--terracotta" onClick={() => onStartGame('odyssey')}>Play the route <ArrowRight size={17} /></button>
           </aside>
         </div>
       </main>
-      <Footer onNavigate={onNavigate} />
+      <Footer onNavigate={onNavigate} onStartGame={onStartGame} />
     </div>
   )
 }
 
-function ArchivePage({ onNavigate }: { onNavigate: (view: View) => void }) {
+function ArchivePage({ onNavigate, onStartGame }: NavigationProps) {
   return (
     <div className="inner-page">
-      <Header onNavigate={onNavigate} />
+      <Header onNavigate={onNavigate} onStartGame={onStartGame} />
       <main className="inner-page__main section-shell">
         <span className="kicker">MYTH ARCHIVE</span>
         <h1>Ancient <em>stories</em></h1>
-        <p className="inner-page__lede">Six playable stories now form the first chapter. The archive will grow as new panoramic scenes are researched and produced.</p>
+        <p className="inner-page__lede">Nine playable stories now form the first chapter. The archive will grow as new panoramic scenes are researched and produced.</p>
         <div className="archive-page__filters">
           <button className="is-active">All</button><button>Gods</button><button>Heroes</button><button>Monsters</button><button>Troy</button>
         </div>
@@ -220,35 +237,41 @@ function ArchivePage({ onNavigate }: { onNavigate: (view: View) => void }) {
               <small>{collection.count} PLANNED STORIES</small>
               <h2>{collection.title}</h2>
               <p>{collection.note}</p>
-              <button onClick={() => onNavigate('game')}>Play the first scene <ArrowRight size={15} /></button>
+              <button onClick={() => onStartGame('all')}>Play a random journey <ArrowRight size={15} /></button>
             </article>
           ))}
         </div>
       </main>
-      <Footer onNavigate={onNavigate} />
+      <Footer onNavigate={onNavigate} onStartGame={onStartGame} />
     </div>
   )
 }
 
-function Footer({ onNavigate }: { onNavigate: (view: View) => void }) {
+function Footer({ onNavigate, onStartGame }: NavigationProps) {
   return (
     <footer className="site-footer">
       <div><Logo inverse /><p>A playable way to explore Greek mythology.</p></div>
-      <nav><button onClick={() => onNavigate('game')}>Play</button><button onClick={() => onNavigate('atlas')}>Atlas</button><button onClick={() => onNavigate('archive')}>Archive</button><a href="#manifesto">About</a></nav>
-      <span>MYTHOS · PROTOTYPE 0.2<br />ORIGINAL ART &amp; CODE</span>
+      <nav><button onClick={() => onStartGame('all')}>Play</button><button onClick={() => onNavigate('atlas')}>Atlas</button><button onClick={() => onNavigate('archive')}>Archive</button><a href="#manifesto">About</a></nav>
+      <span>MYTHOS · PROTOTYPE 0.3<br />ORIGINAL ART &amp; CODE</span>
     </footer>
   )
 }
 
 export default function App() {
   const [view, setView] = useState<View>('home')
+  const [gameMode, setGameMode] = useState<GameMode>('all')
+
+  function startGame(mode: GameMode) {
+    setGameMode(mode)
+    setView('game')
+  }
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [view])
 
-  if (view === 'game') return <Game onExit={() => setView('home')} />
-  if (view === 'atlas') return <AtlasPage onNavigate={setView} />
-  if (view === 'archive') return <ArchivePage onNavigate={setView} />
-  return <Home onNavigate={setView} />
+  if (view === 'game') return <Game key={gameMode} mode={gameMode} onExit={() => setView('home')} />
+  if (view === 'atlas') return <AtlasPage onNavigate={setView} onStartGame={startGame} />
+  if (view === 'archive') return <ArchivePage onNavigate={setView} onStartGame={startGame} />
+  return <Home onNavigate={setView} onStartGame={startGame} />
 }

@@ -1,6 +1,6 @@
 # MYTHOS — Generated asset prompts
 
-All seven images were generated with the built-in image generation tool. The six game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
+All ten images were generated with the built-in image generation tool. The nine game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
 
 ## Mandatory 360° projection contract
 
@@ -39,3 +39,15 @@ Every game-scene prompt begins with this contract:
 ## `scene-apollo-python.webp`
 
 > Delphi at sacred dawn, seen from the centre of a continuous sanctuary terrace beneath the Phaedriades cliffs. A youthful, fully robed Apollo stands at a respectful distance with a lowered bow, near a laurel tree, bronze tripod, omphalos stone, and smoking altar. The great serpent Python coils through a dark rocky cleft on the opposite side of the panorama, visible but not graphic. Archaeologically inspired archaic stonework, sparse painted architectural details, mountain valley beyond, austere golden light. The clues must be distributed around the sphere so the player has to turn; no combat, blood, close-up portrait, Roman statuary, fantasy armour, text, or modern reconstruction signage.
+
+## `scene-polyphemus.webp`
+
+> The viewer stands at the centre of Polyphemus’s immense coastal cave before the escape. A giant wine bowl and a fire-hardened olive stake occupy different directions; sheep fill rock pens, while several exhausted sailors hide beneath the largest rams. The Cyclops remains a distant, shadowed scale cue near the fire rather than a close-up monster. A moonlit cave opening reveals the sea. Rough limestone, archaic pottery, woven gear, smoke and warm firelight; distribute every clue around the full sphere.
+
+## `scene-circe.webp`
+
+> Aeaea as a secluded archaic palace courtyard surrounded by dense woodland. An open loom chamber, herb-filled bronze cup, white moly flower, tame lions and wolves, and transformed swine are separated around the 360-degree scene. Circe is a distant, fully robed figure beside a brazier, not a fantasy portrait. A glimpse of Odysseus’s ship appears through the trees. Painted plaster, mosaic floor, medicinal plants, filtered afternoon light, and one coherent spherical environment.
+
+## `scene-scylla-charybdis.webp`
+
+> Deck-level centre of an archaic Greek ship entering a narrow storm-dark strait. On one side, a towering cliff and high cave suggest Scylla through multiple ambiguous canine shadows; on the other, Charybdis forms a vast coherent whirlpool drawing foam and driftwood downward. Six rowers react while the helmsman holds course. Bronze Age-inspired timber vessel and rigging, no pirate styling, no graphic violence, and continuous water, sky, mast, and deck across every direction.

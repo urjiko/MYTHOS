@@ -943,6 +943,11 @@ img {
 
 .myth-map .leaflet-control-zoom a:last-child { border-bottom: 0; }
 .myth-map .leaflet-control-zoom a:hover { background: var(--paper-light); color: var(--terracotta); }
+.myth-map .leaflet-control-zoom a.leaflet-disabled {
+  background: rgba(247, 240, 223, 0.78);
+  color: rgba(25, 24, 19, 0.28);
+  cursor: not-allowed;
+}
 
 .myth-map .leaflet-control-scale-line {
   border-color: rgba(25, 24, 19, 0.65);
@@ -1061,6 +1066,11 @@ img {
 
 .ancient-map__route {
   filter: drop-shadow(0 1px rgba(247, 240, 223, 0.7));
+}
+
+.ancient-map__accuracy-radius {
+  filter: drop-shadow(0 1px rgba(247, 240, 223, 0.85));
+  pointer-events: none;
 }
 
 .ancient-map__pin {

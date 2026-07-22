@@ -7,6 +7,7 @@ export type ScoreBreakdown = {
   oracle: number
   total: number
   distance: number
+  scoredDistance: number
 }
 
 const clamp = (value: number, min: number, max: number) =>
@@ -31,6 +32,7 @@ export function scoreRound({
   correctAnswer,
   guess,
   target,
+  fullCreditRadiusKm,
   secondsLeft,
   cluesUsed,
 }: {
@@ -38,17 +40,19 @@ export function scoreRound({
   correctAnswer: string
   guess: Point
   target: Point
+  fullCreditRadiusKm: number
   secondsLeft: number
   cluesUsed: number
 }): ScoreBreakdown {
   const distance = haversineDistanceKm(guess, target)
+  const scoredDistance = Math.max(0, distance - Math.max(0, fullCreditRadiusKm))
   const recognition = answer === correctAnswer ? 3500 : 0
-  const geography = Math.round(4000 * Math.exp(-distance / 700))
+  const geography = scoredDistance === 0 ? 4000 : Math.round(4000 * Math.exp(-scoredDistance / 700))
   const speed = Math.round(1500 * clamp(secondsLeft / 75, 0, 1))
   const oracle = cluesUsed === 0 ? 1000 : Math.max(0, 750 - (cluesUsed - 1) * 375)
   const total = recognition + geography + speed + oracle
 
-  return { recognition, geography, speed, oracle, total, distance }
+  return { recognition, geography, speed, oracle, total, distance, scoredDistance }
 }
 
 export function formatScore(value: number) {

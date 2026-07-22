@@ -3,6 +3,7 @@ import { mythScenes } from './data'
 import { haversineDistanceKm, scoreRound } from './scoring'
 
 const target = { lat: 35.2989, lng: 25.1603 }
+const fullCreditRadiusKm = 90
 
 describe('MYTHOS scoring', () => {
   it('awards the full 10,000 points for a perfect unaided answer', () => {
@@ -11,6 +12,7 @@ describe('MYTHOS scoring', () => {
       correctAnswer: 'Theseus and the Minotaur',
       guess: target,
       target,
+      fullCreditRadiusKm,
       secondsLeft: 75,
       cluesUsed: 0,
     }).total).toBe(10_000)
@@ -22,6 +24,7 @@ describe('MYTHOS scoring', () => {
       correctAnswer: 'Theseus and the Minotaur',
       guess: target,
       target,
+      fullCreditRadiusKm,
       secondsLeft: 75,
       cluesUsed: 0,
     })
@@ -32,19 +35,35 @@ describe('MYTHOS scoring', () => {
 
   it('reduces geography points smoothly with distance', () => {
     const near = scoreRound({
-      answer: '', correctAnswer: 'x', guess: { lat: 35.5, lng: 25.2 }, target, secondsLeft: 0, cluesUsed: 3,
+      answer: '', correctAnswer: 'x', guess: { lat: 35.5, lng: 25.2 }, target, fullCreditRadiusKm, secondsLeft: 0, cluesUsed: 3,
     })
     const far = scoreRound({
-      answer: '', correctAnswer: 'x', guess: { lat: 41.9, lng: -7 }, target, secondsLeft: 0, cluesUsed: 3,
+      answer: '', correctAnswer: 'x', guess: { lat: 41.9, lng: -7 }, target, fullCreditRadiusKm, secondsLeft: 0, cluesUsed: 3,
     })
 
     expect(near.geography).toBeGreaterThan(far.geography)
     expect(far.geography).toBeLessThan(100)
   })
 
+  it('awards full geography points anywhere inside the accepted region', () => {
+    const result = scoreRound({
+      answer: '',
+      correctAnswer: 'x',
+      guess: { lat: 35.6, lng: 25.16 },
+      target,
+      fullCreditRadiusKm,
+      secondsLeft: 0,
+      cluesUsed: 3,
+    })
+
+    expect(result.distance).toBeGreaterThan(30)
+    expect(result.geography).toBe(4_000)
+    expect(result.scoredDistance).toBe(0)
+  })
+
   it('removes the oracle bonus after all three clues', () => {
     expect(scoreRound({
-      answer: '', correctAnswer: 'x', guess: target, target, secondsLeft: 0, cluesUsed: 3,
+      answer: '', correctAnswer: 'x', guess: target, target, fullCreditRadiusKm, secondsLeft: 0, cluesUsed: 3,
     }).oracle).toBe(0)
   })
 

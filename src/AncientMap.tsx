@@ -6,6 +6,7 @@ import { ancientRegions, atlasPlaces, odysseyRoute } from './data'
 
 const MEDITERRANEAN_BOUNDS = L.latLngBounds([28.5, -12], [48, 45])
 const INITIAL_BOUNDS = L.latLngBounds([30.5, -10], [45.5, 39])
+const MIN_ZOOM = 3.5
 
 const markerIcon = (className: string, glyph = '') => L.divIcon({
   className: `ancient-map__pin ${className}`,
@@ -17,6 +18,7 @@ const markerIcon = (className: string, glyph = '') => L.divIcon({
 export function MythMap({
   guess,
   target,
+  targetRadiusKm,
   targetConfidence = 'attested',
   reveal = false,
   interactive = false,
@@ -25,6 +27,7 @@ export function MythMap({
 }: {
   guess?: Point | null
   target?: Point
+  targetRadiusKm?: number
   targetConfidence?: MapConfidence
   reveal?: boolean
   interactive?: boolean
@@ -47,7 +50,7 @@ export function MythMap({
     const map = L.map(host, {
       attributionControl: false,
       zoomControl: false,
-      minZoom: 3,
+      minZoom: MIN_ZOOM,
       maxZoom: 9,
       maxBounds: MEDITERRANEAN_BOUNDS.pad(0.08),
       maxBoundsViscosity: 0.75,
@@ -204,11 +207,33 @@ export function MythMap({
         traditional: 'Traditional association',
         mythic: 'Approximate mythic placement',
       }
+      const revealBounds = L.latLngBounds([[target.lat, target.lng]])
+
+      if (targetRadiusKm && targetRadiusKm > 0) {
+        const accuracyRegion = L.circle([target.lat, target.lng], {
+          radius: targetRadiusKm * 1000,
+          className: 'ancient-map__accuracy-radius',
+          color: '#c49a4d',
+          fillColor: '#c49a4d',
+          fillOpacity: 0.13,
+          weight: 1.5,
+          dashArray: '4 5',
+          interactive: false,
+        })
+          .bindTooltip(`Full-credit region · ${Math.round(targetRadiusKm)} km`, {
+            className: 'ancient-map__answer-label',
+            direction: 'bottom',
+          })
+          .addTo(layers)
+        revealBounds.extend(accuracyRegion.getBounds())
+      }
+
       L.marker([target.lat, target.lng], { icon: markerIcon(`ancient-map__pin--target ancient-map__pin--${targetConfidence}`, '✓') })
         .bindTooltip(targetLabel[targetConfidence], { className: 'ancient-map__answer-label', permanent: true, direction: 'top', offset: [0, -12] })
         .addTo(layers)
 
       if (guess) {
+        revealBounds.extend([guess.lat, guess.lng])
         L.polyline([[guess.lat, guess.lng], [target.lat, target.lng]], {
           color: '#9f432d',
           weight: 2,
@@ -216,12 +241,12 @@ export function MythMap({
           dashArray: '5 7',
           interactive: false,
         }).addTo(layers)
-        map.fitBounds([[guess.lat, guess.lng], [target.lat, target.lng]], { padding: [40, 40], maxZoom: 7 })
+        map.fitBounds(revealBounds, { padding: [40, 40], maxZoom: 7 })
       } else {
-        map.setView([target.lat, target.lng], 6)
+        map.fitBounds(revealBounds, { padding: [40, 40], maxZoom: 6 })
       }
     }
-  }, [guess, reveal, target, targetConfidence])
+  }, [guess, reveal, target, targetConfidence, targetRadiusKm])
 
   return (
     <div className={`myth-map myth-map--${mapStatus} ${interactive ? 'myth-map--interactive' : ''}`}>

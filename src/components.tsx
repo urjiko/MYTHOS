@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { Point } from './data'
-import { mythScenes } from './data'
+import { createGameDeck, type GameMode } from './gameDeck'
 import { formatScore, scoreRound, type ScoreBreakdown } from './scoring'
 import { MythMap } from './AncientMap'
 import { SphereViewer } from './SphereViewer'
@@ -48,7 +48,8 @@ export function Ornament() {
 
 type RoundResult = { sceneId: string; breakdown: ScoreBreakdown }
 
-export function Game({ onExit }: { onExit: () => void }) {
+export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: GameMode }) {
+  const [scenes, setScenes] = useState(() => createGameDeck(mode))
   const [round, setRound] = useState(0)
   const [seconds, setSeconds] = useState(75)
   const [answer, setAnswer] = useState('')
@@ -57,8 +58,10 @@ export function Game({ onExit }: { onExit: () => void }) {
   const [result, setResult] = useState<ScoreBreakdown | null>(null)
   const [history, setHistory] = useState<RoundResult[]>([])
   const [finished, setFinished] = useState(false)
-  const scene = mythScenes[round]
-  const maximumScore = mythScenes.length * 10_000
+  const scene = scenes[round]
+  const maximumScore = scenes.length * 10_000
+  const bestScoreKey = mode === 'odyssey' ? 'mythos-best-score-odyssey' : 'mythos-best-score'
+  const journeyLabel = mode === 'odyssey' ? 'ODYSSEY' : 'ORACLE'
 
   useEffect(() => {
     if (result || finished) return
@@ -84,6 +87,7 @@ export function Game({ onExit }: { onExit: () => void }) {
       correctAnswer: scene.title,
       guess,
       target: scene.coordinates,
+      fullCreditRadiusKm: scene.accuracyRadiusKm,
       secondsLeft: seconds,
       cluesUsed,
     }))
@@ -92,12 +96,12 @@ export function Game({ onExit }: { onExit: () => void }) {
   function nextRound() {
     if (!result) return
     const nextHistory = [...history, { sceneId: scene.id, breakdown: result }]
-    if (round === mythScenes.length - 1) {
+    if (round === scenes.length - 1) {
       setHistory(nextHistory)
       setFinished(true)
       const finalScore = nextHistory.reduce((sum, item) => sum + item.breakdown.total, 0)
-      const best = Number(localStorage.getItem('mythos-best-score') || 0)
-      if (finalScore > best) localStorage.setItem('mythos-best-score', String(finalScore))
+      const best = Number(localStorage.getItem(bestScoreKey) || 0)
+      if (finalScore > best) localStorage.setItem(bestScoreKey, String(finalScore))
       return
     }
     setHistory(nextHistory)
@@ -110,6 +114,7 @@ export function Game({ onExit }: { onExit: () => void }) {
   }
 
   function restart() {
+    setScenes(createGameDeck(mode))
     setRound(0)
     setSeconds(75)
     setAnswer('')
@@ -128,13 +133,13 @@ export function Game({ onExit }: { onExit: () => void }) {
         <div className="results-screen__sun" aria-hidden="true" />
         <Logo inverse />
         <div className="results-card">
-          <span className="kicker kicker--gold"><Trophy size={14} /> ORACLE COMPLETE</span>
+          <span className="kicker kicker--gold"><Trophy size={14} /> {mode === 'odyssey' ? 'ODYSSEUS’ ROUTE COMPLETE' : 'ORACLE COMPLETE'}</span>
           <h1>Fate will<br /><em>remember you.</em></h1>
           <p className="results-card__score">{formatScore(finalScore)} <small>/ {formatScore(maximumScore)}</small></p>
           <div className="results-card__stats">
-            <span><strong>{correct}/{mythScenes.length}</strong><small>Myths identified</small></span>
+            <span><strong>{correct}/{scenes.length}</strong><small>Myths identified</small></span>
             <span><strong>{Math.round((finalScore / maximumScore) * 100)}%</strong><small>Mastery</small></span>
-            <span><strong>{formatScore(Number(localStorage.getItem('mythos-best-score') || finalScore))}</strong><small>Personal best</small></span>
+            <span><strong>{formatScore(Number(localStorage.getItem(bestScoreKey) || finalScore))}</strong><small>Personal best</small></span>
           </div>
           <div className="results-card__rounds">
             {history.map((item, index) => (
@@ -156,8 +161,8 @@ export function Game({ onExit }: { onExit: () => void }) {
         <button className="icon-button icon-button--dark" onClick={onExit} aria-label="Exit game"><X size={19} /></button>
         <Logo inverse />
         <div className="game-topbar__progress">
-          <span>ORACLE {round + 1} / {mythScenes.length}</span>
-          <div>{mythScenes.map((item, index) => <i key={item.id} className={index <= round ? 'is-active' : ''} />)}</div>
+          <span>{journeyLabel} {round + 1} / {scenes.length}</span>
+          <div>{scenes.map((item, index) => <i key={item.id} className={index <= round ? 'is-active' : ''} />)}</div>
         </div>
         <span className={`game-timer ${seconds < 16 ? 'is-urgent' : ''}`}><Timer size={16} /> 00:{String(seconds).padStart(2, '0')}</span>
         <strong className="game-score">{formatScore(total)} <small>OP</small></strong>
@@ -209,7 +214,9 @@ export function Game({ onExit }: { onExit: () => void }) {
                 <div className="map-choice">
                   <h2>Where are you on the ancient map?</h2>
                   <MythMap interactive guess={guess} onGuess={setGuess} />
-                  <p>{guess ? 'Click again to move your pin. You can pan and zoom at any time.' : 'Pan, zoom, then place a pin on the map.'}</p>
+                  <p>{guess
+                    ? 'Click again to move your pin. Exact coordinates are not required; a regional circle can earn full points.'
+                    : 'Pan, zoom, then place a pin. Each myth accepts a full-credit region, not one exact coordinate.'}</p>
                 </div>
               </div>
               <div className="guess-panel__footer">
@@ -234,11 +241,18 @@ export function Game({ onExit }: { onExit: () => void }) {
                 <p>{scene.reveal}</p>
                 <small>
                   {scene.geographyNote}<br />
+                  Full geography credit is awarded within {scene.accuracyRadiusKm} km of the reference point.<br />
                   {scene.source}<br />{scene.sourceNote}
                   {scene.pleiadesUrl && <><br /><a href={scene.pleiadesUrl} target="_blank" rel="noreferrer">Open the Pleiades place record ↗</a></>}
                 </small>
               </div>
-              <MythMap guess={guess} target={scene.coordinates} targetConfidence={scene.mapConfidence} reveal />
+              <MythMap
+                guess={guess}
+                target={scene.coordinates}
+                targetRadiusKm={scene.accuracyRadiusKm}
+                targetConfidence={scene.mapConfidence}
+                reveal
+              />
               <div className="score-table">
                 <div><span>Myth</span><strong>{formatScore(result.recognition)}</strong><small>/ 3,500</small></div>
                 <div><span>Geography</span><strong>{formatScore(result.geography)}</strong><small>/ 4,000</small></div>
@@ -247,7 +261,7 @@ export function Game({ onExit }: { onExit: () => void }) {
                 <div className="score-table__total"><span>Round total</span><strong>{formatScore(result.total)}</strong><small>OP · {Math.round(result.distance)} km away</small></div>
               </div>
               <button className="button button--gold round-result__next" onClick={nextRound}>
-                {round === mythScenes.length - 1 ? 'See final score' : 'Next oracle'} <ChevronRight size={18} />
+                {round === scenes.length - 1 ? 'See final score' : 'Next oracle'} <ChevronRight size={18} />
               </button>
             </div>
           )}
@@ -260,6 +274,7 @@ export function Game({ onExit }: { onExit: () => void }) {
 export function IconForMode({ type }: { type: string }) {
   if (type === 'daily') return <Sparkles />
   if (type === 'journey') return <Compass />
+  if (type === 'odyssey') return <Map />
   if (type === 'duel') return <Swords />
   return <BookOpen />
 }
