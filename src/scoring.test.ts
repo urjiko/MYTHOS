@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { scoreRound } from './scoring'
+import { mythScenes } from './data'
+import { haversineDistanceKm, scoreRound } from './scoring'
 
-const target = { x: 47, y: 79 }
+const target = { lat: 35.2989, lng: 25.1603 }
 
 describe('MYTHOS scoring', () => {
   it('awards the full 10,000 points for a perfect unaided answer', () => {
     expect(scoreRound({
-      answer: 'Theseus ve Minotor',
-      correctAnswer: 'Theseus ve Minotor',
+      answer: 'Theseus and the Minotaur',
+      correctAnswer: 'Theseus and the Minotaur',
       guess: target,
       target,
       secondsLeft: 75,
@@ -17,8 +18,8 @@ describe('MYTHOS scoring', () => {
 
   it('does not award recognition points for the wrong myth', () => {
     const result = scoreRound({
-      answer: 'Yanlış cevap',
-      correctAnswer: 'Theseus ve Minotor',
+      answer: 'Wrong answer',
+      correctAnswer: 'Theseus and the Minotaur',
       guess: target,
       target,
       secondsLeft: 75,
@@ -31,10 +32,10 @@ describe('MYTHOS scoring', () => {
 
   it('reduces geography points smoothly with distance', () => {
     const near = scoreRound({
-      answer: '', correctAnswer: 'x', guess: { x: 50, y: 79 }, target, secondsLeft: 0, cluesUsed: 3,
+      answer: '', correctAnswer: 'x', guess: { lat: 35.5, lng: 25.2 }, target, secondsLeft: 0, cluesUsed: 3,
     })
     const far = scoreRound({
-      answer: '', correctAnswer: 'x', guess: { x: 5, y: 5 }, target, secondsLeft: 0, cluesUsed: 3,
+      answer: '', correctAnswer: 'x', guess: { lat: 41.9, lng: -7 }, target, secondsLeft: 0, cluesUsed: 3,
     })
 
     expect(near.geography).toBeGreaterThan(far.geography)
@@ -45,5 +46,19 @@ describe('MYTHOS scoring', () => {
     expect(scoreRound({
       answer: '', correctAnswer: 'x', guess: target, target, secondsLeft: 0, cluesUsed: 3,
     }).oracle).toBe(0)
+  })
+
+  it('measures real great-circle distance in kilometres', () => {
+    const athens = { lat: 37.9715, lng: 23.7267 }
+    const delphi = { lat: 38.4824, lng: 22.501 }
+    expect(haversineDistanceKm(athens, delphi)).toBeGreaterThan(110)
+    expect(haversineDistanceKm(athens, delphi)).toBeLessThan(140)
+  })
+
+  it('does not put every correct answer in the first slot', () => {
+    const answerSlots = mythScenes.map((scene) => scene.options.indexOf(scene.title))
+    expect(answerSlots.every((slot) => slot >= 0)).toBe(true)
+    expect(new Set(answerSlots).size).toBeGreaterThanOrEqual(4)
+    expect(answerSlots).not.toEqual(answerSlots.map(() => 0))
   })
 })

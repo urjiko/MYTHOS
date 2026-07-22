@@ -1,6 +1,6 @@
 # MYTHOS — Generated asset prompts
 
-All six images were generated with the built-in image generation tool. The five game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
+All seven images were generated with the built-in image generation tool. The six game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
 
 ## Mandatory 360° projection contract
 
@@ -35,3 +35,7 @@ Every game-scene prompt begins with this contract:
 ## `scene-prometheus.webp`
 
 > Clandestine first-person view through the sacred workshops and terraces of Olympus as Prometheus carries a stolen ember toward the mortal world. Severe high-altitude sanctuary and bronze forge terraces above clouds at night. A tall robed Titan seen from behind conceals a bright coal inside a hollow giant fennel stalk; an unattended divine brazier glows behind him; an eagle silhouette waits in storm clouds. Secretive midnight blue with concentrated ember orange.
+
+## `scene-apollo-python.webp`
+
+> Delphi at sacred dawn, seen from the centre of a continuous sanctuary terrace beneath the Phaedriades cliffs. A youthful, fully robed Apollo stands at a respectful distance with a lowered bow, near a laurel tree, bronze tripod, omphalos stone, and smoking altar. The great serpent Python coils through a dark rocky cleft on the opposite side of the panorama, visible but not graphic. Archaeologically inspired archaic stonework, sparse painted architectural details, mountain valley beyond, austere golden light. The clues must be distributed around the sphere so the player has to turn; no combat, blood, close-up portrait, Roman statuary, fantasy armour, text, or modern reconstruction signage.

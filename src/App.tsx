@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import { collections } from './data'
+import { collections, mythScenes } from './data'
 import {
   ArrowRight,
-  BookOpen,
   Compass,
   Game,
   IconForMode,
@@ -12,18 +11,18 @@ import {
   MythMap,
   Ornament,
   Sparkles,
-  Swords,
-  Trophy,
   X,
 } from './components'
 
 type View = 'home' | 'game' | 'atlas' | 'archive'
 
+const maximumScore = mythScenes.length * 10_000
+
 const modes = [
-  { type: 'daily', title: 'Günün Kehaneti', note: 'Her gün aynı beş mit. Tek şans, tek skor.', badge: 'YENİ' },
-  { type: 'journey', title: 'Klasik Yolculuk', note: 'Beş rastgele sahne. Kaderini özgürce dene.' },
-  { type: 'duel', title: 'Tanrıların Düellosu', note: 'İkinci fazda canlı 1v1 karşılaşmalar.', badge: 'YAKINDA' },
-  { type: 'archive', title: 'Mit Kütüphanesi', note: 'Tanrıları, kahramanları ve yaratıkları keşfet.' },
+  { type: 'daily', title: 'Daily Oracle', note: 'The same six myths for everyone. One chance, one score.', badge: 'NEW' },
+  { type: 'journey', title: 'Classic Journey', note: 'Six panoramic scenes. Follow fate at your own pace.' },
+  { type: 'duel', title: 'Duel of the Gods', note: 'Live one-on-one encounters planned for a later chapter.', badge: 'SOON' },
+  { type: 'archive', title: 'Myth Archive', note: 'Explore gods, heroes, monsters, and ancient sources.' },
 ]
 
 function FateDisk() {
@@ -31,7 +30,7 @@ function FateDisk() {
     <div className="fate-disk" aria-hidden="true">
       <div className="fate-disk__aura" />
       <div className="fate-disk__orbit fate-disk__orbit--outer">
-        <span>OLYMPOS</span><span>DELPHI</span><span>TROIA</span><span>KNOSSOS</span>
+        <span>OLYMPUS</span><span>DELPHI</span><span>TROIA</span><span>KNOSSOS</span>
       </div>
       <div className="fate-disk__orbit fate-disk__orbit--middle" />
       <div className="fate-disk__face">
@@ -42,9 +41,9 @@ function FateDisk() {
         <span className="fate-disk__symbol fate-disk__symbol--four">☾</span>
         <div className="fate-disk__eye"><i /></div>
       </div>
-      <span className="fate-pin fate-pin--one"><i />Olimpos</span>
-      <span className="fate-pin fate-pin--two"><i />Truva</span>
-      <span className="fate-pin fate-pin--three"><i />Girit</span>
+      <span className="fate-pin fate-pin--one"><i />Olympus</span>
+      <span className="fate-pin fate-pin--two"><i />Troy</span>
+      <span className="fate-pin fate-pin--three"><i />Crete</span>
     </div>
   )
 }
@@ -54,13 +53,13 @@ function Header({ onNavigate }: { onNavigate: (view: View) => void }) {
   return (
     <header className="site-header">
       <button className="logo-button" onClick={() => onNavigate('home')}><Logo /></button>
-      <nav className={open ? 'is-open' : ''} aria-label="Ana navigasyon">
-        <button onClick={() => { onNavigate('archive'); setOpen(false) }}>Kütüphane</button>
+      <nav className={open ? 'is-open' : ''} aria-label="Primary navigation">
+        <button onClick={() => { onNavigate('archive'); setOpen(false) }}>Archive</button>
         <button onClick={() => { onNavigate('atlas'); setOpen(false) }}>Atlas</button>
-        <a href="#manifesto" onClick={() => setOpen(false)}>Hakkında</a>
-        <button className="nav-play" onClick={() => { onNavigate('game'); setOpen(false) }}><Sparkles size={15} /> Kehanete başla</button>
+        <a href="#manifesto" onClick={() => setOpen(false)}>About</a>
+        <button className="nav-play" onClick={() => { onNavigate('game'); setOpen(false) }}><Sparkles size={15} /> Begin the oracle</button>
       </nav>
-      <button className="mobile-menu" onClick={() => setOpen(!open)} aria-label="Menüyü aç veya kapat">
+      <button className="mobile-menu" onClick={() => setOpen(!open)} aria-label="Open or close menu">
         {open ? <X /> : <Menu />}
       </button>
     </header>
@@ -78,32 +77,32 @@ function Home({ onNavigate }: { onNavigate: (view: View) => void }) {
         <section className="hero">
           <div className="hero__noise" />
           <div className="hero__copy">
-            <span className="kicker"><span className="kicker__line" /> İLK KEHANET SENİ BEKLİYOR</span>
-            <h1>Efsanenin<br /><em>içine gir.</em></h1>
-            <p>Tanrıların, kahramanların ve canavarların dünyasına adım at. İpuçlarını oku, miti tanı ve kadim haritadaki yerini bul.</p>
+            <span className="kicker"><span className="kicker__line" /> YOUR FIRST ORACLE AWAITS</span>
+            <h1>Enter the<br /><em>legend.</em></h1>
+            <p>Step into the world of gods, heroes, and monsters. Read the clues, identify the myth, and place it on the ancient map.</p>
             <div className="hero__actions">
               <button className="button button--terracotta" onClick={() => onNavigate('game')}>
-                Kehanete başla <ArrowRight size={17} />
+                Begin the oracle <ArrowRight size={17} />
               </button>
               <button className="button button--ghost" onClick={() => onNavigate('atlas')}>
-                Mitolojik atlas <Map size={17} />
+                Mythic atlas <Map size={17} />
               </button>
             </div>
             <div className="hero__meta">
-              <span><strong>5</strong> sahne / oyun</span>
-              <span><strong>50.000</strong> azami KP</span>
-              <span><strong>{best ? best.toLocaleString('tr-TR') : '—'}</strong> kişisel rekor</span>
+              <span><strong>{mythScenes.length}</strong> scenes / game</span>
+              <span><strong>{maximumScore.toLocaleString('en-US')}</strong> max OP</span>
+              <span><strong>{best ? best.toLocaleString('en-US') : '—'}</strong> personal best</span>
             </div>
           </div>
           <div className="hero__visual"><FateDisk /></div>
-          <div className="hero__scroll"><span /> AŞAĞI İN</div>
+          <div className="hero__scroll"><span /> DESCEND</div>
         </section>
 
         <section className="modes section-shell">
           <div className="section-heading">
-            <span className="kicker">KADERİNİ SEÇ</span>
-            <h2>Her yolculuk bir<br /><em>kehanetle başlar.</em></h2>
-            <p>İlk sürümde klasik ve günlük oyun aynı sağlam puanlama çekirdeğini kullanıyor. Düello, oyuncu tabanı oluşmadan eklenmeyecek.</p>
+            <span className="kicker">CHOOSE YOUR FATE</span>
+            <h2>Every journey begins<br /><em>with an oracle.</em></h2>
+            <p>The prototype turns close reading, spatial reasoning, and primary sources into one continuous journey through Greek myth.</p>
           </div>
           <div className="mode-grid">
             {modes.map((mode, index) => (
@@ -126,15 +125,15 @@ function Home({ onNavigate }: { onNavigate: (view: View) => void }) {
         <section className="collections">
           <div className="section-shell">
             <div className="section-heading section-heading--row">
-              <div><span className="kicker">MİT KÜTÜPHANESİ</span><h2>Ölümsüz hikâyeler,<br /><em>ölümlü zaaflar.</em></h2></div>
-              <button className="text-link" onClick={() => onNavigate('archive')}>Tüm koleksiyonu gör <ArrowRight size={16} /></button>
+              <div><span className="kicker">MYTH ARCHIVE</span><h2>Immortal stories,<br /><em>mortal flaws.</em></h2></div>
+              <button className="text-link" onClick={() => onNavigate('archive')}>View every collection <ArrowRight size={16} /></button>
             </div>
             <div className="collection-grid">
               {collections.map((collection) => (
                 <article className="collection-card" key={collection.title} style={{ '--accent': collection.color } as React.CSSProperties}>
                   <img src={collection.art} alt="" onError={(event) => { event.currentTarget.style.display = 'none' }} />
                   <div className="collection-card__veil" />
-                  <span>{collection.count} ANLATI</span>
+                  <span>{collection.count} STORIES</span>
                   <div><h3>{collection.title}</h3><p>{collection.note}</p></div>
                   <ArrowRight />
                 </article>
@@ -145,29 +144,29 @@ function Home({ onNavigate }: { onNavigate: (view: View) => void }) {
 
         <section className="atlas-preview section-shell">
           <div className="atlas-preview__copy">
-            <span className="kicker">KUTSAL COĞRAFYA</span>
-            <h2>Efsaneler boşlukta<br /><em>yaşanmadı.</em></h2>
-            <p>Olimpos’tan Truva’ya, Delfi’den Girit’e… Her anlatı bir dağın, adanın veya kentin hafızasına bağlandı. Haritadaki noktaları açarak birbirine geçen mitleri izle.</p>
+            <span className="kicker">SACRED GEOGRAPHY</span>
+            <h2>Legends did not<br /><em>live in a void.</em></h2>
+            <p>From Olympus to Troy and Delphi to Crete, each story gathers around a mountain, island, sanctuary, or city. Zoom, pan, and open the sites to explore their ancient context.</p>
             <div className="atlas-preview__stats">
-              <span><strong>08</strong><small>Başlangıç noktası</small></span>
-              <span><strong>05</strong><small>Oynanabilir mit</small></span>
-              <span><strong>01</strong><small>Yaşayan atlas</small></span>
+              <span><strong>12</strong><small>Mapped places</small></span>
+              <span><strong>06</strong><small>Playable myths</small></span>
+              <span><strong>01</strong><small>Living atlas</small></span>
             </div>
-            <button className="button button--ink" onClick={() => onNavigate('atlas')}>Atlası keşfet <Compass size={17} /></button>
+            <button className="button button--ink" onClick={() => onNavigate('atlas')}>Explore the atlas <Compass size={17} /></button>
           </div>
           <div className="atlas-preview__map">
             <div className="browser-bar"><i /><i /><i /><span>MYTHOS / ATLAS</span></div>
-            <MythMap />
-            <span className="atlas-preview__legend">TANRILAR · KAHRAMANLAR · YARATIKLAR</span>
+            <MythMap showRoute />
+            <span className="atlas-preview__legend">GODS · HEROES · MONSTERS</span>
           </div>
         </section>
 
         <section className="manifesto" id="manifesto">
           <Ornament />
           <span className="manifesto__symbol">Ω</span>
-          <blockquote>“Mitler geçmişte kalmış yalanlar değil;<br /><em>insanın kendine anlattığı en eski gerçeklerdir.</em>”</blockquote>
-          <p>MYTHOS; Yunan mitolojisini bir ezber listesi olmaktan çıkarıp keşfedilebilir, oynanabilir ve kaynakları görülebilir bir dünyaya dönüştürür.</p>
-          <button className="button button--gold" onClick={() => onNavigate('game')}>İlk kehanetini yap <ArrowRight size={17} /></button>
+          <blockquote>“Myths are not lies left in the past;<br /><em>they are the oldest truths we tell ourselves.</em>”</blockquote>
+          <p>MYTHOS turns Greek mythology from a list to memorise into a world to explore, play, question, and trace back to its sources.</p>
+          <button className="button button--gold" onClick={() => onNavigate('game')}>Make your first oracle <ArrowRight size={17} /></button>
         </section>
       </main>
       <Footer onNavigate={onNavigate} />
@@ -180,21 +179,21 @@ function AtlasPage({ onNavigate }: { onNavigate: (view: View) => void }) {
     <div className="inner-page">
       <Header onNavigate={onNavigate} />
       <main className="inner-page__main section-shell">
-        <span className="kicker">KUTSAL COĞRAFYA</span>
-        <h1>Mitolojik <em>Atlas</em></h1>
-        <p className="inner-page__lede">Tarihî kesinlik iddiası değil; antik metinlerde ve sonraki gelenekte oluşan mitolojik coğrafyanın yaşayan bir taslağı.</p>
+        <span className="kicker">SACRED GEOGRAPHY</span>
+        <h1>Mythic <em>Atlas</em></h1>
+        <p className="inner-page__lede">A navigable map built from real coastlines and ancient place records—not modern borders. Attested sites, later traditions, and purely mythic placements are identified as such.</p>
         <div className="atlas-page__layout">
-          <MythMap />
+          <MythMap showRoute />
           <aside>
-            <span>SEÇİLİ ROTA</span>
-            <h2>Odysseus’un dönüşü</h2>
-            <p>Truva’dan İthaka’ya uzanan rota, gerçek bir seyir haritası değildir. Antik coğrafya, şiir ve yüzyıllar boyunca yapılan yorumlar burada üst üste gelir.</p>
+            <span>SELECTED ROUTE</span>
+            <h2>Odysseus returns</h2>
+            <p>The route from Troy to Ithaca is not a literal sailing chart. Ancient geography, epic poetry, and centuries of interpretation overlap here.</p>
             <ol>
-              <li><i>01</i> Truva <small>Savaşın sonu</small></li>
-              <li><i>02</i> Siren Kayalıkları <small>Yasak şarkı</small></li>
-              <li><i>03</i> İthaka <small>Eve dönüş</small></li>
+              <li><i>01</i> Troy <small>The war ends</small></li>
+              <li><i>02</i> Siren Rocks <small>The forbidden song</small></li>
+              <li><i>03</i> Ithaca <small>The homecoming</small></li>
             </ol>
-            <button className="button button--terracotta" onClick={() => onNavigate('game')}>Rotayı oyna <ArrowRight size={17} /></button>
+            <button className="button button--terracotta" onClick={() => onNavigate('game')}>Play the route <ArrowRight size={17} /></button>
           </aside>
         </div>
       </main>
@@ -208,20 +207,20 @@ function ArchivePage({ onNavigate }: { onNavigate: (view: View) => void }) {
     <div className="inner-page">
       <Header onNavigate={onNavigate} />
       <main className="inner-page__main section-shell">
-        <span className="kicker">MİT KÜTÜPHANESİ</span>
-        <h1>Kadim <em>anlatılar</em></h1>
-        <p className="inner-page__lede">Şimdilik beş oynanabilir anlatı var. Yeni panorama eklendikçe kütüphane büyüyecek; boş kartlarla kalabalık görünmeye çalışmayacak.</p>
+        <span className="kicker">MYTH ARCHIVE</span>
+        <h1>Ancient <em>stories</em></h1>
+        <p className="inner-page__lede">Six playable stories now form the first chapter. The archive will grow as new panoramic scenes are researched and produced.</p>
         <div className="archive-page__filters">
-          <button className="is-active">Tümü</button><button>Tanrılar</button><button>Kahramanlar</button><button>Canavarlar</button><button>Truva</button>
+          <button className="is-active">All</button><button>Gods</button><button>Heroes</button><button>Monsters</button><button>Troy</button>
         </div>
         <div className="archive-page__grid">
           {collections.map((collection, index) => (
             <article key={collection.title} style={{ '--accent': collection.color } as React.CSSProperties}>
               <div><img src={collection.art} alt="" onError={(event) => { event.currentTarget.style.display = 'none' }} /><span>0{index + 1}</span></div>
-              <small>{collection.count} PLANLANAN ANLATI</small>
+              <small>{collection.count} PLANNED STORIES</small>
               <h2>{collection.title}</h2>
               <p>{collection.note}</p>
-              <button onClick={() => onNavigate('game')}>İlk sahneyi oyna <ArrowRight size={15} /></button>
+              <button onClick={() => onNavigate('game')}>Play the first scene <ArrowRight size={15} /></button>
             </article>
           ))}
         </div>
@@ -234,9 +233,9 @@ function ArchivePage({ onNavigate }: { onNavigate: (view: View) => void }) {
 function Footer({ onNavigate }: { onNavigate: (view: View) => void }) {
   return (
     <footer className="site-footer">
-      <div><Logo inverse /><p>Yunan mitolojisini keşfetmenin oynanabilir yolu.</p></div>
-      <nav><button onClick={() => onNavigate('game')}>Oyna</button><button onClick={() => onNavigate('atlas')}>Atlas</button><button onClick={() => onNavigate('archive')}>Kütüphane</button><a href="#manifesto">Hakkında</a></nav>
-      <span>MYTHOS · PROTOTİP 0.1<br />ÖZGÜN GÖRSEL VE KOD</span>
+      <div><Logo inverse /><p>A playable way to explore Greek mythology.</p></div>
+      <nav><button onClick={() => onNavigate('game')}>Play</button><button onClick={() => onNavigate('atlas')}>Atlas</button><button onClick={() => onNavigate('archive')}>Archive</button><a href="#manifesto">About</a></nav>
+      <span>MYTHOS · PROTOTYPE 0.2<br />ORIGINAL ART &amp; CODE</span>
     </footer>
   )
 }

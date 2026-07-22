@@ -60,7 +60,7 @@ export function SphereViewer({ scene }: { scene: MythScene }) {
     }
 
     renderer.outputColorSpace = THREE.SRGBColorSpace
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75))
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
     host.appendChild(renderer.domElement)
 
     const world = new THREE.Scene()
@@ -124,7 +124,7 @@ export function SphereViewer({ scene }: { scene: MythScene }) {
         texture.wrapS = THREE.RepeatWrapping
         texture.minFilter = THREE.LinearMipmapLinearFilter
         texture.magFilter = THREE.LinearFilter
-        texture.anisotropy = Math.min(8, renderer?.capabilities.getMaxAnisotropy() ?? 1)
+        texture.anisotropy = Math.min(16, renderer?.capabilities.getMaxAnisotropy() ?? 1)
         material.map = texture
         material.needsUpdate = true
         sphere.visible = true
@@ -155,7 +155,7 @@ export function SphereViewer({ scene }: { scene: MythScene }) {
       className={`scene-viewer scene-viewer--${status}`}
       style={{ '--scene-fallback': scene.fallback } as React.CSSProperties}
       role="application"
-      aria-label={`${scene.title}: 360 derece küresel sahne. Bakmak için sürükle; ok tuşları ve artı eksi ile de kontrol edebilirsin.`}
+      aria-label={`${scene.title}: immersive 360-degree spherical scene. Drag to look around, or use the arrow and plus/minus keys.`}
       tabIndex={0}
       onPointerDown={(event) => {
         if ((event.target as HTMLElement).closest('button')) return
@@ -209,17 +209,17 @@ export function SphereViewer({ scene }: { scene: MythScene }) {
       <div ref={canvasHost} className="scene-viewer__canvas" aria-hidden="true" />
       <div className="scene-viewer__vignette" />
 
-      {status === 'loading' && <div className="scene-viewer__status">Küre hazırlanıyor…</div>}
-      {status === 'error' && <div className="scene-viewer__status">WebGL açılamadı · düz önizleme gösteriliyor</div>}
+      {status === 'loading' && <div className="scene-viewer__status">Preparing the sphere…</div>}
+      {status === 'error' && <div className="scene-viewer__status">WebGL unavailable · showing a flat preview</div>}
 
-      <div className="scene-viewer__drag"><Eye size={16} /> 360° · sürükle ve etrafına bak</div>
+      <div className="scene-viewer__drag"><Eye size={16} /> 360° · drag to look around</div>
       <div className="scene-viewer__compass" aria-hidden="true">
         <span>{String(heading).padStart(3, '0')}°</span><i style={{ transform: `rotate(${heading}deg)` }} />
       </div>
-      <div className="scene-viewer__zoom" aria-label="Yakınlaştırma kontrolleri">
-        <button type="button" onClick={() => updateView({ fov: view.current.fov + 6 })} aria-label="Uzaklaştır"><Minus size={15} /></button>
+      <div className="scene-viewer__zoom" aria-label="Zoom controls">
+        <button type="button" onClick={() => updateView({ fov: view.current.fov + 6 })} aria-label="Zoom out"><Minus size={15} /></button>
         <span>{fov}°</span>
-        <button type="button" onClick={() => updateView({ fov: view.current.fov - 6 })} aria-label="Yakınlaştır"><Plus size={15} /></button>
+        <button type="button" onClick={() => updateView({ fov: view.current.fov - 6 })} aria-label="Zoom in"><Plus size={15} /></button>
       </div>
     </div>
   )

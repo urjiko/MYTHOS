@@ -896,87 +896,193 @@ img {
   width: 100%;
   aspect-ratio: 1.62;
   overflow: hidden;
-  background: #bad8d2;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(229, 242, 230, 0.42), transparent 32%),
+    linear-gradient(145deg, #aacbc7, #8fb7b6);
   user-select: none;
 }
 
-.myth-map--interactive {
-  cursor: crosshair;
-}
-
-.myth-map__land {
+.myth-map__leaflet {
   position: absolute;
+  z-index: 1;
   inset: 0;
   width: 100%;
   height: 100%;
+  background: transparent;
+  font-family: var(--sans);
 }
 
-.myth-map__sea {
-  fill: #b9d7d1;
+.myth-map--interactive .myth-map__leaflet {
+  cursor: crosshair;
 }
 
-.myth-map__waves {
-  fill: none;
-  stroke: rgba(29, 102, 112, 0.13);
-  stroke-width: 1.2;
+.myth-map .leaflet-map-pane { z-index: 1; }
+.myth-map .leaflet-control-container { position: relative; z-index: 9; }
+
+.myth-map .leaflet-control-zoom {
+  overflow: hidden;
+  border: 1px solid rgba(25, 24, 19, 0.25);
+  border-radius: 2px;
+  box-shadow: 0 5px 16px rgba(25, 24, 19, 0.15);
 }
 
-.myth-map__coast,
-.myth-map__island {
-  fill: #d7c99f;
-  stroke: rgba(25, 24, 19, 0.52);
-  stroke-width: 2;
+.myth-map .leaflet-control-zoom a {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: rgba(247, 240, 223, 0.94);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1;
 }
 
-.myth-map__place,
-.myth-map__guess,
-.myth-map__target {
-  position: absolute;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transform: translate(-50%, -50%);
+.myth-map .leaflet-control-zoom a:last-child { border-bottom: 0; }
+.myth-map .leaflet-control-zoom a:hover { background: var(--paper-light); color: var(--terracotta); }
+
+.myth-map .leaflet-control-scale-line {
+  border-color: rgba(25, 24, 19, 0.65);
+  border-top: 0;
+  background: rgba(247, 240, 223, 0.72);
+  color: var(--ink);
+  font-size: 8px;
+  letter-spacing: 0.05em;
+}
+
+.myth-map .leaflet-control-attribution {
+  max-width: min(58%, 360px);
+  padding: 2px 5px;
+  background: rgba(247, 240, 223, 0.78);
+  color: rgba(25, 24, 19, 0.65);
+  font-size: 7px;
+}
+
+.myth-map .leaflet-control-attribution a { color: #6f3326; }
+
+.ancient-map__land {
+  filter: drop-shadow(0 2px 2px rgba(25, 24, 19, 0.12));
+}
+
+.ancient-map__graticule {
+  stroke-dasharray: 1 5;
+}
+
+.ancient-map__region {
+  background: transparent;
+  border: 0;
+  color: rgba(64, 57, 45, 0.4);
+  font-family: var(--serif);
+  font-size: 9px;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-align: center;
+  text-shadow: 0 1px rgba(247, 240, 223, 0.7);
   white-space: nowrap;
 }
 
-.myth-map__place i {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--ink);
+.ancient-map__region--sea {
+  color: rgba(29, 87, 92, 0.46);
+  font-weight: 500;
+  letter-spacing: 0.2em;
 }
 
-.myth-map__place small,
-.myth-map__guess small,
-.myth-map__target small {
-  padding: 2px 4px;
-  background: rgba(247, 240, 223, 0.78);
-  font-family: var(--serif);
-  font-size: clamp(7px, 0.7vw, 10px);
-  font-weight: 600;
-}
-
-.myth-map__guess,
-.myth-map__target {
-  z-index: 5;
-  flex-direction: column;
-}
-
-.myth-map__guess > span,
-.myth-map__target > span {
+.ancient-map__site {
   display: grid;
-  width: 24px;
-  height: 24px;
+  place-items: center;
+  background: transparent;
+  border: 0;
+}
+
+.ancient-map__site span {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid rgba(247, 240, 223, 0.94);
+  border-radius: 50%;
+  background: var(--terracotta);
+  box-shadow: 0 1px 4px rgba(25, 24, 19, 0.35);
+}
+
+.ancient-map__site--traditional span { background: var(--gold); }
+.ancient-map__site--mythic span { background: var(--aegean, #1d6670); }
+
+.ancient-map__site-label,
+.ancient-map__answer-label {
+  padding: 1px 3px;
+  border: 0;
+  border-radius: 0;
+  background: rgba(247, 240, 223, 0.72);
+  box-shadow: none;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.ancient-map__site-label::before,
+.ancient-map__answer-label::before {
+  display: none;
+}
+
+.myth-map .leaflet-popup-content-wrapper,
+.myth-map .leaflet-popup-tip {
+  border-radius: 1px;
+  background: var(--paper-light);
+  color: var(--ink);
+}
+
+.myth-map .leaflet-popup-content-wrapper {
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 32px rgba(25, 24, 19, 0.22);
+}
+
+.myth-map .leaflet-popup-content {
+  min-width: 145px;
+  margin: 12px 14px;
+  font-family: var(--serif);
+  line-height: 1.35;
+}
+
+.myth-map .leaflet-popup-content strong,
+.myth-map .leaflet-popup-content small,
+.myth-map .leaflet-popup-content a {
+  display: block;
+}
+
+.myth-map .leaflet-popup-content strong { font-size: 16px; }
+.myth-map .leaflet-popup-content small { margin: 2px 0 7px; color: var(--ink-soft); font-family: var(--sans); font-size: 8px; }
+.myth-map .leaflet-popup-content a { color: var(--terracotta); font-size: 10px; }
+
+.ancient-map__route {
+  filter: drop-shadow(0 1px rgba(247, 240, 223, 0.7));
+}
+
+.ancient-map__pin {
+  background: transparent;
+  border: 0;
+}
+
+.ancient-map__pin span {
+  display: grid;
+  width: 25px;
+  height: 25px;
   place-items: center;
   border: 3px solid var(--paper-light);
   border-radius: 50% 50% 50% 0;
   background: var(--terracotta);
-  box-shadow: 0 3px 8px rgba(25, 24, 19, 0.3);
+  box-shadow: 0 4px 9px rgba(25, 24, 19, 0.34);
+  color: white;
+  font-size: 11px;
   transform: rotate(-45deg);
 }
 
-.myth-map__guess > span::after {
+.ancient-map__pin span::after {
   width: 5px;
   height: 5px;
   border-radius: 50%;
@@ -984,14 +1090,72 @@ img {
   content: '';
 }
 
-.myth-map__target > span {
-  background: var(--olive);
-  color: white;
+.ancient-map__pin--target span { background: var(--olive); }
+.ancient-map__pin--traditional span { background: var(--gold); }
+.ancient-map__pin--mythic span { background: #1d6670; }
+.ancient-map__pin--target span::after { display: none; }
+.ancient-map__pin--target span { transform: rotate(-45deg); }
+.ancient-map__pin--target span { font-weight: 700; }
+
+.myth-map__status {
+  position: absolute;
+  z-index: 8;
+  top: 50%;
+  left: 50%;
+  padding: 7px 10px;
+  background: rgba(247, 240, 223, 0.9);
+  color: var(--ink-soft);
+  font-family: var(--serif);
+  font-size: 11px;
+  transform: translate(-50%, -50%);
 }
 
-.myth-map__target > span svg {
-  transform: rotate(45deg);
+.myth-map__era {
+  position: absolute;
+  z-index: 8;
+  top: 10px;
+  left: 10px;
+  padding: 5px 7px;
+  border-left: 2px solid var(--terracotta);
+  background: rgba(247, 240, 223, 0.8);
+  color: rgba(25, 24, 19, 0.66);
+  font-size: 6px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  pointer-events: none;
 }
+
+.myth-map__key {
+  position: absolute;
+  z-index: 8;
+  top: 36px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: rgba(247, 240, 223, 0.74);
+  color: rgba(25, 24, 19, 0.7);
+  font-size: 6px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+
+.myth-map__key i {
+  width: 6px;
+  height: 6px;
+  margin-left: 3px;
+  border: 1px solid rgba(247, 240, 223, 0.9);
+  border-radius: 50%;
+  background: var(--terracotta);
+  box-shadow: 0 0 0 1px rgba(25, 24, 19, 0.15);
+}
+
+.myth-map__key i:first-child { margin-left: 0; }
+.myth-map__key .is-traditional { background: var(--gold); }
+.myth-map__key .is-mythic { background: #1d6670; }
 
 .manifesto {
   position: relative;
@@ -1626,7 +1790,7 @@ img {
   right: 18px;
   bottom: 18px;
   left: 18px;
-  min-height: 340px;
+  min-height: 390px;
   padding: 18px 20px;
   border: 1px solid rgba(247, 240, 223, 0.25);
   background: rgba(247, 240, 223, 0.96);
@@ -1687,10 +1851,16 @@ img {
 }
 
 .myth-choice button > span {
-  width: 9px;
-  height: 9px;
+  display: grid;
+  width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  place-items: center;
   border: 1px solid var(--ink);
   border-radius: 50%;
+  font-family: var(--sans);
+  font-size: 8px;
+  font-weight: 700;
 }
 
 .myth-choice button.is-selected {
@@ -1701,6 +1871,7 @@ img {
 .myth-choice button.is-selected > span {
   border: 2px solid var(--paper-light);
   background: var(--terracotta);
+  color: white;
   box-shadow: 0 0 0 1px var(--terracotta);
 }
 
@@ -1718,7 +1889,7 @@ img {
 .map-choice .myth-map {
   grid-row: 1 / 3;
   grid-column: 2;
-  height: 182px;
+  height: 230px;
   aspect-ratio: auto;
   border: 1px solid var(--line);
 }
@@ -1800,6 +1971,12 @@ img {
   color: rgba(25, 24, 19, 0.55);
   font-family: var(--serif);
   font-size: 11px;
+}
+
+.round-result__copy > small a {
+  color: var(--terracotta);
+  text-decoration-color: rgba(159, 67, 45, 0.4);
+  text-underline-offset: 2px;
 }
 
 .round-result > .myth-map {
@@ -2003,10 +2180,10 @@ img {
   .collection-card:last-child { grid-column: auto; }
   .atlas-preview { gap: 40px; }
   .game-topbar { grid-template-columns: 40px 150px 1fr auto auto; gap: 12px; }
-  .guess-panel { min-height: 370px; }
+  .guess-panel { min-height: 400px; }
   .guess-panel__columns { grid-template-columns: 1fr 1fr; }
   .map-choice { display: block; }
-  .map-choice .myth-map { height: 170px; }
+  .map-choice .myth-map { height: 205px; }
   .map-choice h2 { margin-bottom: 8px; }
   .map-choice > p { display: none; }
   .round-result { grid-template-columns: 1fr 0.8fr; }
@@ -2071,7 +2248,7 @@ img {
   .atlas-preview { display: flex; flex-direction: column; padding-block: 90px; }
   .atlas-preview__copy { width: 100%; }
   .atlas-preview__map { width: 100%; order: -1; }
-  .myth-map__place small { display: none; }
+  .ancient-map__site-label { font-size: 9px; }
   .manifesto { padding-block: 90px; }
   .site-footer { display: flex; flex-direction: column; align-items: flex-start; padding: 60px 24px; }
   .site-footer nav { flex-wrap: wrap; }
