@@ -1,6 +1,6 @@
 # MYTHOS — Generated asset prompts
 
-All ten images were generated with the built-in image generation tool. The nine game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
+All fourteen images were generated with the built-in image generation tool. The thirteen game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
 
 ## Mandatory 360° projection contract
 
@@ -39,6 +39,22 @@ Every game-scene prompt begins with this contract:
 ## `scene-apollo-python.webp`
 
 > Delphi at sacred dawn, seen from the centre of a continuous sanctuary terrace beneath the Phaedriades cliffs. A youthful, fully robed Apollo stands at a respectful distance with a lowered bow, near a laurel tree, bronze tripod, omphalos stone, and smoking altar. The great serpent Python coils through a dark rocky cleft on the opposite side of the panorama, visible but not graphic. Archaeologically inspired archaic stonework, sparse painted architectural details, mountain valley beyond, austere golden light. The clues must be distributed around the sphere so the player has to turn; no combat, blood, close-up portrait, Roman statuary, fantasy armour, text, or modern reconstruction signage.
+
+## `scene-cicones.webp`
+
+> Dawn on the Thracian shore outside Ismaros after the raid. The viewer stands among an overlong beach feast, beached archaic ships, abandoned armour and Maron’s sealed wine jar, while disciplined Cicones reinforcements descend from the distant hills. The clues are distributed around the full sphere; the mood shifts from careless victory to imminent reversal.
+
+## `scene-lotus-eaters.webp`
+
+> A peaceful North African island oasis traditionally associated with Djerba. Bowls of pale lotus fruit, untouched travel gear and dreamlike sailors occupy different directions, while determined companions pull one affected man back toward an archaic ship visible beyond the palms. Warm, seductive calm with no overt magic effects.
+
+## `scene-aeolus.webp`
+
+> Night aboard Odysseus’s ship within sight of home. An oxhide bag tied with a silver cord, an exhausted sleeping captain, suspicious whispering crew and Ithaca’s distant beacon are separated around the spherical deck. A released spiral of storm winds leads back toward a remote bronze-walled island; plausible archaic vessel and rigging, no pirate styling.
+
+## `scene-laestrygonians.webp`
+
+> The centre of Telepylus’s narrow, deceptively calm harbour. Most of the archaic fleet is trapped beneath sheer cliffs as immense distant silhouettes throw boulders, while one ship moored outside cuts its cable toward open sea. Continuous water, rock, sky and harbour geometry across every direction; menace through scale, without graphic violence.
 
 ## `scene-polyphemus.webp`
 

@@ -29,7 +29,7 @@ const modes: Array<{
   muted?: boolean
 }> = [
   { type: 'journey', title: 'Classic Journey', note: 'Six myths drawn from the full archive in a new order every game.', badge: 'RANDOM', gameMode: 'all' },
-  { type: 'odyssey', title: 'Odysseus’s Route', note: 'Only the Odyssey voyage: four encounters, shuffled on every run.', badge: 'NEW', gameMode: 'odyssey' },
+  { type: 'odyssey', title: 'Odysseus’s Route', note: 'Only the Odyssey voyage: eight encounters, shuffled on every run.', badge: 'NEW', gameMode: 'odyssey' },
   { type: 'duel', title: 'Duel of the Gods', note: 'Live one-on-one encounters planned for a later chapter.', badge: 'SOON', muted: true },
   { type: 'archive', title: 'Myth Archive', note: 'Explore gods, heroes, monsters, and ancient sources.', destination: 'archive' },
 ]
@@ -162,8 +162,8 @@ function Home({ onNavigate, onStartGame }: NavigationProps) {
             <h2>Legends did not<br /><em>live in a void.</em></h2>
             <p>From Olympus to Troy and Delphi to Crete, each story gathers around a mountain, island, sanctuary, or city. Zoom, pan, and open the sites to explore their ancient context.</p>
             <div className="atlas-preview__stats">
-              <span><strong>15</strong><small>Mapped places</small></span>
-              <span><strong>09</strong><small>Playable myths</small></span>
+              <span><strong>19</strong><small>Mapped places</small></span>
+              <span><strong>13</strong><small>Playable myths</small></span>
               <span><strong>01</strong><small>Living atlas</small></span>
             </div>
             <button className="button button--ink" onClick={() => onNavigate('atlas')}>Explore the atlas <Compass size={17} /></button>
@@ -204,11 +204,15 @@ function AtlasPage({ onNavigate, onStartGame }: NavigationProps) {
             <p>The route from Troy to Ithaca is not a literal sailing chart. Ancient geography, epic poetry, and centuries of interpretation overlap here.</p>
             <ol>
               <li><i>01</i> Troy <small>The war ends</small></li>
-              <li><i>02</i> Cyclopes’ Coast <small>Nobody and the giant</small></li>
-              <li><i>03</i> Aeaea <small>Circe’s enchantment</small></li>
-              <li><i>04</i> Siren Rocks <small>The forbidden song</small></li>
-              <li><i>05</i> Messina Strait <small>Two sea dangers</small></li>
-              <li><i>06</i> Ithaca <small>The homecoming</small></li>
+              <li><i>02</i> Ismaros <small>The Cicones strike back</small></li>
+              <li><i>03</i> Djerba <small>The lotus temptation</small></li>
+              <li><i>04</i> Cyclopes’ Coast <small>Nobody and the giant</small></li>
+              <li><i>05</i> Lipari <small>The bag of winds</small></li>
+              <li><i>06</i> Formiae <small>The fleet is shattered</small></li>
+              <li><i>07</i> Aeaea <small>Circe’s enchantment</small></li>
+              <li><i>08</i> Siren Rocks <small>The forbidden song</small></li>
+              <li><i>09</i> Messina Strait <small>Two sea dangers</small></li>
+              <li><i>10</i> Ithaca <small>The homecoming</small></li>
             </ol>
             <button className="button button--terracotta" onClick={() => onStartGame('odyssey')}>Play the route <ArrowRight size={17} /></button>
           </aside>
@@ -226,7 +230,7 @@ function ArchivePage({ onNavigate, onStartGame }: NavigationProps) {
       <main className="inner-page__main section-shell">
         <span className="kicker">MYTH ARCHIVE</span>
         <h1>Ancient <em>stories</em></h1>
-        <p className="inner-page__lede">Nine playable stories now form the first chapter. The archive will grow as new panoramic scenes are researched and produced.</p>
+        <p className="inner-page__lede">Thirteen playable stories now form the first chapter. The archive will grow as new panoramic scenes are researched and produced.</p>
         <div className="archive-page__filters">
           <button className="is-active">All</button><button>Gods</button><button>Heroes</button><button>Monsters</button><button>Troy</button>
         </div>
