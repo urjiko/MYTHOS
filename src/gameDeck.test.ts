@@ -14,7 +14,7 @@ describe('MYTHOS game decks', () => {
     const deck = createGameDeck('odyssey', () => 0.37)
     const odysseyCount = mythScenes.filter((scene) => scene.category === 'odyssey').length
 
-    expect(odysseyCount).toBe(8)
+    expect(odysseyCount).toBe(13)
     expect(deck).toHaveLength(odysseyCount)
     expect(deck.every((scene) => scene.category === 'odyssey')).toBe(true)
   })

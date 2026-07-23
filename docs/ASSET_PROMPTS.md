@@ -1,6 +1,6 @@
 # MYTHOS — Generated asset prompts
 
-All fourteen images were generated with the built-in image generation tool. The thirteen game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
+All twenty images were generated with the built-in image generation tool. The nineteen game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
 
 ## Mandatory 360° projection contract
 
@@ -67,3 +67,27 @@ Every game-scene prompt begins with this contract:
 ## `scene-scylla-charybdis.webp`
 
 > Deck-level centre of an archaic Greek ship entering a narrow storm-dark strait. On one side, a towering cliff and high cave suggest Scylla through multiple ambiguous canine shadows; on the other, Charybdis forms a vast coherent whirlpool drawing foam and driftwood downward. Six rowers react while the helmsman holds course. Bronze Age-inspired timber vessel and rigging, no pirate styling, no graphic violence, and continuous water, sky, mast, and deck across every direction.
+
+## `scene-underworld.webp`
+
+> A liminal shore beyond Oceanus beneath a lightless sky. Odysseus stands beside a ritual trench holding milk, honey, wine, water, and blood; shades gather in every direction while Tiresias approaches with a golden staff and Elpenor waits apart. Black poplars, pale asphodel, the beached ship, and Circe’s sacrificial animals build one continuous, solemn landscape without horror styling or graphic violence.
+
+## `scene-cattle-helios.webp`
+
+> Thrinacia before the fatal departure. Sacred white cattle and sheep graze across a storm-lit island under the immense presence of the Sun; Lampetia and Phaethusa watch from a distant ridge. The crew’s forbidden sacrifice, an oath-breaking feast, a beached archaic ship, and Zeus’s thunderhead are separated around the sphere. Divine warning rather than spectacle; no gore.
+
+## `scene-calypso.webp`
+
+> Ogygia as a lush island cave and shore in one continuous environment. Calypso’s loom and golden shuttle, four springs, Hermes delivering Zeus’s order, Odysseus grieving beside the water, and the tools and timbers of a half-built raft occupy different yaw directions. Beautiful but enclosing, with no romantic close-up or modern tropical-resort imagery.
+
+## `scene-phaeacians.webp`
+
+> Scheria at the river mouth where Nausicaa and her attendants wash clothes and pause their ball game. A shipwrecked Odysseus shelters discreetly among olive branches, while a mule cart, the distant palace of Alcinous, and a swift Phaeacian ship reward exploration around the sphere. Clear island daylight, archaic material culture, and no voyeuristic framing.
+
+## `scene-homecoming.webp`
+
+> The great hall on Ithaca at the instant before recognition. Odysseus in a beggar’s disguise handles the great bow; twelve aligned axe heads lead across the floor, suitors occupy the feast, Penelope’s loom stands beyond, and a living olive trunk anchors the marriage bed in an adjoining chamber. Argos and loyal household clues remain subtle; no graphic battle.
+
+## `scene-daphne.webp`
+
+> The Vale of Tempe along the river Peneus at the climax of Apollo and Daphne. Cupid’s golden and leaden arrows, Apollo’s abandoned bow, the river-god rising at a distance, and Daphne’s transformation from rooted feet to laurel branches are distributed around a coherent gorge. The metamorphosis is botanical and dignified, with no violence, nudity, or close-up fantasy portrait.

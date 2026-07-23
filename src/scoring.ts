@@ -14,6 +14,7 @@ const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max)
 
 const EARTH_RADIUS_KM = 6371.0088
+const GEOGRAPHY_DECAY_KM = 250
 
 export function haversineDistanceKm(a: Point, b: Point) {
   const radians = (degrees: number) => degrees * (Math.PI / 180)
@@ -47,7 +48,9 @@ export function scoreRound({
   const distance = haversineDistanceKm(guess, target)
   const scoredDistance = Math.max(0, distance - Math.max(0, fullCreditRadiusKm))
   const recognition = answer === correctAnswer ? 3500 : 0
-  const geography = scoredDistance === 0 ? 4000 : Math.round(4000 * Math.exp(-scoredDistance / 700))
+  const geography = scoredDistance === 0
+    ? 4000
+    : Math.round(4000 * Math.exp(-scoredDistance / GEOGRAPHY_DECAY_KM))
   const speed = Math.round(1500 * clamp(secondsLeft / 75, 0, 1))
   const oracle = cluesUsed === 0 ? 1000 : Math.max(0, 750 - (cluesUsed - 1) * 375)
   const total = recognition + geography + speed + oracle

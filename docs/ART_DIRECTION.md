@@ -25,7 +25,7 @@ MYTHOS uses cinematic spatial depth with an aged fresco and oil-paint surface. T
 
 ### Spherical format
 
-The thirteen game images are true monoscopic 2:1 equirectangular textures. Their 1774×887 source generations are delivered as 4096×2048 WebP files with high-quality resampling and light sharpening. Each covers 360° horizontally and 180° vertically, keeps the horizon near mid-height, and joins its left and right edges. The website maps each texture to the inside of a WebGL sphere with the camera at its centre.
+The nineteen game images are true monoscopic 2:1 equirectangular textures. Their 1774×887 source generations are delivered as 4096×2048 WebP files with high-quality resampling and light sharpening. Each covers 360° horizontally and 180° vertically, keeps the horizon near mid-height, and joins its left and right edges. The website maps each texture to the inside of a WebGL sphere with the camera at its centre.
 
 An asset is accepted only after these checks:
 
@@ -37,6 +37,6 @@ An asset is accepted only after these checks:
 
 ### Asset optimisation
 
-Source PNGs are converted to 4096×2048 WebP at quality 90. The thirteen sphere textures total roughly 5.7 MB, a deliberate increase over the original aggressively compressed set. Browser rendering uses mipmaps, linear filtering, up to 16× anisotropy, and a device-pixel-ratio cap of 2. The landing-page art remains a separate flat image.
+Source PNGs are converted to 4096×2048 WebP at quality 90. The nineteen sphere textures total roughly 9.0 MB, a deliberate increase over the original aggressively compressed set. Browser rendering uses mipmaps, linear filtering, up to 16× anisotropy, and a device-pixel-ratio cap of 2. The landing-page art remains a separate flat image.
 
 The 4K delivery pass reduces compression and sampling artefacts; it cannot recreate detail that was absent from the generated source. Native-4K generation or a dedicated projection-safe super-resolution pass remains a future upgrade.

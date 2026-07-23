@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { collections, mythScenes } from './data'
+import { atlasPlaces, collections, mythScenes } from './data'
 import { DEFAULT_ROUND_COUNT, type GameMode } from './gameDeck'
 import {
   ArrowRight,
@@ -18,6 +18,7 @@ import {
 type View = 'home' | 'game' | 'atlas' | 'archive'
 
 const maximumScore = DEFAULT_ROUND_COUNT * 10_000
+const odysseySceneCount = mythScenes.filter((scene) => scene.category === 'odyssey').length
 
 const modes: Array<{
   type: string
@@ -29,7 +30,7 @@ const modes: Array<{
   muted?: boolean
 }> = [
   { type: 'journey', title: 'Classic Journey', note: 'Six myths drawn from the full archive in a new order every game.', badge: 'RANDOM', gameMode: 'all' },
-  { type: 'odyssey', title: 'Odysseus’s Route', note: 'Only the Odyssey voyage: eight encounters, shuffled on every run.', badge: 'NEW', gameMode: 'odyssey' },
+  { type: 'odyssey', title: 'Odysseus’s Route', note: `Only the Odyssey voyage: ${odysseySceneCount} encounters, shuffled on every run.`, badge: 'NEW', gameMode: 'odyssey' },
   { type: 'duel', title: 'Duel of the Gods', note: 'Live one-on-one encounters planned for a later chapter.', badge: 'SOON', muted: true },
   { type: 'archive', title: 'Myth Archive', note: 'Explore gods, heroes, monsters, and ancient sources.', destination: 'archive' },
 ]
@@ -162,8 +163,8 @@ function Home({ onNavigate, onStartGame }: NavigationProps) {
             <h2>Legends did not<br /><em>live in a void.</em></h2>
             <p>From Olympus to Troy and Delphi to Crete, each story gathers around a mountain, island, sanctuary, or city. Zoom, pan, and open the sites to explore their ancient context.</p>
             <div className="atlas-preview__stats">
-              <span><strong>19</strong><small>Mapped places</small></span>
-              <span><strong>13</strong><small>Playable myths</small></span>
+              <span><strong>{atlasPlaces.length}</strong><small>Mapped places</small></span>
+              <span><strong>{mythScenes.length}</strong><small>Playable myths</small></span>
               <span><strong>01</strong><small>Living atlas</small></span>
             </div>
             <button className="button button--ink" onClick={() => onNavigate('atlas')}>Explore the atlas <Compass size={17} /></button>
@@ -210,9 +211,13 @@ function AtlasPage({ onNavigate, onStartGame }: NavigationProps) {
               <li><i>05</i> Lipari <small>The bag of winds</small></li>
               <li><i>06</i> Formiae <small>The fleet is shattered</small></li>
               <li><i>07</i> Aeaea <small>Circe’s enchantment</small></li>
-              <li><i>08</i> Siren Rocks <small>The forbidden song</small></li>
-              <li><i>09</i> Messina Strait <small>Two sea dangers</small></li>
-              <li><i>10</i> Ithaca <small>The homecoming</small></li>
+              <li><i>08</i> Acheron <small>Counsel from the dead</small></li>
+              <li><i>09</i> Siren Rocks <small>The forbidden song</small></li>
+              <li><i>10</i> Messina Strait <small>Two sea dangers</small></li>
+              <li><i>11</i> Thrinacia <small>The Sun’s sacred cattle</small></li>
+              <li><i>12</i> Ogygia <small>Calypso’s distant island</small></li>
+              <li><i>13</i> Scheria <small>The Phaeacians’ welcome</small></li>
+              <li><i>14</i> Ithaca <small>The homecoming</small></li>
             </ol>
             <button className="button button--terracotta" onClick={() => onStartGame('odyssey')}>Play the route <ArrowRight size={17} /></button>
           </aside>
@@ -230,7 +235,7 @@ function ArchivePage({ onNavigate, onStartGame }: NavigationProps) {
       <main className="inner-page__main section-shell">
         <span className="kicker">MYTH ARCHIVE</span>
         <h1>Ancient <em>stories</em></h1>
-        <p className="inner-page__lede">Thirteen playable stories now form the first chapter. The archive will grow as new panoramic scenes are researched and produced.</p>
+        <p className="inner-page__lede">Nineteen playable stories now form the first chapter. The archive will grow as new panoramic scenes are researched and produced.</p>
         <div className="archive-page__filters">
           <button className="is-active">All</button><button>Gods</button><button>Heroes</button><button>Monsters</button><button>Troy</button>
         </div>
@@ -256,7 +261,7 @@ function Footer({ onNavigate, onStartGame }: NavigationProps) {
     <footer className="site-footer">
       <div><Logo inverse /><p>A playable way to explore Greek mythology.</p></div>
       <nav><button onClick={() => onStartGame('all')}>Play</button><button onClick={() => onNavigate('atlas')}>Atlas</button><button onClick={() => onNavigate('archive')}>Archive</button><a href="#manifesto">About</a></nav>
-      <span>MYTHOS · PROTOTYPE 0.3<br />ORIGINAL ART &amp; CODE</span>
+      <span>MYTHOS · PROTOTYPE 0.4<br />ORIGINAL ART &amp; CODE</span>
     </footer>
   )
 }

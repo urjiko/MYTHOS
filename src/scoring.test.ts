@@ -61,6 +61,24 @@ describe('MYTHOS scoring', () => {
     expect(result.scoredDistance).toBe(0)
   })
 
+  it('does not treat a nearby Odyssey city as the same full-credit region', () => {
+    const circeo = { lat: 41.232, lng: 13.055 }
+    const formiae = { lat: 41.2557, lng: 13.6012 }
+    const result = scoreRound({
+      answer: '',
+      correctAnswer: 'x',
+      guess: formiae,
+      target: circeo,
+      fullCreditRadiusKm: 35,
+      secondsLeft: 0,
+      cluesUsed: 3,
+    })
+
+    expect(result.distance).toBeGreaterThan(45)
+    expect(result.scoredDistance).toBeGreaterThan(10)
+    expect(result.geography).toBeLessThan(4_000)
+  })
+
   it('removes the oracle bonus after all three clues', () => {
     expect(scoreRound({
       answer: '', correctAnswer: 'x', guess: target, target, fullCreditRadiusKm, secondsLeft: 0, cluesUsed: 3,

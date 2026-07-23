@@ -2,12 +2,12 @@
 
 An immersive web game that turns Greek mythology from a list to memorise into a world to explore.
 
-## Prototype 0.3
+## Prototype 0.4
 
-- Thirteen playable myths with fully English UI and story text
+- Nineteen playable myths with fully English UI and story text
 - Six-round general journeys drawn at random from the full archive
-- An eight-encounter Odysseus’s Route mode that draws only from the Odyssey cycle
-- Thirteen monoscopic 360° scenes rendered from inside a WebGL sphere
+- A thirteen-encounter Odysseus’s Route mode that draws only from the Odyssey cycle
+- Nineteen monoscopic 360° scenes rendered from inside a WebGL sphere
 - Four-choice myth identification with freshly shuffled answer positions each game
 - Pan, pinch, wheel, keyboard, bounded zoom, and button zoom on a real geographic map
 - Natural Earth 10m coastline geometry with no modern political borders
@@ -27,7 +27,7 @@ An immersive web game that turns Greek mythology from a list to memorise into a 
 | Complete without clues | 1,000 |
 | **Round total** | **10,000** |
 
-The general six-scene journey is worth 60,000 Oracle Points; Odysseus’s eight-scene route is worth 80,000. Geographic proximity uses Haversine distance, so guesses are scored in real kilometres rather than arbitrary screen coordinates. Exact pins are not required: every myth defines a full-credit radius, after which points decay smoothly with distance.
+The general six-scene journey is worth 60,000 Oracle Points; Odysseus’s thirteen-scene route is worth 130,000. Geographic proximity uses Haversine distance, so guesses are scored in real kilometres rather than arbitrary screen coordinates. Exact pins are not required: every myth defines a deliberately tight full-credit radius, after which points decay smoothly with distance.
 
 ## Local development
 
@@ -53,7 +53,7 @@ Map data credits are always visible in the atlas. Natural Earth data is public d
 
 ## 360° scenes
 
-The thirteen game textures in `public/assets/` are 4096×2048 WebP files. They cover 360° horizontally and 180° vertically, keep the horizon near the middle, and are mapped to the inside of a Three.js sphere with the camera at its centre.
+The nineteen game textures in `public/assets/` are 4096×2048 WebP files. They cover 360° horizontally and 180° vertically, keep the horizon near the middle, and are mapped to the inside of a Three.js sphere with the camera at its centre.
 
 The source generations are 1774×887 PNGs. The 4K delivery files use high-quality resampling and lighter compression to reduce browser artefacts; that improves presentation but does not invent the same detail as a future native-4K or dedicated super-resolution source pass. Every new panorama is checked as ordinary views at yaw 0°/90°/180°/270°, at the zenith and nadir, and across the left/right seam.
 
