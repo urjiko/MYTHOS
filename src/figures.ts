@@ -1,0 +1,447 @@
+export type FigureCategory = 'heroes' | 'creatures'
+
+export type LocalizedText = {
+  en: string
+  tr: string
+}
+
+export type FigureProfile = {
+  id: string
+  category: FigureCategory
+  name: LocalizedText
+  epithet: LocalizedText
+  summary: LocalizedText
+  facts: LocalizedText[]
+  appearanceIds: string[]
+  image: string
+  objectPosition?: string
+  externalUrl: string
+  externalSite: string
+}
+
+export const figureProfiles: FigureProfile[] = [
+  {
+    id: 'theseus',
+    category: 'heroes',
+    name: { en: 'Theseus', tr: 'Theseus' },
+    epithet: { en: 'The labyrinth breaker', tr: 'Labirenti aşan kahraman' },
+    summary: {
+      en: 'An Athenian hero whose victories repeatedly test the line between civic order and personal cost. In Crete, Ariadne’s thread makes his escape as important as his combat.',
+      tr: 'Zaferleri kent düzeni ile kişisel bedel arasındaki sınırı sürekli sınayan Atinalı kahraman. Girit’te Ariadne’nin ipi, kaçışını dövüşü kadar önemli kılar.',
+    },
+    facts: [
+      { en: 'Home: Athens and Troezen', tr: 'Yurdu: Atina ve Troizen' },
+      { en: 'Key object: Ariadne’s thread', tr: 'Ana nesne: Ariadne’nin ipi' },
+      { en: 'Ancient sources disagree about Ariadne’s later fate.', tr: 'Antik kaynaklar Ariadne’nin sonraki kaderinde ayrılır.' },
+    ],
+    appearanceIds: ['labyrinth'],
+    image: './assets/scene-labyrinth.webp',
+    objectPosition: '42% center',
+    externalUrl: 'https://www.metmuseum.org/essays/theseus-hero-of-athens',
+    externalSite: 'The Metropolitan Museum of Art',
+  },
+  {
+    id: 'perseus',
+    category: 'heroes',
+    name: { en: 'Perseus', tr: 'Perseus' },
+    epithet: { en: 'The mirror-shield hero', tr: 'Aynalı kalkanın kahramanı' },
+    summary: {
+      en: 'Son of Zeus and Danaë, sent against Medusa on what should have been an impossible mission. Divine gifts and indirect sight let him survive the Gorgon’s gaze.',
+      tr: 'Zeus ile Danaë’nin oğlu; imkânsız olması gereken bir görevle Medusa’ya gönderilir. Tanrısal armağanlar ve dolaylı bakış, Gorgon’un gözlerinden kurtulmasını sağlar.',
+    },
+    facts: [
+      { en: 'Signature tool: Athena’s polished shield', tr: 'Ayırt edici aracı: Athena’nın parlak kalkanı' },
+      { en: 'Pegasus and Chrysaor spring from Medusa after her death.', tr: 'Pegasus ile Khrysaor, Medusa’nın ölümünün ardından doğar.' },
+      { en: 'Later he rescues Andromeda from a sea monster.', tr: 'Daha sonra Andromeda’yı bir deniz canavarından kurtarır.' },
+    ],
+    appearanceIds: ['medusa', 'pegasus-birth'],
+    image: './assets/scene-medusa.webp',
+    objectPosition: '43% center',
+    externalUrl: 'https://www.theoi.com/Heros/Perseus.html',
+    externalSite: 'Theoi Project',
+  },
+  {
+    id: 'odysseus',
+    category: 'heroes',
+    name: { en: 'Odysseus', tr: 'Odysseus' },
+    epithet: { en: 'The many-minded traveller', tr: 'Çok yönlü gezgin' },
+    summary: {
+      en: 'King of Ithaca and the strategist of the Trojan Horse. His return voyage is defined less by raw strength than by language, disguise, restraint, and repeated failures of restraint.',
+      tr: 'İthaka kralı ve Truva Atı’nın stratejisti. Dönüş yolculuğu kaba kuvvetten çok söz, kılık değiştirme, özdenetim ve özdenetimin tekrar tekrar kaybıyla biçimlenir.',
+    },
+    facts: [
+      { en: 'Greek epithet: polytropos, “of many turns”', tr: 'Yunanca sıfatı: polytropos, “çok yönlü”' },
+      { en: 'Family: Penelope and Telemachus', tr: 'Ailesi: Penelope ve Telemakhos' },
+      { en: 'Epic: Homer’s Odyssey', tr: 'Destanı: Homeros’un Odysseia’sı' },
+    ],
+    appearanceIds: ['cicones', 'lotus-eaters', 'polyphemus', 'aeolus', 'laestrygonians', 'circe', 'underworld', 'sirens', 'scylla-charybdis', 'cattle-helios', 'calypso', 'phaeacians', 'homecoming'],
+    image: './assets/scene-sirens.webp',
+    objectPosition: '52% center',
+    externalUrl: 'https://en.wikipedia.org/wiki/Odysseus',
+    externalSite: 'Wikipedia',
+  },
+  {
+    id: 'achilles',
+    category: 'heroes',
+    name: { en: 'Achilles', tr: 'Akhilleus' },
+    epithet: { en: 'The swift-footed warrior', tr: 'Çevik ayaklı savaşçı' },
+    summary: {
+      en: 'The Iliad’s greatest Achaean fighter, driven by honour, grief, and a rage that harms both allies and enemies. Priam’s visit finally restores his capacity for pity.',
+      tr: 'İlyada’nın en büyük Akha savaşçısı; onur, yas ve hem dostlarına hem düşmanlarına zarar veren öfkeyle hareket eder. Priamos’un ziyareti sonunda merhametini geri getirir.',
+    },
+    facts: [
+      { en: 'Parents: Peleus and the sea-goddess Thetis', tr: 'Anne-babası: Peleus ve deniz tanrıçası Thetis' },
+      { en: 'Closest companion: Patroclus', tr: 'En yakın yoldaşı: Patroklos' },
+      { en: 'The Iliad ends before Achilles’ own death.', tr: 'İlyada, Akhilleus’un kendi ölümünden önce biter.' },
+    ],
+    appearanceIds: ['patroclus-falls', 'achilles-hector', 'priam-achilles'],
+    image: './assets/scene-achilles-hector.webp',
+    objectPosition: '39% center',
+    externalUrl: 'https://www.britishmuseum.org/blog/who-was-achilles',
+    externalSite: 'British Museum',
+  },
+  {
+    id: 'hector',
+    category: 'heroes',
+    name: { en: 'Hector', tr: 'Hektor' },
+    epithet: { en: 'The defender of Troy', tr: 'Troya’nın savunucusu' },
+    summary: {
+      en: 'Troy’s foremost warrior, shown by Homer as a prince, husband, father, and defender carrying a city’s impossible expectations.',
+      tr: 'Troya’nın baş savaşçısı; Homeros onu bir kentin imkânsız beklentilerini taşıyan prens, eş, baba ve savunucu olarak gösterir.',
+    },
+    facts: [
+      { en: 'Family: Priam, Hecuba, Andromache, Astyanax', tr: 'Ailesi: Priamos, Hekabe, Andromakhe, Astyanaks' },
+      { en: 'Opponent in his final duel: Achilles', tr: 'Son düellosundaki rakibi: Akhilleus' },
+      { en: 'His funeral closes the Iliad.', tr: 'İlyada, onun cenazesiyle kapanır.' },
+    ],
+    appearanceIds: ['hector-andromache', 'patroclus-falls', 'achilles-hector', 'priam-achilles'],
+    image: './assets/scene-hector-andromache.webp',
+    objectPosition: '45% center',
+    externalUrl: 'https://en.wikipedia.org/wiki/Hector',
+    externalSite: 'Wikipedia',
+  },
+  {
+    id: 'bellerophon',
+    category: 'heroes',
+    name: { en: 'Bellerophon', tr: 'Bellerophon' },
+    epithet: { en: 'Rider of Pegasus', tr: 'Pegasus’un binicisi' },
+    summary: {
+      en: 'A Corinthian hero sent to Lycia carrying a sealed message that asks for his death. Mounted on Pegasus, he defeats the Chimera and survives a chain of deadly trials.',
+      tr: 'Ölümünü isteyen mühürlü bir mektupla Lykia’ya gönderilen Korinthoslu kahraman. Pegasus’un sırtında Khimaira’yı yener ve ölümcül sınavlardan sağ çıkar.',
+    },
+    facts: [
+      { en: 'Mount: Pegasus', tr: 'Bineği: Pegasus' },
+      { en: 'Great adversary: the Chimera', tr: 'Büyük rakibi: Khimaira' },
+      { en: 'His later attempt to reach Olympus ends in a fall.', tr: 'Daha sonra Olympos’a ulaşma girişimi düşüşle sonuçlanır.' },
+    ],
+    appearanceIds: ['chimera'],
+    image: './assets/scene-chimera.webp',
+    objectPosition: '38% center',
+    externalUrl: 'https://www.theoi.com/Heros/Bellerophontes.html',
+    externalSite: 'Theoi Project',
+  },
+  {
+    id: 'orpheus',
+    category: 'heroes',
+    name: { en: 'Orpheus', tr: 'Orpheus' },
+    epithet: { en: 'The singer who moved death', tr: 'Ölümü etkileyen ozan' },
+    summary: {
+      en: 'A Thracian singer whose music moves animals, stones, shades, and even the rulers of the dead. His rescue of Eurydice fails at the last threshold.',
+      tr: 'Müziği hayvanları, taşları, gölgeleri ve hatta ölülerin hükümdarlarını etkileyen Trakyalı ozan. Eurydike’yi kurtarma girişimi son eşikte başarısız olur.',
+    },
+    facts: [
+      { en: 'Instrument: lyre or kithara', tr: 'Çalgısı: lir veya kithara' },
+      { en: 'Beloved: Eurydice', tr: 'Sevdiği: Eurydike' },
+      { en: 'He also sails with the Argonauts.', tr: 'Aynı zamanda Argonautlarla yolculuk eder.' },
+    ],
+    appearanceIds: ['orpheus-eurydice'],
+    image: './assets/scene-orpheus-eurydice.webp',
+    objectPosition: '46% center',
+    externalUrl: 'https://oxfordre.com/classics/display/10.1093/acrefore/9780199381135.001.0001/acrefore-9780199381135-e-4611',
+    externalSite: 'Oxford Classical Dictionary',
+  },
+  {
+    id: 'oedipus',
+    category: 'heroes',
+    name: { en: 'Oedipus', tr: 'Oidipus' },
+    epithet: { en: 'Solver of the Sphinx', tr: 'Sfenks bilmecesinin çözücüsü' },
+    summary: {
+      en: 'A brilliant problem-solver who frees Thebes yet cannot read the hidden shape of his own life. His tragedy turns knowledge into both salvation and ruin.',
+      tr: 'Thebai’yi kurtaran ama kendi yaşamının gizli biçimini okuyamayan parlak bir bilmece çözücüsü. Trajedisi bilgiyi hem kurtuluşa hem yıkıma dönüştürür.',
+    },
+    facts: [
+      { en: 'Raised in Corinth, born in Thebes', tr: 'Korinthos’ta büyür, Thebai’de doğar' },
+      { en: 'The Sphinx’s answer: a human being', tr: 'Sfenks’in bilmecesinin yanıtı: insan' },
+      { en: 'His name is linked to his wounded feet.', tr: 'Adı yaralanmış ayaklarıyla ilişkilidir.' },
+    ],
+    appearanceIds: ['oedipus-sphinx'],
+    image: './assets/scene-oedipus-sphinx.webp',
+    objectPosition: '52% center',
+    externalUrl: 'https://www.britannica.com/topic/Oedipus-Greek-mythology',
+    externalSite: 'Encyclopaedia Britannica',
+  },
+  {
+    id: 'heracles',
+    category: 'heroes',
+    name: { en: 'Heracles', tr: 'Herakles' },
+    epithet: { en: 'The labouring hero', tr: 'Görevlerin kahramanı' },
+    summary: {
+      en: 'A son of Zeus forced into a cycle of labours after catastrophe. His immense strength matters, but the Hydra shows that cooperation and invention matter too.',
+      tr: 'Bir felaketin ardından görevler döngüsüne zorlanan Zeus oğlu. Büyük gücü önemlidir; fakat Hydra karşılaşması işbirliği ve buluşun da gerekli olduğunu gösterir.',
+    },
+    facts: [
+      { en: 'Roman name: Hercules', tr: 'Roma geleneğindeki adı: Hercules' },
+      { en: 'Signature attributes: lion skin and club', tr: 'Ayırt edici simgeleri: aslan postu ve topuz' },
+      { en: 'Iolaus helps him against the Hydra.', tr: 'Hydra’ya karşı ona Iolaos yardım eder.' },
+    ],
+    appearanceIds: ['lernaean-hydra'],
+    image: './assets/scene-lernaean-hydra.webp',
+    objectPosition: '37% center',
+    externalUrl: 'https://www.theoi.com/greek-mythology/heracles.html',
+    externalSite: 'Theoi Project',
+  },
+  {
+    id: 'paris',
+    category: 'heroes',
+    name: { en: 'Paris', tr: 'Paris' },
+    epithet: { en: 'The judge on Mount Ida', tr: 'İda Dağı’nın hakemi' },
+    summary: {
+      en: 'A Trojan prince raised as a shepherd. Asked to judge three goddesses, he chooses Aphrodite’s promise and helps set the Trojan War in motion.',
+      tr: 'Çoban olarak büyütülen Troyalı prens. Üç tanrıça arasında seçim yapması istendiğinde Aphrodite’nin vaadini seçer ve Troya Savaşı’nı harekete geçirir.',
+    },
+    facts: [
+      { en: 'Parents: Priam and Hecuba', tr: 'Anne-babası: Priamos ve Hekabe' },
+      { en: 'Judgement prize: the golden apple', tr: 'Yargının ödülü: altın elma' },
+      { en: 'Aphrodite promises him Helen.', tr: 'Aphrodite ona Helene’yi vaat eder.' },
+    ],
+    appearanceIds: ['judgement-paris'],
+    image: './assets/scene-judgement-paris.webp',
+    objectPosition: '48% center',
+    externalUrl: 'https://en.wikipedia.org/wiki/Paris_(mythology)',
+    externalSite: 'Wikipedia',
+  },
+  {
+    id: 'midas',
+    category: 'heroes',
+    name: { en: 'Midas', tr: 'Midas' },
+    epithet: { en: 'The king of the fatal wish', tr: 'Ölümcül dileğin kralı' },
+    summary: {
+      en: 'A Phrygian king whose hospitality to Silenus earns a wish from Dionysus. He chooses limitless conversion into gold and discovers that value without life is useless.',
+      tr: 'Silenos’a konukseverliği sayesinde Dionysos’tan bir dilek kazanan Phrygia kralı. Her şeyi altına çevirme gücünü seçer ve yaşamdan kopuk değerin işe yaramadığını öğrenir.',
+    },
+    facts: [
+      { en: 'Kingdom: Phrygia', tr: 'Krallığı: Phrygia' },
+      { en: 'Gift and curse: the Golden Touch', tr: 'Armağanı ve laneti: altın dokunuş' },
+      { en: 'Ovid places the cure in the Pactolus.', tr: 'Ovidius arınmayı Paktolos’ta anlatır.' },
+    ],
+    appearanceIds: ['midas-gold'],
+    image: './assets/scene-midas-gold.webp',
+    objectPosition: '33% center',
+    externalUrl: 'https://www.britannica.com/topic/Midas-Greek-mythology',
+    externalSite: 'Encyclopaedia Britannica',
+  },
+  {
+    id: 'minotaur',
+    category: 'creatures',
+    name: { en: 'Minotaur', tr: 'Minotauros' },
+    epithet: { en: 'The bull of the labyrinth', tr: 'Labirentin boğası' },
+    summary: {
+      en: 'Asterion, the bull-headed being confined within Daedalus’s labyrinth at Knossos. The creature is inseparable from Minos’s secrecy and the human cost of his rule.',
+      tr: 'Knossos’ta Daidalos’un labirentine kapatılan boğa başlı Asterion. Yaratık, Minos’un sakladığı sırdan ve yönetiminin insani bedelinden ayrı düşünülemez.',
+    },
+    facts: [
+      { en: 'Parents: Pasiphaë and the Cretan Bull', tr: 'Anne-babası: Pasiphaë ve Girit Boğası' },
+      { en: 'Dwelling: the labyrinth', tr: 'Yaşadığı yer: labirent' },
+      { en: 'Defeated by Theseus', tr: 'Theseus tarafından yenilir' },
+    ],
+    appearanceIds: ['labyrinth'],
+    image: './assets/scene-labyrinth.webp',
+    objectPosition: '68% center',
+    externalUrl: 'https://www.theoi.com/Ther/Minotauros.html',
+    externalSite: 'Theoi Project',
+  },
+  {
+    id: 'medusa',
+    category: 'creatures',
+    name: { en: 'Medusa', tr: 'Medusa' },
+    epithet: { en: 'The mortal Gorgon', tr: 'Ölümlü Gorgon' },
+    summary: {
+      en: 'The only mortal Gorgon, whose face turns onlookers to stone. Her story changes sharply across authors, especially in later accounts of her origin.',
+      tr: 'Bakışını görenleri taşa çeviren tek ölümlü Gorgon. Özellikle kökeni konusunda anlatısı sonraki yazarlarda belirgin biçimde değişir.',
+    },
+    facts: [
+      { en: 'Sisters: Stheno and Euryale', tr: 'Kız kardeşleri: Stheno ve Euryale' },
+      { en: 'Defeated through a reflected view', tr: 'Yansıma üzerinden bakılarak yenilir' },
+      { en: 'Pegasus and Chrysaor emerge after her death.', tr: 'Ölümünün ardından Pegasus ile Khrysaor ortaya çıkar.' },
+    ],
+    appearanceIds: ['medusa', 'pegasus-birth'],
+    image: './assets/scene-medusa.webp',
+    objectPosition: '60% center',
+    externalUrl: 'https://www.theoi.com/Pontios/Gorgones.html',
+    externalSite: 'Theoi Project',
+  },
+  {
+    id: 'sirens',
+    category: 'creatures',
+    name: { en: 'Sirens', tr: 'Sirenler' },
+    epithet: { en: 'Singers of fatal knowledge', tr: 'Ölümcül bilginin şarkıcıları' },
+    summary: {
+      en: 'Bird-bodied singers whose danger is knowledge as much as beauty. Homer never gives them the mermaid form that later art makes familiar.',
+      tr: 'Tehlikeleri güzellik kadar bilgiden de gelen kuş gövdeli şarkıcılar. Homeros onlara sonraki sanatın ünlü kıldığı denizkızı biçimini vermez.',
+    },
+    facts: [
+      { en: 'Ancient form: women with bird features', tr: 'Antik biçimleri: kuş özellikli kadınlar' },
+      { en: 'Weapon: an irresistible song', tr: 'Silahları: karşı konulmaz şarkı' },
+      { en: 'Odysseus listens while bound to the mast.', tr: 'Odysseus direğe bağlıyken onları dinler.' },
+    ],
+    appearanceIds: ['sirens'],
+    image: './assets/scene-sirens.webp',
+    objectPosition: '31% center',
+    externalUrl: 'https://www.theoi.com/Pontios/Seirenes.html',
+    externalSite: 'Theoi Project',
+  },
+  {
+    id: 'polyphemus',
+    category: 'creatures',
+    name: { en: 'Polyphemus', tr: 'Polyphemos' },
+    epithet: { en: 'The Cyclops shepherd', tr: 'Kyklop çoban' },
+    summary: {
+      en: 'A one-eyed son of Poseidon who traps Odysseus’s crew in his cave. The escape succeeds through wine, wordplay, and hiding beneath the flock.',
+      tr: 'Odysseus’un mürettebatını mağarasına kapatan tek gözlü Poseidon oğlu. Kaçış şarap, söz oyunu ve sürünün altına saklanma sayesinde başarıya ulaşır.',
+    },
+    facts: [
+      { en: 'Father: Poseidon', tr: 'Babası: Poseidon' },
+      { en: 'False name heard: “Nobody”', tr: 'Duyduğu sahte ad: “Hiç Kimse”' },
+      { en: 'His curse shapes the rest of the voyage.', tr: 'Lanetinin etkisi yolculuğun geri kalanını biçimlendirir.' },
+    ],
+    appearanceIds: ['polyphemus'],
+    image: './assets/scene-polyphemus.webp',
+    objectPosition: '54% center',
+    externalUrl: 'https://www.britannica.com/topic/Polyphemus-Greek-mythology',
+    externalSite: 'Encyclopaedia Britannica',
+  },
+  {
+    id: 'scylla',
+    category: 'creatures',
+    name: { en: 'Scylla', tr: 'Skylla' },
+    epithet: { en: 'The cliff-side devourer', tr: 'Kayalığın avcısı' },
+    summary: {
+      en: 'A many-necked sea danger dwelling opposite Charybdis. Odysseus cannot defeat her; the episode forces a choice between catastrophic risks.',
+      tr: 'Kharybdis’in karşısında yaşayan çok boyunlu deniz tehlikesi. Odysseus onu yenemez; karşılaşma iki felaket riski arasında seçim yaptırır.',
+    },
+    facts: [
+      { en: 'Dwelling: a high cave beside the strait', tr: 'Yurdu: boğaz kıyısındaki yüksek mağara' },
+      { en: 'Opposite danger: Charybdis', tr: 'Karşı tehlike: Kharybdis' },
+      { en: 'She takes six sailors from Odysseus’s ship.', tr: 'Odysseus’un gemisinden altı denizciyi alır.' },
+    ],
+    appearanceIds: ['scylla-charybdis'],
+    image: './assets/scene-scylla-charybdis.webp',
+    objectPosition: '28% center',
+    externalUrl: 'https://www.theoi.com/Pontios/Skylla.html',
+    externalSite: 'Theoi Project',
+  },
+  {
+    id: 'charybdis',
+    category: 'creatures',
+    name: { en: 'Charybdis', tr: 'Kharybdis' },
+    epithet: { en: 'The living whirlpool', tr: 'Canlı girdap' },
+    summary: {
+      en: 'A personified sea hazard that swallows and vomits the strait’s water. She turns geography itself into a creature.',
+      tr: 'Boğazın suyunu yutup geri püskürten kişileştirilmiş deniz tehlikesi. Coğrafyanın kendisini bir yaratığa dönüştürür.',
+    },
+    facts: [
+      { en: 'Form: a vast swallowing current', tr: 'Biçimi: suyu yutan dev akıntı' },
+      { en: 'Opposite danger: Scylla', tr: 'Karşı tehlike: Skylla' },
+      { en: 'Traditional setting: the Strait of Messina', tr: 'Geleneksel konumu: Messina Boğazı' },
+    ],
+    appearanceIds: ['scylla-charybdis'],
+    image: './assets/scene-scylla-charybdis.webp',
+    objectPosition: '73% center',
+    externalUrl: 'https://www.theoi.com/Pontios/Kharybdis.html',
+    externalSite: 'Theoi Project',
+  },
+  {
+    id: 'chimera',
+    category: 'creatures',
+    name: { en: 'Chimera', tr: 'Khimaira' },
+    epithet: { en: 'The fire-breathing hybrid', tr: 'Ateş püskürten melez' },
+    summary: {
+      en: 'A lion-goat-serpent hybrid that ravages Lycia. Bellerophon’s aerial attack on Pegasus makes the fight one of myth’s clearest unions of hero and extraordinary creature.',
+      tr: 'Lykia’yı yakıp yıkan aslan-keçi-yılan melezi. Bellerophon’un Pegasus üzerindeki hava saldırısı, dövüşü kahraman ile olağanüstü yaratığın en belirgin birliklerinden biri yapar.',
+    },
+    facts: [
+      { en: 'Body: lion, goat, and serpent', tr: 'Gövdesi: aslan, keçi ve yılan' },
+      { en: 'Power: fire-breathing', tr: 'Gücü: ateş püskürtmek' },
+      { en: 'Traditional Anatolian echo: Yanartaş', tr: 'Anadolu’daki geleneksel yankısı: Yanartaş' },
+    ],
+    appearanceIds: ['chimera'],
+    image: './assets/scene-chimera.webp',
+    objectPosition: '63% center',
+    externalUrl: 'https://www.theoi.com/Ther/Khimaira.html',
+    externalSite: 'Theoi Project',
+  },
+  {
+    id: 'pegasus',
+    category: 'creatures',
+    name: { en: 'Pegasus', tr: 'Pegasus' },
+    epithet: { en: 'The immortal winged horse', tr: 'Ölümsüz kanatlı at' },
+    summary: {
+      en: 'A winged horse born after Medusa’s beheading and later ridden by Bellerophon. Pegasus belongs among creatures, but not among villains.',
+      tr: 'Medusa’nın başı kesildikten sonra doğan ve daha sonra Bellerophon’un bindiği kanatlı at. Pegasus yaratıklar arasındadır; kötülerin arasında değil.',
+    },
+    facts: [
+      { en: 'Mother: Medusa', tr: 'Annesi: Medusa' },
+      { en: 'Brother: Chrysaor', tr: 'Kardeşi: Khrysaor' },
+      { en: 'Later bears Zeus’s thunderbolts on Olympus.', tr: 'Daha sonra Olympos’ta Zeus’un yıldırımlarını taşır.' },
+    ],
+    appearanceIds: ['pegasus-birth', 'chimera'],
+    image: './assets/scene-pegasus-birth.webp',
+    objectPosition: '58% center',
+    externalUrl: 'https://www.theoi.com/Ther/HipposPegasos.html',
+    externalSite: 'Theoi Project',
+  },
+  {
+    id: 'sphinx',
+    category: 'creatures',
+    name: { en: 'Sphinx', tr: 'Sfenks' },
+    epithet: { en: 'The riddle on Mount Phicium', tr: 'Phikion Dağı’nın bilmecesi' },
+    summary: {
+      en: 'A winged lioness with a woman’s face sent against Thebes. She attacks failures of interpretation, making intelligence—not force—the necessary weapon.',
+      tr: 'Thebai’ye karşı gönderilen kadın yüzlü, kanatlı dişi aslan. Yanlış yorumlayanları avlar; gerekli silahı güç değil zekâ yapar.',
+    },
+    facts: [
+      { en: 'Parents in Apollodorus: Typhon and Echidna', tr: 'Apollodoros’a göre anne-babası: Typhon ve Ekhidna' },
+      { en: 'Teachers of the riddle: the Muses', tr: 'Bilmecenin öğreticileri: Musalar' },
+      { en: 'Defeated by Oedipus’s answer', tr: 'Oidipus’un yanıtıyla yenilir' },
+    ],
+    appearanceIds: ['oedipus-sphinx'],
+    image: './assets/scene-oedipus-sphinx.webp',
+    objectPosition: '70% center',
+    externalUrl: 'https://www.theoi.com/Ther/Sphinx.html',
+    externalSite: 'Theoi Project',
+  },
+  {
+    id: 'hydra',
+    category: 'creatures',
+    name: { en: 'Lernaean Hydra', tr: 'Lerna Hydra’sı' },
+    epithet: { en: 'The many-headed marsh serpent', tr: 'Çok başlı bataklık yılanı' },
+    summary: {
+      en: 'A regenerative water-serpent of Lerna. Each severed mortal head doubles until Iolaus seals the wounds with fire.',
+      tr: 'Lerna’nın kendini yenileyen su yılanı. Iolaos yaraları ateşle kapatana kadar kesilen her ölümlü baş iki tane olarak geri çıkar.',
+    },
+    facts: [
+      { en: 'Parents: Typhon and Echidna', tr: 'Anne-babası: Typhon ve Ekhidna' },
+      { en: 'Apollodorus gives nine heads, one immortal.', tr: 'Apollodoros dokuz baştan birini ölümsüz sayar.' },
+      { en: 'Its venom later coats Heracles’ arrows.', tr: 'Zehrine daha sonra Herakles’in okları batırılır.' },
+    ],
+    appearanceIds: ['lernaean-hydra'],
+    image: './assets/scene-lernaean-hydra.webp',
+    objectPosition: '57% center',
+    externalUrl: 'https://www.theoi.com/Ther/DrakonHydra.html',
+    externalSite: 'Theoi Project',
+  },
+]
+
+export function profilesForCategory(category: FigureCategory) {
+  return figureProfiles.filter((profile) => profile.category === category)
+}

@@ -1,6 +1,6 @@
 # MYTHOS — Generated asset prompts
 
-All twenty-nine images were generated with the built-in image generation tool. The twenty-eight game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
+All thirty-three images were generated with the built-in image generation tool. The thirty-two game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
 
 ## Mandatory 360° projection contract
 
@@ -127,3 +127,19 @@ Every game-scene prompt begins with this contract:
 ## `scene-priam-achilles.webp`
 
 > Night inside Achilles’ timber-and-hide hut in the Achaean camp. Priam kneels before Achilles; ransom vessels, woven cloth, a shared meal, Hector’s respectfully covered bier, the mule cart, ships, and dark sea surround the viewer. Quiet amber light and shared grief replace battle spectacle.
+
+## `scene-orpheus-eurydice.webp`
+
+> A continuous cavern ascent from the Taenarian gate. Orpheus begins to turn while holding his kithara; Eurydice fades into cold mist behind him, with daylight ahead, listening shades around the passage, and the distant throne hall of Hades and Persephone behind. The viewer stands inside the route rather than observing a framed scene.
+
+## `scene-oedipus-sphinx.webp`
+
+> Mount Phicium above the road into Thebes at late afternoon. A dusty Oedipus with a walking staff faces the woman-lion-bird Sphinx on a rocky ledge, while changing tracks in the road hint at the riddle. The proposed mountain identification is treated as a low-confidence literary landscape.
+
+## `scene-lernaean-hydra.webp`
+
+> Eye level in the Lerna marsh. Heracles confronts the nine-headed water-serpent while Iolaus burns the neck roots beside a small fire; a hidden crab, waiting chariot, reeds, springs, arrows, and low Argive hills occupy different yaw directions. No gore or severed anatomy is foregrounded.
+
+## `scene-midas-gold.webp`
+
+> A Phrygian court associated with Gordion as Midas discovers that bread, fruit, wine, branches, and stone all become useless gold. Silenus, Dionysus, recoiling attendants, an untouched garden, and a river valley are separated around the 360° courtyard. No transformed daughter appears because that episode is later than Ovid’s account.

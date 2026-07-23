@@ -2,6 +2,7 @@ import { Eye, Minus, Plus } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import type { MythScene } from './data'
+import { ui, type Locale } from './i18n'
 
 type ViewerStatus = 'loading' | 'ready' | 'error'
 
@@ -13,7 +14,8 @@ type View = {
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
-export function SphereViewer({ scene }: { scene: MythScene }) {
+export function SphereViewer({ scene, locale = 'en' }: { scene: MythScene; locale?: Locale }) {
+  const copy = ui[locale]
   const canvasHost = useRef<HTMLDivElement>(null)
   const renderFrame = useRef<(() => void) | null>(null)
   const view = useRef<View>({ yaw: 0, pitch: 0, fov: 72 })
@@ -155,7 +157,7 @@ export function SphereViewer({ scene }: { scene: MythScene }) {
       className={`scene-viewer scene-viewer--${status}`}
       style={{ '--scene-fallback': scene.fallback } as React.CSSProperties}
       role="application"
-      aria-label="Immersive 360-degree myth scene. Drag to look around, or use the arrow and plus/minus keys."
+      aria-label={copy.viewer.aria}
       tabIndex={0}
       onPointerDown={(event) => {
         if ((event.target as HTMLElement).closest('button')) return
@@ -209,17 +211,17 @@ export function SphereViewer({ scene }: { scene: MythScene }) {
       <div ref={canvasHost} className="scene-viewer__canvas" aria-hidden="true" />
       <div className="scene-viewer__vignette" />
 
-      {status === 'loading' && <div className="scene-viewer__status">Preparing the sphere…</div>}
-      {status === 'error' && <div className="scene-viewer__status">WebGL unavailable · showing a flat preview</div>}
+      {status === 'loading' && <div className="scene-viewer__status">{copy.viewer.loading}</div>}
+      {status === 'error' && <div className="scene-viewer__status">{copy.viewer.error}</div>}
 
-      <div className="scene-viewer__drag"><Eye size={16} /> 360° · drag to look around</div>
+      <div className="scene-viewer__drag"><Eye size={16} /> {copy.viewer.drag}</div>
       <div className="scene-viewer__compass" aria-hidden="true">
         <span>{String(heading).padStart(3, '0')}°</span><i style={{ transform: `rotate(${heading}deg)` }} />
       </div>
-      <div className="scene-viewer__zoom" aria-label="Zoom controls">
-        <button type="button" onClick={() => updateView({ fov: view.current.fov + 6 })} aria-label="Zoom out"><Minus size={15} /></button>
+      <div className="scene-viewer__zoom" aria-label={copy.viewer.zoom}>
+        <button type="button" onClick={() => updateView({ fov: view.current.fov + 6 })} aria-label={copy.viewer.zoomOut}><Minus size={15} /></button>
         <span>{fov}°</span>
-        <button type="button" onClick={() => updateView({ fov: view.current.fov - 6 })} aria-label="Zoom in"><Plus size={15} /></button>
+        <button type="button" onClick={() => updateView({ fov: view.current.fov - 6 })} aria-label={copy.viewer.zoomIn}><Plus size={15} /></button>
       </div>
     </div>
   )

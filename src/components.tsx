@@ -17,6 +17,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import type { Point } from './data'
 import { createGameDeck, type GameMode } from './gameDeck'
+import { localiseMythTitle, ui, type Locale } from './i18n'
 import { formatScore, scoreRound, type ScoreBreakdown } from './scoring'
 import { MythMap } from './AncientMap'
 import { SphereViewer } from './SphereViewer'
@@ -48,7 +49,18 @@ export function Ornament() {
 
 type RoundResult = { sceneId: string; breakdown: ScoreBreakdown }
 
-export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: GameMode }) {
+export function Game({
+  onExit,
+  onLocaleChange,
+  mode = 'all',
+  locale = 'en',
+}: {
+  onExit: () => void
+  onLocaleChange: (locale: Locale) => void
+  mode?: GameMode
+  locale?: Locale
+}) {
+  const copy = ui[locale]
   const [scenes, setScenes] = useState(() => createGameDeck(mode))
   const [round, setRound] = useState(0)
   const [seconds, setSeconds] = useState(75)
@@ -61,10 +73,10 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
   const scene = scenes[round]
   const maximumScore = scenes.length * 10_000
   const modeCopy = mode === 'odyssey'
-    ? { bestScoreKey: 'mythos-best-score-odyssey', journeyLabel: 'ODYSSEY', completionLabel: 'ODYSSEUS’ ROUTE COMPLETE' }
+    ? { bestScoreKey: 'mythos-best-score-odyssey', journeyLabel: copy.game.odyssey, completionLabel: copy.game.odysseyComplete }
     : mode === 'iliad'
-      ? { bestScoreKey: 'mythos-best-score-iliad', journeyLabel: 'TROY', completionLabel: 'TROJAN CHRONICLE COMPLETE' }
-      : { bestScoreKey: 'mythos-best-score', journeyLabel: 'ORACLE', completionLabel: 'ORACLE COMPLETE' }
+      ? { bestScoreKey: 'mythos-best-score-iliad', journeyLabel: copy.game.troy, completionLabel: copy.game.troyComplete }
+      : { bestScoreKey: 'mythos-best-score', journeyLabel: copy.game.oracle, completionLabel: copy.game.oracleComplete }
   const { bestScoreKey, journeyLabel, completionLabel } = modeCopy
 
   useEffect(() => {
@@ -138,12 +150,12 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
         <Logo inverse />
         <div className="results-card">
           <span className="kicker kicker--gold"><Trophy size={14} /> {completionLabel}</span>
-          <h1>Fate will<br /><em>remember you.</em></h1>
+          <h1>{copy.game.fate}<br /><em>{copy.game.remember}</em></h1>
           <p className="results-card__score">{formatScore(finalScore)} <small>/ {formatScore(maximumScore)}</small></p>
           <div className="results-card__stats">
-            <span><strong>{correct}/{scenes.length}</strong><small>Myths identified</small></span>
-            <span><strong>{Math.round((finalScore / maximumScore) * 100)}%</strong><small>Mastery</small></span>
-            <span><strong>{formatScore(Number(localStorage.getItem(bestScoreKey) || finalScore))}</strong><small>Personal best</small></span>
+            <span><strong>{correct}/{scenes.length}</strong><small>{copy.game.identified}</small></span>
+            <span><strong>{Math.round((finalScore / maximumScore) * 100)}%</strong><small>{copy.game.mastery}</small></span>
+            <span><strong>{formatScore(Number(localStorage.getItem(bestScoreKey) || finalScore))}</strong><small>{copy.game.personalBest}</small></span>
           </div>
           <div className="results-card__rounds">
             {history.map((item, index) => (
@@ -151,8 +163,8 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
             ))}
           </div>
           <div className="results-card__actions">
-            <button className="button button--gold" onClick={restart}><RotateCcw size={17} /> Play again</button>
-            <button className="button button--ghost-inverse" onClick={onExit}>Return to the temple</button>
+            <button className="button button--gold" onClick={restart}><RotateCcw size={17} /> {copy.game.again}</button>
+            <button className="button button--ghost-inverse" onClick={onExit}>{copy.game.return}</button>
           </div>
         </div>
       </main>
@@ -162,7 +174,7 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
   return (
     <main className="game-shell">
       <header className="game-topbar">
-        <button className="icon-button icon-button--dark" onClick={onExit} aria-label="Exit game"><X size={19} /></button>
+        <button className="icon-button icon-button--dark" onClick={onExit} aria-label={copy.game.exit}><X size={19} /></button>
         <Logo inverse />
         <div className="game-topbar__progress">
           <span>{journeyLabel} {round + 1} / {scenes.length}</span>
@@ -170,10 +182,11 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
         </div>
         <span className={`game-timer ${seconds < 16 ? 'is-urgent' : ''}`}><Timer size={16} /> 00:{String(seconds).padStart(2, '0')}</span>
         <strong className="game-score">{formatScore(total)} <small>OP</small></strong>
+        <button className="game-language" onClick={() => onLocaleChange(locale === 'en' ? 'tr' : 'en')} aria-label={copy.nav.language}>{locale === 'en' ? 'TR' : 'EN'}</button>
       </header>
 
       <section className="game-stage">
-        <SphereViewer scene={scene} />
+        <SphereViewer scene={scene} locale={locale} />
 
         {!result && (
           <button
@@ -181,14 +194,14 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
             disabled={cluesUsed >= scene.clues.length}
             onClick={() => setCluesUsed((value) => Math.min(scene.clues.length, value + 1))}
           >
-            <Sparkles size={16} /> Ask the oracle
-            <small>{cluesUsed === 0 ? '+1,000 OP preserved' : `${scene.clues.length - cluesUsed} clues remain`}</small>
+            <Sparkles size={16} /> {copy.game.ask}
+            <small>{cluesUsed === 0 ? copy.game.preserved : copy.game.cluesRemain(scene.clues.length - cluesUsed)}</small>
           </button>
         )}
 
         {cluesUsed > 0 && !result && (
           <aside className="clue-scroll" aria-live="polite">
-            <span>THE ORACLE WHISPERS · {cluesUsed}/{scene.clues.length}</span>
+            <span>{copy.game.whispers} · {cluesUsed}/{scene.clues.length}</span>
             <p>“{scene.clues[cluesUsed - 1]}”</p>
           </aside>
         )}
@@ -198,15 +211,15 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
             <div className="oracle-workbench">
               <section className="oracle-card oracle-card--myth">
                 <div className="guess-panel__head">
-                  <span className="kicker"><Compass size={14} /> MAKE YOUR ORACLE</span>
+                  <span className="kicker"><Compass size={14} /> {copy.game.make}</span>
                   <strong>10,000 OP</strong>
                 </div>
                 <div className="myth-choice">
-                  <h2>Which myth are you inside?</h2>
+                  <h2>{copy.game.inside}</h2>
                   <div>
                     {scene.options.map((option, index) => (
                       <button className={answer === option ? 'is-selected' : ''} key={option} onClick={() => setAnswer(option)}>
-                        <span>{String.fromCharCode(65 + index)}</span>{option}
+                        <span>{String.fromCharCode(65 + index)}</span>{localiseMythTitle(option, locale)}
                       </button>
                     ))}
                   </div>
@@ -215,14 +228,14 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
 
               <section className="oracle-card oracle-card--map">
                 <div className="map-choice">
-                  <h2>Where are you on the ancient map?</h2>
-                  <MythMap interactive guess={guess} onGuess={setGuess} />
+                  <h2>{copy.game.where}</h2>
+                  <MythMap interactive guess={guess} onGuess={setGuess} locale={locale} />
                   <p>{guess
-                    ? 'Click again to move your pin. Exact coordinates are not required; a regional circle can earn full points.'
-                    : 'Pan, zoom, then place a pin. Each myth accepts a full-credit region, not one exact coordinate.'}</p>
+                    ? copy.game.pinPlaced
+                    : copy.game.pinEmpty}</p>
                 </div>
                 <button className="button button--gold oracle-card__submit" disabled={!answer || !guess} onClick={submitRound}>
-                  Seal the oracle <Flame size={17} />
+                  {copy.game.seal} <Flame size={17} />
                 </button>
               </section>
             </div>
@@ -231,16 +244,16 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
               <div className="round-result__copy">
                 <span className={`kicker ${result.recognition ? 'kicker--success' : 'kicker--danger'}`}>
                   {result.recognition ? <Check size={14} /> : <X size={14} />}
-                  {result.recognition ? 'MYTH IDENTIFIED' : 'FATE MISREAD'}
+                  {result.recognition ? copy.game.correct : copy.game.wrong}
                 </span>
-                <h2>{scene.title}</h2>
+                <h2>{localiseMythTitle(scene.title, locale)}</h2>
                 <p className="round-result__place"><Map size={15} /> {scene.location} · {scene.cycle}</p>
                 <p>{scene.reveal}</p>
                 <small>
                   {scene.geographyNote}<br />
-                  Full geography credit is awarded within {scene.accuracyRadiusKm} km of the reference point.<br />
+                  {copy.game.fullCredit(scene.accuracyRadiusKm)}<br />
                   {scene.source}<br />{scene.sourceNote}
-                  {scene.pleiadesUrl && <><br /><a href={scene.pleiadesUrl} target="_blank" rel="noreferrer">Open the Pleiades place record ↗</a></>}
+                  {scene.pleiadesUrl && <><br /><a href={scene.pleiadesUrl} target="_blank" rel="noreferrer">{copy.game.pleiades}</a></>}
                 </small>
               </div>
               <MythMap
@@ -248,17 +261,18 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
                 target={scene.coordinates}
                 targetRadiusKm={scene.accuracyRadiusKm}
                 targetConfidence={scene.mapConfidence}
+                locale={locale}
                 reveal
               />
               <div className="score-table">
-                <div><span>Myth</span><strong>{formatScore(result.recognition)}</strong><small>/ 3,500</small></div>
-                <div><span>Geography</span><strong>{formatScore(result.geography)}</strong><small>/ 4,000</small></div>
-                <div><span>Speed</span><strong>{formatScore(result.speed)}</strong><small>/ 1,500</small></div>
-                <div><span>Oracle bonus</span><strong>{formatScore(result.oracle)}</strong><small>/ 1,000</small></div>
-                <div className="score-table__total"><span>Round total</span><strong>{formatScore(result.total)}</strong><small>OP · {Math.round(result.distance)} km away</small></div>
+                <div><span>{copy.game.myth}</span><strong>{formatScore(result.recognition)}</strong><small>/ 3,500</small></div>
+                <div><span>{copy.game.geography}</span><strong>{formatScore(result.geography)}</strong><small>/ 4,000</small></div>
+                <div><span>{copy.game.speed}</span><strong>{formatScore(result.speed)}</strong><small>/ 1,500</small></div>
+                <div><span>{copy.game.bonus}</span><strong>{formatScore(result.oracle)}</strong><small>/ 1,000</small></div>
+                <div className="score-table__total"><span>{copy.game.total}</span><strong>{formatScore(result.total)}</strong><small>{copy.game.away(Math.round(result.distance))}</small></div>
               </div>
               <button className="button button--gold round-result__next" onClick={nextRound}>
-                {round === scenes.length - 1 ? 'See final score' : 'Next oracle'} <ChevronRight size={18} />
+                {round === scenes.length - 1 ? copy.game.final : copy.game.next} <ChevronRight size={18} />
               </button>
             </div>
           )}

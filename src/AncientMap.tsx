@@ -3,6 +3,7 @@ import type { GeoJsonObject } from 'geojson'
 import { useEffect, useRef, useState } from 'react'
 import type { MapConfidence, Point } from './data'
 import { ancientRegions, atlasPlaces, odysseyRoute } from './data'
+import type { Locale } from './i18n'
 
 const MEDITERRANEAN_BOUNDS = L.latLngBounds([28.5, -12], [48, 45])
 const INITIAL_BOUNDS = L.latLngBounds([30.5, -10], [45.5, 39])
@@ -24,6 +25,7 @@ export function MythMap({
   interactive = false,
   showRoute = false,
   onGuess,
+  locale = 'en',
 }: {
   guess?: Point | null
   target?: Point
@@ -33,7 +35,55 @@ export function MythMap({
   interactive?: boolean
   showRoute?: boolean
   onGuess?: (point: Point) => void
+  locale?: Locale
 }) {
+  const text = locale === 'tr'
+    ? {
+        zoomIn: 'Yakınlaştır',
+        zoomOut: 'Uzaklaştır',
+        attested: 'Belgelenmiş antik yer',
+        traditional: 'Geleneksel mit ilişkisi',
+        mythic: 'Yaklaşık mitik konum',
+        record: 'Pleiades kaydı ↗',
+        noRecord: 'Bağlı bağımsız yer kaydı yok',
+        guess: 'Tahminin',
+        storyAttested: 'Belgelenmiş hikâye yeri',
+        storyTraditional: 'Geleneksel ilişkilendirme',
+        storyMythic: 'Yaklaşık mitik konum',
+        fullCredit: 'Tam puan bölgesi',
+        interactiveAria: 'Antik Akdeniz’in etkileşimli haritası. Sürükleyip yakınlaş ve tahminini yerleştirmek için tıkla.',
+        atlasAria: 'Antik Ege ve Akdeniz’in etkileşimli atlası.',
+        loading: 'Antik kıyı çizgisi çiziliyor…',
+        error: 'Kıyı çizgisi katmanı yüklenemedi.',
+        era: 'ANTİK AKDENİZ · MODERN SINIR YOK',
+        keyAria: 'Harita kesinlik anahtarı',
+        keyAttested: 'Belgelenmiş',
+        keyTraditional: 'Gelenek',
+        keyMythic: 'Mitik',
+      }
+    : {
+        zoomIn: 'Zoom in',
+        zoomOut: 'Zoom out',
+        attested: 'Attested ancient site',
+        traditional: 'Traditional myth association',
+        mythic: 'Approximate mythic placement',
+        record: 'Pleiades record ↗',
+        noRecord: 'No individual gazetteer link attached',
+        guess: 'Your guess',
+        storyAttested: 'Attested story site',
+        storyTraditional: 'Traditional association',
+        storyMythic: 'Approximate mythic placement',
+        fullCredit: 'Full-credit region',
+        interactiveAria: 'Interactive map of the ancient Mediterranean. Pan and zoom, then click to place your guess.',
+        atlasAria: 'Interactive atlas of the ancient Aegean and Mediterranean.',
+        loading: 'Drawing the ancient coastline…',
+        error: 'The coastline layer could not be loaded.',
+        era: 'ANCIENT MEDITERRANEAN · NO MODERN BORDERS',
+        keyAria: 'Map confidence key',
+        keyAttested: 'Attested',
+        keyTraditional: 'Tradition',
+        keyMythic: 'Mythic',
+      }
   const hostRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const answerLayers = useRef<L.LayerGroup | null>(null)
@@ -66,7 +116,7 @@ export function MythMap({
     mapRef.current = map
     answerLayers.current = L.layerGroup().addTo(map)
 
-    L.control.zoom({ position: 'topright', zoomInTitle: 'Zoom in', zoomOutTitle: 'Zoom out' }).addTo(map)
+    L.control.zoom({ position: 'topright', zoomInTitle: text.zoomIn, zoomOutTitle: text.zoomOut }).addTo(map)
     L.control.scale({ position: 'bottomleft', imperial: false, maxWidth: 110 }).addTo(map)
     L.control.attribution({ position: 'bottomright', prefix: false })
       .addAttribution(
@@ -107,13 +157,13 @@ export function MythMap({
 
     atlasPlaces.forEach((place) => {
       const confidenceLabel: Record<MapConfidence, string> = {
-        attested: 'Attested ancient site',
-        traditional: 'Traditional myth association',
-        mythic: 'Approximate mythic placement',
+        attested: text.attested,
+        traditional: text.traditional,
+        mythic: text.mythic,
       }
       const popupSource = place.pleiadesUrl
-        ? `<a href="${place.pleiadesUrl}" target="_blank" rel="noreferrer">Pleiades record ↗</a>`
-        : '<span>No individual gazetteer link attached</span>'
+        ? `<a href="${place.pleiadesUrl}" target="_blank" rel="noreferrer">${text.record}</a>`
+        : `<span>${text.noRecord}</span>`
       L.marker([place.lat, place.lng], {
         icon: L.divIcon({
           className: `ancient-map__site ancient-map__site--${place.confidence}`,
@@ -187,7 +237,7 @@ export function MythMap({
       mapRef.current = null
       answerLayers.current = null
     }
-  }, [interactive, showRoute])
+  }, [interactive, locale, showRoute])
 
   useEffect(() => {
     const map = mapRef.current
@@ -197,15 +247,15 @@ export function MythMap({
 
     if (guess) {
       L.marker([guess.lat, guess.lng], { icon: markerIcon('ancient-map__pin--guess') })
-        .bindTooltip('Your guess', { className: 'ancient-map__answer-label', direction: 'top', offset: [0, -12] })
+        .bindTooltip(text.guess, { className: 'ancient-map__answer-label', direction: 'top', offset: [0, -12] })
         .addTo(layers)
     }
 
     if (reveal && target) {
       const targetLabel: Record<MapConfidence, string> = {
-        attested: 'Attested story site',
-        traditional: 'Traditional association',
-        mythic: 'Approximate mythic placement',
+        attested: text.storyAttested,
+        traditional: text.storyTraditional,
+        mythic: text.storyMythic,
       }
       const revealBounds = L.latLngBounds([[target.lat, target.lng]])
 
@@ -220,7 +270,7 @@ export function MythMap({
           dashArray: '4 5',
           interactive: false,
         })
-          .bindTooltip(`Full-credit region · ${Math.round(targetRadiusKm)} km`, {
+          .bindTooltip(`${text.fullCredit} · ${Math.round(targetRadiusKm)} km`, {
             className: 'ancient-map__answer-label',
             direction: 'bottom',
           })
@@ -246,7 +296,7 @@ export function MythMap({
         map.fitBounds(revealBounds, { padding: [40, 40], maxZoom: 6 })
       }
     }
-  }, [guess, reveal, target, targetConfidence, targetRadiusKm])
+  }, [guess, locale, reveal, target, targetConfidence, targetRadiusKm])
 
   return (
     <div className={`myth-map myth-map--${mapStatus} ${interactive ? 'myth-map--interactive' : ''}`}>
@@ -255,8 +305,8 @@ export function MythMap({
         className="myth-map__leaflet"
         role="application"
         aria-label={interactive
-          ? 'Interactive map of the ancient Mediterranean. Pan and zoom, then click to place your guess.'
-          : 'Interactive atlas of the ancient Aegean and Mediterranean.'}
+          ? text.interactiveAria
+          : text.atlasAria}
         onKeyDown={(event) => {
           if (!interactive || event.key !== 'Enter' || !mapRef.current) return
           event.preventDefault()
@@ -264,11 +314,11 @@ export function MythMap({
           onGuessRef.current?.({ lat: centre.lat, lng: centre.lng })
         }}
       />
-      {mapStatus === 'loading' && <span className="myth-map__status">Drawing the ancient coastline…</span>}
-      {mapStatus === 'error' && <span className="myth-map__status">The coastline layer could not be loaded.</span>}
-      <span className="myth-map__era">ANCIENT MEDITERRANEAN · NO MODERN BORDERS</span>
-      <span className="myth-map__key" aria-label="Map confidence key">
-        <i className="is-attested" /> Attested <i className="is-traditional" /> Tradition <i className="is-mythic" /> Mythic
+      {mapStatus === 'loading' && <span className="myth-map__status">{text.loading}</span>}
+      {mapStatus === 'error' && <span className="myth-map__status">{text.error}</span>}
+      <span className="myth-map__era">{text.era}</span>
+      <span className="myth-map__key" aria-label={text.keyAria}>
+        <i className="is-attested" /> {text.keyAttested} <i className="is-traditional" /> {text.keyTraditional} <i className="is-mythic" /> {text.keyMythic}
       </span>
     </div>
   )
