@@ -18,6 +18,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { Point } from './data'
 import { createGameDeck, type GameMode } from './gameDeck'
 import { localiseMythTitle, ui, type Locale } from './i18n'
+import { localiseSceneClues } from './sceneCopy'
 import { formatScore, scoreRound, type ScoreBreakdown } from './scoring'
 import { MythMap } from './AncientMap'
 import { SphereViewer } from './SphereViewer'
@@ -71,6 +72,7 @@ export function Game({
   const [history, setHistory] = useState<RoundResult[]>([])
   const [finished, setFinished] = useState(false)
   const scene = scenes[round]
+  const sceneClues = localiseSceneClues(scene, locale)
   const maximumScore = scenes.length * 10_000
   const modeCopy = mode === 'odyssey'
     ? { bestScoreKey: 'mythos-best-score-odyssey', journeyLabel: copy.game.odyssey, completionLabel: copy.game.odysseyComplete }
@@ -193,18 +195,18 @@ export function Game({
         {!result && (
           <button
             className="oracle-button"
-            disabled={cluesUsed >= scene.clues.length}
-            onClick={() => setCluesUsed((value) => Math.min(scene.clues.length, value + 1))}
+            disabled={cluesUsed >= sceneClues.length}
+            onClick={() => setCluesUsed((value) => Math.min(sceneClues.length, value + 1))}
           >
             <Sparkles size={16} /> {copy.game.ask}
-            <small>{cluesUsed === 0 ? copy.game.preserved : copy.game.cluesRemain(scene.clues.length - cluesUsed)}</small>
+            <small>{cluesUsed === 0 ? copy.game.preserved : copy.game.cluesRemain(sceneClues.length - cluesUsed)}</small>
           </button>
         )}
 
         {cluesUsed > 0 && !result && (
           <aside className="clue-scroll" aria-live="polite">
-            <span>{copy.game.whispers} · {cluesUsed}/{scene.clues.length}</span>
-            <p>“{scene.clues[cluesUsed - 1]}”</p>
+            <span>{copy.game.whispers} · {cluesUsed}/{sceneClues.length}</span>
+            <p>“{sceneClues[cluesUsed - 1]}”</p>
           </aside>
         )}
 

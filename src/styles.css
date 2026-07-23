@@ -1033,6 +1033,8 @@ img {
   text-align: center;
   text-shadow: 0 1px rgba(247, 240, 223, 0.7);
   white-space: nowrap;
+  opacity: var(--region-label-opacity, 1);
+  transition: opacity 180ms ease;
 }
 
 .ancient-map__region--sea {
@@ -1073,6 +1075,18 @@ img {
   font-size: calc(10px * var(--map-label-scale, 1));
   font-weight: 700;
   line-height: 1.15;
+}
+
+.ancient-map__site-label {
+  visibility: hidden;
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.ancient-map__site-label.is-visible {
+  visibility: visible;
+  opacity: 0.96 !important;
 }
 
 .ancient-map__site-label::before,

@@ -3,6 +3,7 @@ import { atlasPlaces } from './data'
 
 const answerGivingWords = [
   'aeolia',
+  'arachne',
   'calypso',
   'chimera',
   'cicones',
@@ -13,8 +14,12 @@ const answerGivingWords = [
   'gorgon',
   'hydra',
   'hylas',
+  'hermaphrodit',
+  'hero',
+  'hippolyta',
   'iphigenia',
   'laestrygon',
+  'leto',
   'lotophag',
   'marsyas',
   'midas',
@@ -23,9 +28,13 @@ const answerGivingWords = [
   'paris',
   'pegasus',
   'scheria',
+  'salmacis',
   'sphinx',
   'telepylus',
+  'teleph',
   'thrinacia',
+  'leander',
+  'attis',
 ]
 
 describe('game-map labels', () => {
@@ -38,8 +47,13 @@ describe('game-map labels', () => {
     answerGivingWords.forEach((word) => expect(gameLabels).not.toContain(word))
   })
 
-  it('keeps contextual labels available in the free atlas and answer reveal', () => {
+  it('keeps source context internally while exposing only neutral public labels', () => {
     expect(atlasPlaces.some((place) => place.name === 'Tempe / Daphne' && place.gameName?.en === 'Tempe Valley')).toBe(true)
+    expect(atlasPlaces.some((place) => place.name === 'Yanartaş / Chimera' && place.gameName?.en === 'Yanartaş')).toBe(true)
     expect(atlasPlaces.some((place) => place.name === 'Kelainai / Marsyas' && place.gameName?.en === 'Kelainai')).toBe(true)
+    expect(atlasPlaces.some((place) => place.name === 'Themiscyra / Hippolyta' && place.gameName?.en === 'Thermodon Plain')).toBe(true)
+    expect(atlasPlaces.some((place) => place.name === 'Letoon / Leto' && place.gameName?.en === 'Xanthos Valley')).toBe(true)
+    expect(atlasPlaces.some((place) => place.name === 'Pessinus / Attis' && place.gameName?.en === 'Pessinus')).toBe(true)
+    expect(atlasPlaces.some((place) => place.name === 'Bosporus / Io' && place.gameName?.en === 'Thracian Bosporus')).toBe(true)
   })
 })

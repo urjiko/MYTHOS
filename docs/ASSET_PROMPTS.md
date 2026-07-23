@@ -1,6 +1,6 @@
 # MYTHOS — Generated asset prompts
 
-All thirty-seven images were generated with the built-in image generation tool. The thirty-six game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
+All forty-five images were generated with the built-in image generation tool. The forty-four game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
 
 ## Mandatory 360° projection contract
 
@@ -159,3 +159,35 @@ Every game-scene prompt begins with this contract:
 ## `scene-hylas-nymphs.webp`
 
 > A full-moon spring in the Mysian woods near Kios. Hylas kneels with a bronze water jar as a spring nymph rises from reflected water; Heracles searches far through the trees while the Argo and its departing crew appear in another direction on the Propontis shore. The abduction remains mysterious and non-violent.
+
+## `scene-arachne-athena.webp`
+
+> A Lydian weaving courtyard at ancient Hypaipa beneath Mount Tmolus in warm late-afternoon light. The viewer stands between two monumental upright looms. Arachne works an astonishing tapestry in one direction; Athena, first suggested as a grave older woman, stands beside an owl-marked spindle weight and a lowered spear elsewhere. Wool baskets, purple dye jars, a web-shaped shadow, and the Cayster valley reward a full turn. The metamorphosis is symbolic and contains no body horror.
+
+## `scene-salmacis-hermaphroditus.webp`
+
+> The sacred spring of Salmacis at ancient Halicarnassus, viewed from a Carian stone terrace. Fully clothed Hermaphroditus pauses at the water edge while Salmacis appears at a respectful distance across the spring. Separate signs of Hermes and Aphrodite, twin reflections, reeds, the grotto, and the ancient harbour distribute the story around the sphere. No nudity, coercive physical contact, or erotic close-up.
+
+## `scene-hero-leander.webp`
+
+> A storm-dark night at the Hellespont Narrows between Sestos and Abydos. The viewer stands on the rocky terrace of Hero’s small sanctuary tower. Hero shields a bright oil lamp in one direction; Leander is a small swimmer in the moonlit current in another; Abydos glows on the opposite shore while rain threatens the beacon. Tragic foreboding without depicting drowning or injury.
+
+## `scene-hippolyta-girdle.webp`
+
+> Dawn at the harbour and river plain of Themiscyra beside the Thermodon. Queen Hippolyta openly holds Ares’ ornate war belt as Heracles approaches peacefully from a newly arrived ship. Elsewhere, disguised Hera spreads alarm among mounted Amazons, who begin to reach for bows before the misunderstanding turns violent. Historically grounded Anatolian riding dress, river reeds, Black Sea light, no active battle or comic-book styling.
+
+## `scene-leto-lycians.webp`
+
+> A bright Lycian valley and spring landscape near the Letoon. Leto carries the infant Apollo and Artemis as she asks reed-cutting peasants for water. In other directions the men deliberately churn the pool into mud, wolves watch from the dry bank, and frogs begin to emerge among the reeds. The sanctuary architecture remains a regional cult anchor rather than a claim that this is the story’s exact pond.
+
+## `scene-telephus-achilles.webp`
+
+> The Mysian coast and plain of Teuthrania during the Achaeans’ mistaken landing before Troy. Greek ships crowd the wrong shore; Telephus defends his kingdom while a vine catches around him and Achilles holds the Pelian spear at a distance. The later cure is suggested through a bronze basin and filings from the same spear. The panorama stops before any wound and contains no active violence.
+
+## `scene-attis-great-mother.webp`
+
+> Pessinus in Phrygia during a royal wedding procession. Attis, the bride, musicians, garlands, the mountain presence of Agdistis, a sanctuary of the Great Mother, and an evergreen pine occupy separate directions as celebration turns to supernatural alarm. The panorama ends before the tragedy and uses the pine as a dignified symbol of preservation; no injury, self-harm, or graphic detail.
+
+## `scene-io-flight.webp`
+
+> The Thracian Bosporus at storm-lit dawn as the horned, fully clothed Io reaches the crossing between Europe and Asia. Hera’s gadfly, a passing archaic ship, churning currents, and subtle peacock-eyed motifs of surveillance are distributed around the full sphere. The opposing shores remain one continuous environment; the cow transformation is suggested through horns and reflection rather than body horror.

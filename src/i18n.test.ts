@@ -15,6 +15,9 @@ describe('MYTHOS locale resolution', () => {
 
   it('localises archive myth titles without changing the canonical answer value', () => {
     expect(localiseMythTitle('Orpheus and Eurydice', 'tr')).toBe('Orpheus ve Eurydike')
+    expect(localiseMythTitle('The Girdle of Hippolyta', 'tr')).toBe('Hippolyta’nın Kuşağı')
+    expect(localiseMythTitle('Leto and the Lycian Peasants', 'tr')).toBe('Leto ve Lykialı Köylüler')
+    expect(localiseMythTitle('Io’s Flight', 'tr')).toBe('Io’nun Kaçışı')
     expect(localiseMythTitle('Orpheus and Eurydice', 'en')).toBe('Orpheus and Eurydice')
   })
 })

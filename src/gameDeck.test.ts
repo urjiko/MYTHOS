@@ -4,7 +4,7 @@ import { createGameDeck, DEFAULT_ROUND_COUNT } from './gameDeck'
 
 describe('MYTHOS game decks', () => {
   it('keeps the expanded archive complete', () => {
-    expect(mythScenes).toHaveLength(36)
+    expect(mythScenes).toHaveLength(44)
     expect(mythScenes.map((scene) => scene.id)).toEqual(expect.arrayContaining([
       'echo',
       'pegasus-birth',
@@ -23,6 +23,14 @@ describe('MYTHOS game decks', () => {
       'niobe-sipylus',
       'selene-endymion',
       'hylas-nymphs',
+      'arachne-athena',
+      'salmacis-hermaphroditus',
+      'hero-leander',
+      'hippolyta-girdle',
+      'leto-lycians',
+      'telephus-achilles',
+      'attis-great-mother',
+      'io-flight',
     ]))
   })
 

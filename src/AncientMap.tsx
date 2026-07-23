@@ -1,13 +1,28 @@
 import L from 'leaflet'
 import type { GeoJsonObject } from 'geojson'
 import { useEffect, useRef, useState } from 'react'
-import type { MapConfidence, Point } from './data'
+import type { AtlasPlace, MapConfidence, Point } from './data'
 import { ancientRegions, atlasPlaces, odysseyRoute } from './data'
 import type { Locale } from './i18n'
 
 const MEDITERRANEAN_BOUNDS = L.latLngBounds([28.5, -12], [48, 45])
 const INITIAL_BOUNDS = L.latLngBounds([30.5, -10], [45.5, 39])
 const MIN_ZOOM = 3.5
+const MAJOR_LABELS = new Set([
+  'Olympus',
+  'Delphi',
+  'Athens',
+  'Knossos',
+  'Ilion / Troy',
+  'Ithaca',
+  'Thebes',
+  'Mycenae',
+  'Corinth',
+])
+
+export function mapLabelForPlace(place: AtlasPlace, locale: Locale) {
+  return place.gameName?.[locale] ?? place.name
+}
 
 const markerIcon = (className: string, glyph = '') => L.divIcon({
   className: `ancient-map__pin ${className}`,
@@ -116,10 +131,48 @@ export function MythMap({
     mapRef.current = map
     answerLayers.current = L.layerGroup().addTo(map)
 
-    const updateLabelScale = () => {
+    const siteLabels: Array<{
+      marker: L.Marker
+      label: string
+      minimumZoom: number
+      priority: number
+    }> = []
+
+    const updateMapLabels = () => {
       const zoomAboveOverview = Math.max(0, map.getZoom() - MIN_ZOOM)
       const labelScale = Math.min(1.38, 1 + zoomAboveOverview * 0.075)
       host.style.setProperty('--map-label-scale', labelScale.toFixed(3))
+      host.style.setProperty('--region-label-opacity', map.getZoom() < 5 ? '1' : '0.16')
+
+      const occupied: L.Bounds[] = []
+      const compactPenalty = host.clientWidth < 500 ? 0.45 : 0
+
+      siteLabels
+        .slice()
+        .sort((left, right) => left.priority - right.priority || left.label.localeCompare(right.label))
+        .forEach(({ marker, label, minimumZoom }) => {
+          const tooltip = marker.getTooltip()?.getElement()
+          if (!tooltip) return
+
+          const point = map.latLngToContainerPoint(marker.getLatLng())
+          const width = Math.min(190, 22 + label.length * 6.5 * labelScale)
+          const height = 18 * labelScale
+          const bounds = L.bounds(
+            L.point(point.x + 7, point.y - height / 2),
+            L.point(point.x + 7 + width, point.y + height / 2),
+          )
+          const isInViewport = point.x >= -width
+            && point.x <= host.clientWidth
+            && point.y >= -height
+            && point.y <= host.clientHeight + height
+          const collides = occupied.some((other) => other.intersects(bounds))
+          const visible = isInViewport
+            && map.getZoom() >= minimumZoom + compactPenalty
+            && !collides
+
+          tooltip.classList.toggle('is-visible', visible)
+          if (visible) occupied.push(bounds)
+        })
     }
 
     L.control.zoom({ position: 'topright', zoomInTitle: text.zoomIn, zoomOutTitle: text.zoomOut }).addTo(map)
@@ -162,9 +215,8 @@ export function MythMap({
     })
 
     atlasPlaces.forEach((place) => {
-      const placeName = interactive
-        ? place.gameName?.[locale] ?? place.name
-        : place.name
+      const placeName = mapLabelForPlace(place, locale)
+      const popupName = placeName
       const confidenceLabel: Record<MapConfidence, string> = {
         attested: text.attested,
         traditional: text.traditional,
@@ -173,7 +225,7 @@ export function MythMap({
       const popupSource = place.pleiadesUrl
         ? `<a href="${place.pleiadesUrl}" target="_blank" rel="noreferrer">${text.record}</a>`
         : `<span>${text.noRecord}</span>`
-      L.marker([place.lat, place.lng], {
+      const marker = L.marker([place.lat, place.lng], {
         icon: L.divIcon({
           className: `ancient-map__site ancient-map__site--${place.confidence}`,
           html: '<span></span>',
@@ -189,8 +241,24 @@ export function MythMap({
           direction: 'right',
           offset: [6, 0],
         })
-        .bindPopup(`<strong>${placeName}</strong><small>${place.type} · ${place.period}<br>${confidenceLabel[place.confidence]}</small>${popupSource}`)
+        .bindPopup(`<strong>${popupName}</strong><small>${place.type} · ${place.period}<br>${confidenceLabel[place.confidence]}</small>${popupSource}`)
         .addTo(map)
+
+      const priority = MAJOR_LABELS.has(place.name)
+        ? 0
+        : place.confidence === 'attested'
+          ? 1
+          : place.confidence === 'traditional'
+            ? 2
+            : 3
+      const minimumZoom = priority === 0
+        ? 4.7
+        : priority === 1
+          ? 5.35
+          : priority === 2
+            ? 5.85
+            : 6.25
+      siteLabels.push({ marker, label: placeName, minimumZoom, priority })
     })
 
     if (showRoute) {
@@ -209,11 +277,15 @@ export function MythMap({
       onGuessRef.current?.({ lat: event.latlng.lat, lng: event.latlng.lng })
     }
     map.on('click', handleMapClick)
-    map.on('zoomend', updateLabelScale)
+    map.on('zoomend', updateMapLabels)
+    map.on('moveend', updateMapLabels)
     map.fitBounds(INITIAL_BOUNDS, { padding: [10, 10] })
-    updateLabelScale()
+    window.requestAnimationFrame(updateMapLabels)
 
-    const resizeObserver = new ResizeObserver(() => map.invalidateSize({ pan: false }))
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize({ pan: false })
+      window.requestAnimationFrame(updateMapLabels)
+    })
     resizeObserver.observe(host)
 
     fetch('./data/mediterranean-land.geojson')
@@ -244,7 +316,8 @@ export function MythMap({
       cancelled = true
       resizeObserver.disconnect()
       map.off('click', handleMapClick)
-      map.off('zoomend', updateLabelScale)
+      map.off('zoomend', updateMapLabels)
+      map.off('moveend', updateMapLabels)
       map.remove()
       mapRef.current = null
       answerLayers.current = null
