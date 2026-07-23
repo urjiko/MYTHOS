@@ -170,10 +170,6 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
 
       <section className="game-stage">
         <SphereViewer scene={scene} />
-        <div className="game-stage__title">
-          <span>{scene.eyebrow}</span>
-          <p>{scene.prompt}</p>
-        </div>
 
         {!result && (
           <button
@@ -195,12 +191,12 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
 
         <aside className={`guess-panel ${result ? 'guess-panel--result' : ''}`}>
           {!result ? (
-            <>
-              <div className="guess-panel__head">
-                <span className="kicker"><Compass size={14} /> MAKE YOUR ORACLE</span>
-                <strong>10,000 OP</strong>
-              </div>
-              <div className="guess-panel__columns">
+            <div className="oracle-workbench">
+              <section className="oracle-card oracle-card--myth">
+                <div className="guess-panel__head">
+                  <span className="kicker"><Compass size={14} /> MAKE YOUR ORACLE</span>
+                  <strong>10,000 OP</strong>
+                </div>
                 <div className="myth-choice">
                   <h2>Which myth are you inside?</h2>
                   <div>
@@ -211,6 +207,9 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
                     ))}
                   </div>
                 </div>
+              </section>
+
+              <section className="oracle-card oracle-card--map">
                 <div className="map-choice">
                   <h2>Where are you on the ancient map?</h2>
                   <MythMap interactive guess={guess} onGuess={setGuess} />
@@ -218,17 +217,11 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
                     ? 'Click again to move your pin. Exact coordinates are not required; a regional circle can earn full points.'
                     : 'Pan, zoom, then place a pin. Each myth accepts a full-credit region, not one exact coordinate.'}</p>
                 </div>
-              </div>
-              <div className="guess-panel__footer">
-                <span><i>3,500</i> Myth</span>
-                <span><i>4,000</i> Location</span>
-                <span><i>1,500</i> Speed</span>
-                <span><i>1,000</i> Unaided</span>
-                <button className="button button--ink" disabled={!answer || !guess} onClick={submitRound}>
+                <button className="button button--gold oracle-card__submit" disabled={!answer || !guess} onClick={submitRound}>
                   Seal the oracle <Flame size={17} />
                 </button>
-              </div>
-            </>
+              </section>
+            </div>
           ) : (
             <div className="round-result">
               <div className="round-result__copy">

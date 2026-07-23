@@ -1,6 +1,6 @@
 # MYTHOS — Generated asset prompts
 
-All twenty images were generated with the built-in image generation tool. The nineteen game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
+All twenty-three images were generated with the built-in image generation tool. The twenty-two game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
 
 ## Mandatory 360° projection contract
 
@@ -91,3 +91,15 @@ Every game-scene prompt begins with this contract:
 ## `scene-daphne.webp`
 
 > The Vale of Tempe along the river Peneus at the climax of Apollo and Daphne. Cupid’s golden and leaden arrows, Apollo’s abandoned bow, the river-god rising at a distance, and Daphne’s transformation from rooted feet to laurel branches are distributed around a coherent gorge. The metamorphosis is botanical and dignified, with no violence, nudity, or close-up fantasy portrait.
+
+## `scene-echo.webp`
+
+> A wooded limestone gorge in Boeotia near Thespiae and Mount Helicon. Echo delays Hera through animated conversation while other nymphs disappear into the forest; Narcissus calls beside a perfectly still pool in another direction, unaware that Echo watches from a cave. Repeated natural arches, ripples, and Echo’s body subtly blending into stone suggest the returning voice without text or graphic sound waves.
+
+## `scene-pegasus-birth.webp`
+
+> The Gorgons’ remote western cavern at the springs of Oceanus immediately after Perseus’s victory. Every violent detail remains concealed by Athena’s polished shield and drapery. The newborn white Pegasus rises from luminous sea mist with wet wings unfolding, while the golden warrior Chrysaor appears separately on the shore. Petrified figures, serpent motifs, a curved harpe, and the ocean opening reward exploration around the sphere.
+
+## `scene-chimera.webp`
+
+> Yanartaş above the Lycian coast at night, with dozens of small natural flames emerging from cracks in pale rock. The Mediterranean, Olympos valley, pine slopes, ships, and modest Hephaestus ruins ground the place. A distant lion-goat-serpent Chimera and Bellerophon riding one Pegasus occupy separate yaw directions, keeping the real eternal-fire landscape as important as the combat.

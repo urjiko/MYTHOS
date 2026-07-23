@@ -155,7 +155,7 @@ export function SphereViewer({ scene }: { scene: MythScene }) {
       className={`scene-viewer scene-viewer--${status}`}
       style={{ '--scene-fallback': scene.fallback } as React.CSSProperties}
       role="application"
-      aria-label={`${scene.title}: immersive 360-degree spherical scene. Drag to look around, or use the arrow and plus/minus keys.`}
+      aria-label="Immersive 360-degree myth scene. Drag to look around, or use the arrow and plus/minus keys."
       tabIndex={0}
       onPointerDown={(event) => {
         if ((event.target as HTMLElement).closest('button')) return

@@ -235,7 +235,7 @@ function ArchivePage({ onNavigate, onStartGame }: NavigationProps) {
       <main className="inner-page__main section-shell">
         <span className="kicker">MYTH ARCHIVE</span>
         <h1>Ancient <em>stories</em></h1>
-        <p className="inner-page__lede">Nineteen playable stories now form the first chapter. The archive will grow as new panoramic scenes are researched and produced.</p>
+        <p className="inner-page__lede">The archive now holds {mythScenes.length} playable stories. It will keep growing as new panoramic scenes are researched and produced.</p>
         <div className="archive-page__filters">
           <button className="is-active">All</button><button>Gods</button><button>Heroes</button><button>Monsters</button><button>Troy</button>
         </div>
@@ -261,7 +261,7 @@ function Footer({ onNavigate, onStartGame }: NavigationProps) {
     <footer className="site-footer">
       <div><Logo inverse /><p>A playable way to explore Greek mythology.</p></div>
       <nav><button onClick={() => onStartGame('all')}>Play</button><button onClick={() => onNavigate('atlas')}>Atlas</button><button onClick={() => onNavigate('archive')}>Archive</button><a href="#manifesto">About</a></nav>
-      <span>MYTHOS · PROTOTYPE 0.4<br />ORIGINAL ART &amp; CODE</span>
+      <span>MYTHOS · PROTOTYPE 0.5<br />ORIGINAL ART &amp; CODE</span>
     </footer>
   )
 }

@@ -3,6 +3,15 @@ import { mythScenes } from './data'
 import { createGameDeck, DEFAULT_ROUND_COUNT } from './gameDeck'
 
 describe('MYTHOS game decks', () => {
+  it('keeps the expanded archive complete', () => {
+    expect(mythScenes).toHaveLength(22)
+    expect(mythScenes.map((scene) => scene.id)).toEqual(expect.arrayContaining([
+      'echo',
+      'pegasus-birth',
+      'chimera',
+    ]))
+  })
+
   it('draws a six-scene general journey without duplicates', () => {
     const deck = createGameDeck('all', () => 0)
 
