@@ -1,6 +1,6 @@
 # MYTHOS — Generated asset prompts
 
-All thirty-three images were generated with the built-in image generation tool. The thirty-two game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
+All thirty-seven images were generated with the built-in image generation tool. The thirty-six game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
 
 ## Mandatory 360° projection contract
 
@@ -143,3 +143,19 @@ Every game-scene prompt begins with this contract:
 ## `scene-midas-gold.webp`
 
 > A Phrygian court associated with Gordion as Midas discovers that bread, fruit, wine, branches, and stone all become useless gold. Silenus, Dionysus, recoiling attendants, an untouched garden, and a river valley are separated around the 360° courtyard. No transformed daughter appears because that episode is later than Ovid’s account.
+
+## `scene-apollo-marsyas.webp`
+
+> A spring sanctuary at Kelainai in Phrygia before the musical contest reaches its violent aftermath. Apollo with a kithara, Marsyas with a double aulos, silent judges, the river cave, discarded pipes, pines, and the city terraces occupy different yaw directions. The figures remain fully clothed and distant; no punishment or injury is shown.
+
+## `scene-niobe-sipylus.webp`
+
+> The rugged slopes of Mount Sipylus as Niobe’s grief becomes enduring stone. A dignified queen merging into a weeping rock, flowing mountain water, lowered bows associated with Apollo and Artemis, empty family emblems, the Hermus plain, and distant Magnesia are distributed around the sphere. No bodies, wounds, or transformation horror.
+
+## `scene-selene-endymion.webp`
+
+> A moonlit cave high on Carian Mount Latmos. The sleeping Endymion, Selene arriving in pale light, her horses, a shepherd’s staff, a sanctuary offering, granite outcrops, Lake Latmos, and the distant lights of Heraclea occupy separate directions. Quiet sacred night, no romantic close-up.
+
+## `scene-hylas-nymphs.webp`
+
+> A full-moon spring in the Mysian woods near Kios. Hylas kneels with a bronze water jar as a spring nymph rises from reflected water; Heracles searches far through the trees while the Argo and its departing crew appear in another direction on the Propontis shore. The abduction remains mysterious and non-violent.

@@ -173,7 +173,7 @@ export const ui = {
       atlas: 'Atlas',
       archive: 'Archive',
       about: 'About',
-      version: 'MYTHOS · PROTOTYPE 0.7',
+      version: 'MYTHOS · PROTOTYPE 0.8',
       credit: 'ORIGINAL ART & CODE',
     },
   },
@@ -331,7 +331,7 @@ export const ui = {
       atlas: 'Atlas',
       archive: 'Arşiv',
       about: 'Hakkında',
-      version: 'MYTHOS · PROTOTİP 0.7',
+      version: 'MYTHOS · PROTOTİP 0.8',
       credit: 'ÖZGÜN GÖRSEL VE KOD',
     },
   },
@@ -370,6 +370,10 @@ const sceneTitleTr: Record<string, string> = {
   'Oedipus and the Sphinx': 'Oidipus ve Sfenks',
   'Heracles and the Lernaean Hydra': 'Herakles ve Lerna Hydra’sı',
   'Midas and the Golden Touch': 'Midas ve Altın Dokunuş',
+  'Apollo and Marsyas': 'Apollon ve Marsyas',
+  'Niobe’s Tears': 'Niobe’nin Gözyaşları',
+  'Selene and Endymion': 'Selene ve Endymion',
+  'Hylas and the Nymphs': 'Hylas ve Nympheler',
 }
 
 export function localiseMythTitle(title: string, locale: Locale) {

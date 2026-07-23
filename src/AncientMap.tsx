@@ -116,6 +116,12 @@ export function MythMap({
     mapRef.current = map
     answerLayers.current = L.layerGroup().addTo(map)
 
+    const updateLabelScale = () => {
+      const zoomAboveOverview = Math.max(0, map.getZoom() - MIN_ZOOM)
+      const labelScale = Math.min(1.38, 1 + zoomAboveOverview * 0.075)
+      host.style.setProperty('--map-label-scale', labelScale.toFixed(3))
+    }
+
     L.control.zoom({ position: 'topright', zoomInTitle: text.zoomIn, zoomOutTitle: text.zoomOut }).addTo(map)
     L.control.scale({ position: 'bottomleft', imperial: false, maxWidth: 110 }).addTo(map)
     L.control.attribution({ position: 'bottomright', prefix: false })
@@ -156,6 +162,9 @@ export function MythMap({
     })
 
     atlasPlaces.forEach((place) => {
+      const placeName = interactive
+        ? place.gameName?.[locale] ?? place.name
+        : place.name
       const confidenceLabel: Record<MapConfidence, string> = {
         attested: text.attested,
         traditional: text.traditional,
@@ -172,15 +181,15 @@ export function MythMap({
           iconSize: [10, 10],
         }),
         keyboard: true,
-        title: place.name,
+        title: placeName,
       })
-        .bindTooltip(place.name, {
+        .bindTooltip(placeName, {
           className: 'ancient-map__site-label',
           permanent: true,
           direction: 'right',
           offset: [6, 0],
         })
-        .bindPopup(`<strong>${place.name}</strong><small>${place.type} · ${place.period}<br>${confidenceLabel[place.confidence]}</small>${popupSource}`)
+        .bindPopup(`<strong>${placeName}</strong><small>${place.type} · ${place.period}<br>${confidenceLabel[place.confidence]}</small>${popupSource}`)
         .addTo(map)
     })
 
@@ -200,7 +209,9 @@ export function MythMap({
       onGuessRef.current?.({ lat: event.latlng.lat, lng: event.latlng.lng })
     }
     map.on('click', handleMapClick)
+    map.on('zoomend', updateLabelScale)
     map.fitBounds(INITIAL_BOUNDS, { padding: [10, 10] })
+    updateLabelScale()
 
     const resizeObserver = new ResizeObserver(() => map.invalidateSize({ pan: false }))
     resizeObserver.observe(host)
@@ -233,6 +244,7 @@ export function MythMap({
       cancelled = true
       resizeObserver.disconnect()
       map.off('click', handleMapClick)
+      map.off('zoomend', updateLabelScale)
       map.remove()
       mapRef.current = null
       answerLayers.current = null
