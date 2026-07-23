@@ -1,8 +1,18 @@
 import { mythScenes, type MythScene } from './data'
 
-export type GameMode = 'all' | 'odyssey'
+export type GameMode = 'all' | 'odyssey' | 'iliad'
 
 export const DEFAULT_ROUND_COUNT = 6
+export const TROJAN_ROUTE_IDS = [
+  'judgement-paris',
+  'iphigenia-aulis',
+  'hector-andromache',
+  'patroclus-falls',
+  'achilles-hector',
+  'priam-achilles',
+] as const
+
+const trojanRouteIds = new Set<string>(TROJAN_ROUTE_IDS)
 
 export function shuffle<T>(items: readonly T[], random: () => number = Math.random): T[] {
   const shuffled = [...items]
@@ -19,10 +29,12 @@ export function createGameDeck(
 ): MythScene[] {
   const pool = mode === 'odyssey'
     ? mythScenes.filter((scene) => scene.category === 'odyssey')
-    : mythScenes
-  const roundCount = mode === 'odyssey'
-    ? pool.length
-    : Math.min(DEFAULT_ROUND_COUNT, pool.length)
+    : mode === 'iliad'
+      ? mythScenes.filter((scene) => trojanRouteIds.has(scene.id))
+      : mythScenes
+  const roundCount = mode === 'all'
+    ? Math.min(DEFAULT_ROUND_COUNT, pool.length)
+    : pool.length
 
   return shuffle(pool, random)
     .slice(0, roundCount)

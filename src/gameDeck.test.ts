@@ -4,11 +4,17 @@ import { createGameDeck, DEFAULT_ROUND_COUNT } from './gameDeck'
 
 describe('MYTHOS game decks', () => {
   it('keeps the expanded archive complete', () => {
-    expect(mythScenes).toHaveLength(22)
+    expect(mythScenes).toHaveLength(28)
     expect(mythScenes.map((scene) => scene.id)).toEqual(expect.arrayContaining([
       'echo',
       'pegasus-birth',
       'chimera',
+      'judgement-paris',
+      'iphigenia-aulis',
+      'hector-andromache',
+      'patroclus-falls',
+      'achilles-hector',
+      'priam-achilles',
     ]))
   })
 
@@ -26,6 +32,14 @@ describe('MYTHOS game decks', () => {
     expect(odysseyCount).toBe(13)
     expect(deck).toHaveLength(odysseyCount)
     expect(deck.every((scene) => scene.category === 'odyssey')).toBe(true)
+  })
+
+  it('builds the six-scene Trojan chronicle without pulling in the horse', () => {
+    const deck = createGameDeck('iliad', () => 0.61)
+
+    expect(deck).toHaveLength(6)
+    expect(deck.every((scene) => scene.category === 'trojan')).toBe(true)
+    expect(deck.some((scene) => scene.id === 'trojan-horse')).toBe(false)
   })
 
   it('shuffles answer slots without mutating the archive data', () => {

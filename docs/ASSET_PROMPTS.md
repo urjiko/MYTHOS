@@ -1,6 +1,6 @@
 # MYTHOS — Generated asset prompts
 
-All twenty-three images were generated with the built-in image generation tool. The twenty-two game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
+All twenty-nine images were generated with the built-in image generation tool. The twenty-eight game scenes are purpose-built spherical textures; the Olympus landing image remains conventional flat artwork.
 
 ## Mandatory 360° projection contract
 
@@ -103,3 +103,27 @@ Every game-scene prompt begins with this contract:
 ## `scene-chimera.webp`
 
 > Yanartaş above the Lycian coast at night, with dozens of small natural flames emerging from cracks in pale rock. The Mediterranean, Olympos valley, pine slopes, ships, and modest Hephaestus ruins ground the place. A distant lion-goat-serpent Chimera and Bellerophon riding one Pegasus occupy separate yaw directions, keeping the real eternal-fire landscape as important as the combat.
+
+## `scene-judgement-paris.webp`
+
+> Mount Ida in the Troad at golden dawn. Paris holds one golden apple while Hermes and the three distinct goddesses occupy separate directions: royal Hera, armed Athena, and flower-crowned Aphrodite. A shepherd camp, pines, the Troad plain, and the distant sea build a continuous Bronze Age landscape without written promises or later Classical architecture.
+
+## `scene-iphigenia-aulis.webp`
+
+> Windless Aulis at blue dawn, with the entire Achaean fleet immobilised on still water around a sacred grove. Iphigenia remains dignified and unharmed as Artemis appears in silver mist and a living deer occupies the altar; Agamemnon, Clytemnestra, Achilles, and Calchas are separated around the enclosure. Tragic tension without gore.
+
+## `scene-hector-andromache.webp`
+
+> Inside the Scaean Gate at late afternoon. Hector has placed his horsehair-crested helmet on the ground and reaches toward Astyanax while Andromache and the nurse stand nearby. Troy continues behind the viewer and the war remains visible through the open gate, turning the sphere into a domestic farewell inside a military city.
+
+## `scene-patroclus-falls.webp`
+
+> The storm-dark Trojan plain at the fall of Patroclus. Apollo loosens the borrowed armour from behind, Achilles’ helmet lies in the dust, Euphorbus waits with his spear, and Hector approaches from another direction. Ships and Troy anchor opposite sides of the sphere; no graphic wound is shown.
+
+## `scene-achilles-hector.webp`
+
+> Outside Troy beneath a fatal storm, Achilles in the radiant armour of Hephaestus confronts Hector near the two springs. The Scaean Gate, divided armies, a distant deceptive Deiphobus figure, and Zeus’s golden scales occupy separate yaw directions. The scene stops before the fatal strike.
+
+## `scene-priam-achilles.webp`
+
+> Night inside Achilles’ timber-and-hide hut in the Achaean camp. Priam kneels before Achilles; ransom vessels, woven cloth, a shared meal, Hector’s respectfully covered bier, the mule cart, ships, and dark sea surround the viewer. Quiet amber light and shared grief replace battle spectacle.

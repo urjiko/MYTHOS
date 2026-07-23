@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { atlasPlaces, collections, mythScenes } from './data'
-import { DEFAULT_ROUND_COUNT, type GameMode } from './gameDeck'
+import { DEFAULT_ROUND_COUNT, TROJAN_ROUTE_IDS, type GameMode } from './gameDeck'
 import {
   ArrowRight,
   Compass,
@@ -19,6 +19,7 @@ type View = 'home' | 'game' | 'atlas' | 'archive'
 
 const maximumScore = DEFAULT_ROUND_COUNT * 10_000
 const odysseySceneCount = mythScenes.filter((scene) => scene.category === 'odyssey').length
+const trojanSceneCount = TROJAN_ROUTE_IDS.length
 
 const modes: Array<{
   type: string
@@ -31,7 +32,7 @@ const modes: Array<{
 }> = [
   { type: 'journey', title: 'Classic Journey', note: 'Six myths drawn from the full archive in a new order every game.', badge: 'RANDOM', gameMode: 'all' },
   { type: 'odyssey', title: 'Odysseus’s Route', note: `Only the Odyssey voyage: ${odysseySceneCount} encounters, shuffled on every run.`, badge: 'NEW', gameMode: 'odyssey' },
-  { type: 'duel', title: 'Duel of the Gods', note: 'Live one-on-one encounters planned for a later chapter.', badge: 'SOON', muted: true },
+  { type: 'duel', title: 'The Iliad & Troy', note: `${trojanSceneCount} encounters from the road to Troy and Homer’s Iliad, shuffled on every run.`, badge: 'NEW', gameMode: 'iliad' },
   { type: 'archive', title: 'Myth Archive', note: 'Explore gods, heroes, monsters, and ancient sources.', destination: 'archive' },
 ]
 
@@ -261,7 +262,7 @@ function Footer({ onNavigate, onStartGame }: NavigationProps) {
     <footer className="site-footer">
       <div><Logo inverse /><p>A playable way to explore Greek mythology.</p></div>
       <nav><button onClick={() => onStartGame('all')}>Play</button><button onClick={() => onNavigate('atlas')}>Atlas</button><button onClick={() => onNavigate('archive')}>Archive</button><a href="#manifesto">About</a></nav>
-      <span>MYTHOS · PROTOTYPE 0.5<br />ORIGINAL ART &amp; CODE</span>
+      <span>MYTHOS · PROTOTYPE 0.6<br />ORIGINAL ART &amp; CODE</span>
     </footer>
   )
 }

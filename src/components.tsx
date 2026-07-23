@@ -60,8 +60,12 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
   const [finished, setFinished] = useState(false)
   const scene = scenes[round]
   const maximumScore = scenes.length * 10_000
-  const bestScoreKey = mode === 'odyssey' ? 'mythos-best-score-odyssey' : 'mythos-best-score'
-  const journeyLabel = mode === 'odyssey' ? 'ODYSSEY' : 'ORACLE'
+  const modeCopy = mode === 'odyssey'
+    ? { bestScoreKey: 'mythos-best-score-odyssey', journeyLabel: 'ODYSSEY', completionLabel: 'ODYSSEUS’ ROUTE COMPLETE' }
+    : mode === 'iliad'
+      ? { bestScoreKey: 'mythos-best-score-iliad', journeyLabel: 'TROY', completionLabel: 'TROJAN CHRONICLE COMPLETE' }
+      : { bestScoreKey: 'mythos-best-score', journeyLabel: 'ORACLE', completionLabel: 'ORACLE COMPLETE' }
+  const { bestScoreKey, journeyLabel, completionLabel } = modeCopy
 
   useEffect(() => {
     if (result || finished) return
@@ -133,7 +137,7 @@ export function Game({ onExit, mode = 'all' }: { onExit: () => void; mode?: Game
         <div className="results-screen__sun" aria-hidden="true" />
         <Logo inverse />
         <div className="results-card">
-          <span className="kicker kicker--gold"><Trophy size={14} /> {mode === 'odyssey' ? 'ODYSSEUS’ ROUTE COMPLETE' : 'ORACLE COMPLETE'}</span>
+          <span className="kicker kicker--gold"><Trophy size={14} /> {completionLabel}</span>
           <h1>Fate will<br /><em>remember you.</em></h1>
           <p className="results-card__score">{formatScore(finalScore)} <small>/ {formatScore(maximumScore)}</small></p>
           <div className="results-card__stats">
