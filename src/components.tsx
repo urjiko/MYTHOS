@@ -180,7 +180,9 @@ export function Game({
           <span>{journeyLabel} {round + 1} / {scenes.length}</span>
           <div>{scenes.map((item, index) => <i key={item.id} className={index <= round ? 'is-active' : ''} />)}</div>
         </div>
-        <span className={`game-timer ${seconds < 16 ? 'is-urgent' : ''}`}><Timer size={16} /> 00:{String(seconds).padStart(2, '0')}</span>
+        <span className={`game-timer ${seconds < 16 ? 'is-urgent' : ''}`}>
+          <Timer size={16} /> {String(Math.floor(seconds / 60)).padStart(2, '0')}:{String(seconds % 60).padStart(2, '0')}
+        </span>
         <strong className="game-score">{formatScore(total)} <small>OP</small></strong>
         <button className="game-language" onClick={() => onLocaleChange(locale === 'en' ? 'tr' : 'en')} aria-label={copy.nav.language}>{locale === 'en' ? 'TR' : 'EN'}</button>
       </header>
