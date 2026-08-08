@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "generate:map": "node scripts/generate-ancient-map.mjs",
     "preview": "vite preview",
+    "check:bundle": "node scripts/check-bundle-size.mjs",
     "check": "tsc -b --pretty false",
     "test": "vitest run"
   },

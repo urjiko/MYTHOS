@@ -1,56 +1,43 @@
 import {
-  ArrowRight,
-  BookOpen,
   Check,
   ChevronRight,
   Compass,
   Flame,
   Map,
-  Menu,
   RotateCcw,
   Sparkles,
-  Swords,
   Timer,
   Trophy,
   X,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
-import type { Point } from './data'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import type { MythScene, Point } from './data'
 import { createGameDeck, type GameMode } from './gameDeck'
 import { localiseMythTitle, ui, type Locale } from './i18n'
 import { localiseSceneClues } from './sceneCopy'
 import { formatScore, scoreRound, type ScoreBreakdown } from './scoring'
 import { MythMap } from './AncientMap'
-import { SphereViewer } from './SphereViewer'
+import { Logo } from './ui'
 
-export function Logo({ inverse = false }: { inverse?: boolean }) {
-  return (
-    <span className={`logo ${inverse ? 'logo--inverse' : ''}`} aria-label="MYTHOS home">
-      <svg className="logo__mark" viewBox="0 0 48 48" aria-hidden="true">
-        <circle cx="24" cy="24" r="20" />
-        <path d="M12 24h24M24 12v24M16 16l16 16M32 16 16 32" />
-        <circle cx="24" cy="24" r="5" />
-      </svg>
-      <span>MYTHOS</span>
-    </span>
-  )
-}
+const SphereViewer = lazy(() => import('./SphereViewer').then((module) => ({ default: module.SphereViewer })))
 
-export function Ornament() {
+function SphereViewerPlaceholder({ scene, locale }: { scene: MythScene; locale: Locale }) {
   return (
-    <div className="ornament" aria-hidden="true">
-      <span />
-      <svg viewBox="0 0 120 18">
-        <path d="M1 9h35l8-7 8 14 8-14 8 14 8-14 8 7h35" />
-      </svg>
-      <span />
+    <div
+      className="scene-viewer scene-viewer--loading"
+      style={{ '--scene-fallback': scene.fallback } as React.CSSProperties}
+      role="status"
+    >
+      <img className="scene-viewer__fallback" src={scene.image} alt="" draggable="false" />
+      <div className="scene-viewer__vignette" />
+      <div className="scene-viewer__status">{ui[locale].viewer.loading}</div>
     </div>
   )
 }
 
 type RoundResult = { sceneId: string; breakdown: ScoreBreakdown }
 
-export function Game({
+export default function Game({
   onExit,
   onLocaleChange,
   mode = 'all',
@@ -190,7 +177,9 @@ export function Game({
       </header>
 
       <section className="game-stage">
-        <SphereViewer scene={scene} locale={locale} />
+        <Suspense fallback={<SphereViewerPlaceholder scene={scene} locale={locale} />}>
+          <SphereViewer scene={scene} locale={locale} />
+        </Suspense>
 
         {!result && (
           <button
@@ -285,14 +274,3 @@ export function Game({
     </main>
   )
 }
-
-export function IconForMode({ type }: { type: string }) {
-  if (type === 'daily') return <Sparkles />
-  if (type === 'journey') return <Compass />
-  if (type === 'odyssey') return <Map />
-  if (type === 'duel') return <Swords />
-  return <BookOpen />
-}
-
-export { ArrowRight, BookOpen, Compass, Flame, Map, Menu, Sparkles, Swords, Trophy, X }
-export { MythMap }

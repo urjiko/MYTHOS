@@ -947,6 +947,35 @@ img {
   user-select: none;
 }
 
+.myth-map--placeholder {
+  display: grid;
+  place-items: center;
+  color: rgba(25, 24, 19, 0.62);
+}
+
+.myth-map--placeholder::before {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(25, 24, 19, 0.2);
+  border-top-color: var(--terracotta);
+  border-radius: 50%;
+  animation: map-placeholder-spin 900ms linear infinite;
+  content: '';
+}
+
+.myth-map--placeholder > span {
+  position: absolute;
+  bottom: 18px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+@keyframes map-placeholder-spin {
+  to { transform: rotate(360deg); }
+}
+
 .myth-map__leaflet {
   --map-label-scale: 1;
   position: absolute;
@@ -1889,6 +1918,27 @@ img {
 }
 
 /* Game */
+.game-loading {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 28px;
+  background:
+    radial-gradient(circle at center, rgba(190, 137, 64, 0.12), transparent 34%),
+    #0d0e0d;
+  color: var(--paper-light);
+}
+
+.game-loading > span {
+  color: var(--gold);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
 .game-shell {
   height: 100vh;
   min-height: 720px;

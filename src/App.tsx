@@ -1,29 +1,77 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { ArrowRight, Compass, Map, Menu, Sparkles, X } from 'lucide-react'
+import type { MythMapProps } from './AncientMap'
 import { archiveScenesForFilter, type ArchiveFilter } from './archive'
 import { atlasPlaces, collections, mythScenes } from './data'
 import { figureProfiles, profilesForCategory, type FigureCategory } from './figures'
 import { DEFAULT_ROUND_COUNT, TROJAN_ROUTE_IDS, type GameMode } from './gameDeck'
 import { localiseMythTitle, localisedNumber, persistLocale, resolveLocale, ui, type Locale } from './i18n'
 import { appRouteToHash, parseAppRoute, type AppRoute } from './routing'
-import {
-  ArrowRight,
-  Compass,
-  Game,
-  IconForMode,
-  Logo,
-  Map,
-  Menu,
-  MythMap,
-  Ornament,
-  Sparkles,
-  X,
-} from './components'
+import { IconForMode, Logo, Ornament } from './ui'
+
+const Game = lazy(() => import('./components'))
+const MythMap = lazy(() => import('./AncientMap').then((module) => ({ default: module.MythMap })))
 
 type NavigationView = 'home' | 'atlas' | 'archive'
 
 const maximumScore = DEFAULT_ROUND_COUNT * 10_000
 const odysseySceneCount = mythScenes.filter((scene) => scene.category === 'odyssey').length
 const trojanSceneCount = TROJAN_ROUTE_IDS.length
+
+function MapPlaceholder({ locale = 'en' }: { locale?: Locale }) {
+  return (
+    <div className="myth-map myth-map--placeholder" role="status">
+      <span>{locale === 'tr' ? 'Antik harita hazırlanıyor…' : 'Preparing the ancient map…'}</span>
+    </div>
+  )
+}
+
+function DeferredMythMap(props: MythMapProps) {
+  const placeholderRef = useRef<HTMLDivElement>(null)
+  const [shouldLoad, setShouldLoad] = useState(false)
+
+  useEffect(() => {
+    const placeholder = placeholderRef.current
+    if (!placeholder || shouldLoad) return
+
+    if (!('IntersectionObserver' in window)) {
+      setShouldLoad(true)
+      return
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return
+      setShouldLoad(true)
+      observer.disconnect()
+    }, { rootMargin: '400px' })
+
+    observer.observe(placeholder)
+    return () => observer.disconnect()
+  }, [shouldLoad])
+
+  if (!shouldLoad) {
+    return (
+      <div ref={placeholderRef} className="myth-map myth-map--placeholder" role="status">
+        <span>{props.locale === 'tr' ? 'Antik harita kaydırınca yüklenecek' : 'The ancient map will load as you scroll'}</span>
+      </div>
+    )
+  }
+
+  return (
+    <Suspense fallback={<MapPlaceholder locale={props.locale} />}>
+      <MythMap {...props} />
+    </Suspense>
+  )
+}
+
+function GamePlaceholder({ locale }: { locale: Locale }) {
+  return (
+    <main className="game-loading" role="status">
+      <Logo inverse />
+      <span>{locale === 'tr' ? 'Kehanet hazırlanıyor…' : 'Preparing the oracle…'}</span>
+    </main>
+  )
+}
 
 const routeStops = [
   { name: 'Troy', note: { en: 'The war ends', tr: 'Savaş sona erer' } },
@@ -209,7 +257,7 @@ function Home(props: NavigationProps) {
                     style={{ '--accent': collection.color } as React.CSSProperties}
                     onClick={() => figureCategory ? onOpenFigures(figureCategory) : onNavigate('archive')}
                   >
-                    <img src={collection.art} alt="" onError={(event) => { event.currentTarget.style.display = 'none' }} />
+                    <img src={collection.art} alt="" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.style.display = 'none' }} />
                     <span className="collection-card__veil" />
                     <span>{collection.count} {copy.home.stories}</span>
                     <div>
@@ -239,7 +287,7 @@ function Home(props: NavigationProps) {
           </div>
           <div className="atlas-preview__map">
             <div className="browser-bar"><i /><i /><i /><span>MYTHOS / ATLAS</span></div>
-            <MythMap showRoute locale={locale} />
+            <DeferredMythMap showRoute locale={locale} />
             <span className="atlas-preview__legend">{copy.home.mapLegend}</span>
           </div>
         </section>
@@ -268,7 +316,9 @@ function AtlasPage(props: NavigationProps) {
         <h1>{copy.atlas.title} <em>{copy.atlas.titleEm}</em></h1>
         <p className="inner-page__lede">{copy.atlas.lede}</p>
         <div className="atlas-page__layout">
-          <MythMap showRoute locale={locale} />
+          <Suspense fallback={<MapPlaceholder locale={locale} />}>
+            <MythMap showRoute locale={locale} />
+          </Suspense>
           <aside>
             <span>{copy.atlas.selected}</span>
             <h2>{copy.atlas.route}</h2>
@@ -535,7 +585,13 @@ export default function App() {
     onOpenFigures: openFigures,
   }
 
-  if (route.view === 'game') return <Game key={route.mode} mode={route.mode} locale={locale} onLocaleChange={changeLocale} onExit={() => navigate({ view: 'home' }, true)} />
+  if (route.view === 'game') {
+    return (
+      <Suspense fallback={<GamePlaceholder locale={locale} />}>
+        <Game key={route.mode} mode={route.mode} locale={locale} onLocaleChange={changeLocale} onExit={() => navigate({ view: 'home' }, true)} />
+      </Suspense>
+    )
+  }
   if (route.view === 'atlas') return <AtlasPage {...navigationProps} />
   if (route.view === 'archive') return <ArchivePage {...navigationProps} />
   if (route.view === 'figures') {

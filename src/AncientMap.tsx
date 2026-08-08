@@ -1,4 +1,5 @@
 import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import type { GeoJsonObject } from 'geojson'
 import { useEffect, useRef, useState } from 'react'
 import type { AtlasPlace, MapConfidence, Point } from './data'
@@ -31,6 +32,18 @@ const markerIcon = (className: string, glyph = '') => L.divIcon({
   iconSize: [26, 26],
 })
 
+export type MythMapProps = {
+  guess?: Point | null
+  target?: Point
+  targetRadiusKm?: number
+  targetConfidence?: MapConfidence
+  reveal?: boolean
+  interactive?: boolean
+  showRoute?: boolean
+  onGuess?: (point: Point) => void
+  locale?: Locale
+}
+
 export function MythMap({
   guess,
   target,
@@ -41,17 +54,7 @@ export function MythMap({
   showRoute = false,
   onGuess,
   locale = 'en',
-}: {
-  guess?: Point | null
-  target?: Point
-  targetRadiusKm?: number
-  targetConfidence?: MapConfidence
-  reveal?: boolean
-  interactive?: boolean
-  showRoute?: boolean
-  onGuess?: (point: Point) => void
-  locale?: Locale
-}) {
+}: MythMapProps) {
   const text = locale === 'tr'
     ? {
         zoomIn: 'Yakınlaştır',

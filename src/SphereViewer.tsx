@@ -1,6 +1,21 @@
 import { Eye, Minus, Plus } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import * as THREE from 'three'
+import {
+  LinearFilter,
+  LinearMipmapLinearFilter,
+  MathUtils,
+  Mesh,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  RepeatWrapping,
+  Scene,
+  SphereGeometry,
+  SRGBColorSpace,
+  Texture,
+  TextureLoader,
+  Vector3,
+  WebGLRenderer,
+} from 'three'
 import type { MythScene } from './data'
 import { ui, type Locale } from './i18n'
 
@@ -44,8 +59,8 @@ export function SphereViewer({ scene, locale = 'en' }: { scene: MythScene; local
     const host = canvasHost.current
     if (!host) return
 
-    let renderer: THREE.WebGLRenderer | null = null
-    let texture: THREE.Texture | null = null
+    let renderer: WebGLRenderer | null = null
+    let texture: Texture | null = null
     let animationFrame = 0
     let disposed = false
 
@@ -55,34 +70,34 @@ export function SphereViewer({ scene, locale = 'en' }: { scene: MythScene; local
     setStatus('loading')
 
     try {
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' })
+      renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' })
     } catch {
       setStatus('error')
       return
     }
 
-    renderer.outputColorSpace = THREE.SRGBColorSpace
+    renderer.outputColorSpace = SRGBColorSpace
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
     host.appendChild(renderer.domElement)
 
-    const world = new THREE.Scene()
-    const camera = new THREE.PerspectiveCamera(72, 1, 0.01, 30)
+    const world = new Scene()
+    const camera = new PerspectiveCamera(72, 1, 0.01, 30)
     camera.position.set(0, 0, 0)
 
-    const geometry = new THREE.SphereGeometry(10, 96, 64)
+    const geometry = new SphereGeometry(10, 96, 64)
     geometry.scale(-1, 1, 1)
-    const material = new THREE.MeshBasicMaterial({ color: 0xffffff })
-    const sphere = new THREE.Mesh(geometry, material)
+    const material = new MeshBasicMaterial({ color: 0xffffff })
+    const sphere = new Mesh(geometry, material)
     sphere.visible = false
     world.add(sphere)
 
     const draw = () => {
       if (disposed || !renderer) return
       const { yaw, pitch, fov: currentFov } = view.current
-      const yawRadians = THREE.MathUtils.degToRad(yaw)
-      const pitchRadians = THREE.MathUtils.degToRad(pitch)
+      const yawRadians = MathUtils.degToRad(yaw)
+      const pitchRadians = MathUtils.degToRad(pitch)
       const horizontal = Math.cos(pitchRadians)
-      const target = new THREE.Vector3(
+      const target = new Vector3(
         -Math.cos(yawRadians) * horizontal,
         Math.sin(pitchRadians),
         Math.sin(yawRadians) * horizontal,
@@ -114,7 +129,7 @@ export function SphereViewer({ scene, locale = 'en' }: { scene: MythScene; local
     resizeObserver.observe(host)
     resize()
 
-    new THREE.TextureLoader().load(
+    new TextureLoader().load(
       scene.image,
       (loadedTexture) => {
         if (disposed) {
@@ -122,10 +137,10 @@ export function SphereViewer({ scene, locale = 'en' }: { scene: MythScene; local
           return
         }
         texture = loadedTexture
-        texture.colorSpace = THREE.SRGBColorSpace
-        texture.wrapS = THREE.RepeatWrapping
-        texture.minFilter = THREE.LinearMipmapLinearFilter
-        texture.magFilter = THREE.LinearFilter
+        texture.colorSpace = SRGBColorSpace
+        texture.wrapS = RepeatWrapping
+        texture.minFilter = LinearMipmapLinearFilter
+        texture.magFilter = LinearFilter
         texture.anisotropy = Math.min(16, renderer?.capabilities.getMaxAnisotropy() ?? 1)
         material.map = texture
         material.needsUpdate = true
