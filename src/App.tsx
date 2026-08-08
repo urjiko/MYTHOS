@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
+import { archiveScenesForFilter, type ArchiveFilter } from './archive'
 import { atlasPlaces, collections, mythScenes } from './data'
 import { figureProfiles, profilesForCategory, type FigureCategory } from './figures'
 import { DEFAULT_ROUND_COUNT, TROJAN_ROUTE_IDS, type GameMode } from './gameDeck'
 import { localiseMythTitle, localisedNumber, persistLocale, resolveLocale, ui, type Locale } from './i18n'
+import { appRouteToHash, parseAppRoute, type AppRoute } from './routing'
 import {
   ArrowRight,
   Compass,
@@ -17,7 +19,7 @@ import {
   X,
 } from './components'
 
-type View = 'home' | 'game' | 'atlas' | 'archive' | 'figures'
+type NavigationView = 'home' | 'atlas' | 'archive'
 
 const maximumScore = DEFAULT_ROUND_COUNT * 10_000
 const odysseySceneCount = mythScenes.filter((scene) => scene.category === 'odyssey').length
@@ -66,7 +68,8 @@ function FateDisk() {
 type NavigationProps = {
   locale: Locale
   onLocaleChange: (locale: Locale) => void
-  onNavigate: (view: View) => void
+  onNavigate: (view: NavigationView) => void
+  onShowAbout: () => void
   onStartGame: (mode: GameMode) => void
   onOpenFigures: (category: FigureCategory) => void
 }
@@ -86,7 +89,7 @@ function LanguageSwitch({ locale, onLocaleChange, compact = false }: {
   )
 }
 
-function Header({ locale, onLocaleChange, onNavigate, onStartGame }: NavigationProps) {
+function Header({ locale, onLocaleChange, onNavigate, onShowAbout, onStartGame }: NavigationProps) {
   const [open, setOpen] = useState(false)
   const copy = ui[locale]
   return (
@@ -95,7 +98,7 @@ function Header({ locale, onLocaleChange, onNavigate, onStartGame }: NavigationP
       <nav className={open ? 'is-open' : ''} aria-label="Primary navigation">
         <button onClick={() => { onNavigate('archive'); setOpen(false) }}>{copy.nav.archive}</button>
         <button onClick={() => { onNavigate('atlas'); setOpen(false) }}>{copy.nav.atlas}</button>
-        <a href="#manifesto" onClick={() => setOpen(false)}>{copy.nav.about}</a>
+        <a href="#/about" onClick={(event) => { event.preventDefault(); onShowAbout(); setOpen(false) }}>{copy.nav.about}</a>
         <LanguageSwitch locale={locale} onLocaleChange={onLocaleChange} />
         <button className="nav-play" onClick={() => { onStartGame('all'); setOpen(false) }}><Sparkles size={15} /> {copy.nav.begin}</button>
       </nav>
@@ -118,7 +121,7 @@ function Home(props: NavigationProps) {
     note: string
     badge?: string
     gameMode?: GameMode
-    destination?: View
+    destination?: NavigationView
   }> = [
     { type: 'journey', title: copy.modes.classicTitle, note: copy.modes.classicNote, badge: copy.modes.random, gameMode: 'all' },
     { type: 'odyssey', title: copy.modes.odysseyTitle, note: copy.modes.odysseyNote(odysseySceneCount), badge: copy.modes.new, gameMode: 'odyssey' },
@@ -285,14 +288,20 @@ function AtlasPage(props: NavigationProps) {
 }
 
 function ArchivePage(props: NavigationProps) {
-  const { locale, onStartGame, onOpenFigures } = props
+  const { locale, onStartGame } = props
   const copy = ui[locale]
-  const collectionCopy = {
-    Olympians: { title: copy.collections.olympians, note: copy.collections.olympiansNote },
-    Heroes: { title: copy.collections.heroes, note: copy.collections.heroesNote },
-    Creatures: { title: copy.collections.creatures, note: copy.collections.creaturesNote },
-    'Trojan Cycle': { title: copy.collections.trojan, note: copy.collections.trojanNote },
+  const [filter, setFilter] = useState<ArchiveFilter>('all')
+  const filteredScenes = archiveScenesForFilter(filter)
+  const filterLabels: Record<ArchiveFilter, string> = {
+    all: copy.archive.all,
+    gods: copy.archive.gods,
+    heroes: copy.archive.heroes,
+    creatures: copy.archive.creatures,
+    odyssey: copy.archive.odyssey,
+    trojan: copy.archive.troy,
   }
+  const filters = Object.keys(filterLabels) as ArchiveFilter[]
+
   return (
     <div className="inner-page">
       <Header {...props} />
@@ -300,29 +309,58 @@ function ArchivePage(props: NavigationProps) {
         <span className="kicker">{copy.archive.kicker}</span>
         <h1>{copy.archive.title} <em>{copy.archive.titleEm}</em></h1>
         <p className="inner-page__lede">{copy.archive.lede(mythScenes.length)}</p>
-        <div className="archive-page__filters">
-          <button className="is-active">{copy.archive.all}</button><button>{copy.archive.gods}</button><button onClick={() => onOpenFigures('heroes')}>{copy.archive.heroes}</button><button onClick={() => onOpenFigures('creatures')}>{copy.archive.creatures}</button><button>{copy.archive.troy}</button>
+        <div className="archive-page__toolbar">
+          <div className="archive-page__filters" aria-label={copy.archive.filterLabel}>
+            {filters.map((item) => (
+              <button
+                type="button"
+                className={filter === item ? 'is-active' : ''}
+                aria-pressed={filter === item}
+                key={item}
+                onClick={() => setFilter(item)}
+              >
+                {filterLabels[item]}
+              </button>
+            ))}
+          </div>
+          <button className="button button--ink archive-page__play" onClick={() => onStartGame('all')}>
+            {copy.archive.play} <ArrowRight size={15} />
+          </button>
         </div>
+        <p className="archive-page__count" aria-live="polite">
+          {copy.archive.showing(filteredScenes.length, mythScenes.length)}
+        </p>
         <div className="archive-page__grid">
-          {collections.map((collection, index) => {
-            const translated = collectionCopy[collection.title as keyof typeof collectionCopy]
-            const figureCategory = collection.title === 'Heroes'
-              ? 'heroes'
-              : collection.title === 'Creatures'
-                ? 'creatures'
-                : null
-            return (
-              <article key={collection.title} style={{ '--accent': collection.color } as React.CSSProperties}>
-                <div><img src={collection.art} alt="" onError={(event) => { event.currentTarget.style.display = 'none' }} /><span>0{index + 1}</span></div>
-                <small>{collection.count} {copy.archive.planned}</small>
-                <h2>{translated.title}</h2>
-                <p>{translated.note}</p>
-                <button onClick={() => figureCategory ? onOpenFigures(figureCategory) : onStartGame('all')}>
-                  {figureCategory ? copy.home.exploreFigures : copy.archive.play} <ArrowRight size={15} />
-                </button>
-              </article>
-            )
-          })}
+          {filteredScenes.map((scene, index) => (
+            <article className="archive-myth-card" key={scene.id} aria-labelledby={`archive-title-${scene.id}`}>
+              <div className="archive-myth-card__art" style={{ background: scene.fallback }}>
+                <img
+                  src={scene.image}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  onError={(event) => { event.currentTarget.style.display = 'none' }}
+                />
+                <span aria-hidden="true">{scene.symbol}</span>
+                <small>{String(index + 1).padStart(2, '0')}</small>
+              </div>
+              <div className="archive-myth-card__body">
+                <div className="archive-myth-card__meta">
+                  <span>{filterLabels[scene.category]}</span>
+                  <span>{scene.cycle}</span>
+                </div>
+                <h2 id={`archive-title-${scene.id}`}>{localiseMythTitle(scene.title, locale)}</h2>
+                <p className="archive-myth-card__location">{scene.location}</p>
+                <div className="archive-myth-card__source">
+                  <span>{copy.archive.source}</span>
+                  <p>{scene.source}</p>
+                  {scene.pleiadesUrl && (
+                    <a href={scene.pleiadesUrl} target="_blank" rel="noreferrer">{copy.archive.placeRecord}</a>
+                  )}
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
       </main>
       <Footer {...props} />
@@ -330,17 +368,16 @@ function ArchivePage(props: NavigationProps) {
   )
 }
 
-function FiguresPage({ category, onCategoryChange, ...props }: NavigationProps & {
+function FiguresPage({ category, selectedId, onCategoryChange, onSelectFigure, ...props }: NavigationProps & {
   category: FigureCategory
+  selectedId?: string
   onCategoryChange: (category: FigureCategory) => void
+  onSelectFigure: (figureId?: string) => void
 }) {
   const { locale } = props
   const copy = ui[locale]
-  const [selectedId, setSelectedId] = useState<string | null>(null)
   const profiles = profilesForCategory(category)
-  const selected = figureProfiles.find((profile) => profile.id === selectedId)
-
-  useEffect(() => setSelectedId(null), [category])
+  const selected = figureProfiles.find((profile) => profile.id === selectedId && profile.category === category)
 
   if (selected) {
     const appearances = selected.appearanceIds
@@ -350,9 +387,9 @@ function FiguresPage({ category, onCategoryChange, ...props }: NavigationProps &
       <div className="inner-page figure-page">
         <Header {...props} />
         <main className="figure-detail section-shell">
-          <button className="figure-back" onClick={() => setSelectedId(null)}>← {copy.figures.back}</button>
+          <button className="figure-back" onClick={() => onSelectFigure()}>← {copy.figures.back}</button>
           <div className="figure-detail__hero">
-            <img src={selected.image} alt="" style={{ objectPosition: selected.objectPosition }} />
+            <img src={selected.image} alt="" decoding="async" style={{ objectPosition: selected.objectPosition }} />
             <div className="figure-detail__veil" />
             <div>
               <span className="kicker">{category === 'heroes' ? copy.figures.heroesTitle : copy.figures.creaturesTitle}</span>
@@ -378,7 +415,7 @@ function FiguresPage({ category, onCategoryChange, ...props }: NavigationProps &
               {appearances.length
                 ? appearances.map((scene) => (
                   <article key={scene.id}>
-                    <img src={scene.image} alt="" />
+                    <img src={scene.image} alt="" loading="lazy" decoding="async" />
                     <span>{localiseMythTitle(scene.title, locale)}</span>
                   </article>
                 ))
@@ -404,8 +441,8 @@ function FiguresPage({ category, onCategoryChange, ...props }: NavigationProps &
         </div>
         <div className="figure-grid">
           {profiles.map((profile) => (
-            <button className="figure-card" key={profile.id} onClick={() => setSelectedId(profile.id)} aria-label={`${copy.figures.open}: ${profile.name[locale]}`}>
-              <img src={profile.image} alt="" style={{ objectPosition: profile.objectPosition }} />
+            <button className="figure-card" key={profile.id} onClick={() => onSelectFigure(profile.id)} aria-label={`${copy.figures.open}: ${profile.name[locale]}`}>
+              <img src={profile.image} alt="" loading="lazy" decoding="async" style={{ objectPosition: profile.objectPosition }} />
               <span><strong>{profile.name[locale]}</strong><small>{profile.epithet[locale]}</small></span>
               <ArrowRight size={18} />
             </button>
@@ -418,31 +455,48 @@ function FiguresPage({ category, onCategoryChange, ...props }: NavigationProps &
 }
 
 function Footer(props: NavigationProps) {
-  const { locale, onNavigate, onStartGame } = props
+  const { locale, onNavigate, onShowAbout, onStartGame } = props
   const copy = ui[locale]
   return (
     <footer className="site-footer">
       <div><Logo inverse /><p>{copy.footer.tagline}</p></div>
-      <nav><button onClick={() => onStartGame('all')}>{copy.footer.play}</button><button onClick={() => onNavigate('atlas')}>{copy.footer.atlas}</button><button onClick={() => onNavigate('archive')}>{copy.footer.archive}</button><a href="#manifesto">{copy.footer.about}</a></nav>
+      <nav><button onClick={() => onStartGame('all')}>{copy.footer.play}</button><button onClick={() => onNavigate('atlas')}>{copy.footer.atlas}</button><button onClick={() => onNavigate('archive')}>{copy.footer.archive}</button><a href="#/about" onClick={(event) => { event.preventDefault(); onShowAbout() }}>{copy.footer.about}</a></nav>
       <span>{copy.footer.version}<br />{copy.footer.credit}</span>
     </footer>
   )
 }
 
 export default function App() {
-  const [view, setView] = useState<View>('home')
-  const [gameMode, setGameMode] = useState<GameMode>('all')
-  const [figureCategory, setFigureCategory] = useState<FigureCategory>('heroes')
+  const [route, setRoute] = useState<AppRoute>(() => parseAppRoute(window.location.hash))
   const [locale, setLocale] = useState<Locale>(() => resolveLocale())
 
+  function navigate(nextRoute: AppRoute, replace = false) {
+    const hash = appRouteToHash(nextRoute)
+
+    if (replace) {
+      window.history.replaceState(null, '', hash)
+      setRoute(nextRoute)
+      return
+    }
+
+    if (window.location.hash === hash) {
+      setRoute({ ...nextRoute })
+      return
+    }
+
+    window.location.hash = hash
+  }
+
+  function navigateView(view: NavigationView) {
+    navigate({ view })
+  }
+
   function startGame(mode: GameMode) {
-    setGameMode(mode)
-    setView('game')
+    navigate({ view: 'game', mode })
   }
 
   function openFigures(category: FigureCategory) {
-    setFigureCategory(category)
-    setView('figures')
+    navigate({ view: 'figures', category })
   }
 
   function changeLocale(nextLocale: Locale) {
@@ -455,20 +509,45 @@ export default function App() {
   }, [locale])
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' })
-  }, [view])
+    const syncRoute = () => setRoute(parseAppRoute(window.location.hash))
+    window.addEventListener('hashchange', syncRoute)
+    return () => window.removeEventListener('hashchange', syncRoute)
+  }, [])
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      if (route.view === 'about') {
+        document.getElementById('manifesto')?.scrollIntoView({ block: 'start' })
+      } else {
+        window.scrollTo({ top: 0, behavior: 'instant' })
+      }
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [route])
 
   const navigationProps: NavigationProps = {
     locale,
     onLocaleChange: changeLocale,
-    onNavigate: setView,
+    onNavigate: navigateView,
+    onShowAbout: () => navigate({ view: 'about' }),
     onStartGame: startGame,
     onOpenFigures: openFigures,
   }
 
-  if (view === 'game') return <Game key={gameMode} mode={gameMode} locale={locale} onLocaleChange={changeLocale} onExit={() => setView('home')} />
-  if (view === 'atlas') return <AtlasPage {...navigationProps} />
-  if (view === 'archive') return <ArchivePage {...navigationProps} />
-  if (view === 'figures') return <FiguresPage {...navigationProps} category={figureCategory} onCategoryChange={setFigureCategory} />
+  if (route.view === 'game') return <Game key={route.mode} mode={route.mode} locale={locale} onLocaleChange={changeLocale} onExit={() => navigate({ view: 'home' }, true)} />
+  if (route.view === 'atlas') return <AtlasPage {...navigationProps} />
+  if (route.view === 'archive') return <ArchivePage {...navigationProps} />
+  if (route.view === 'figures') {
+    return (
+      <FiguresPage
+        {...navigationProps}
+        category={route.category}
+        selectedId={route.figureId}
+        onCategoryChange={(category) => navigate({ view: 'figures', category })}
+        onSelectFigure={(figureId) => navigate({ view: 'figures', category: route.category, figureId })}
+      />
+    )
+  }
   return <Home {...navigationProps} />
 }
