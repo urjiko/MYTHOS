@@ -2140,6 +2140,89 @@ img {
   text-align: center;
 }
 
+.session-restored {
+  position: absolute;
+  z-index: 24;
+  top: 18px;
+  left: 18px;
+  display: flex;
+  width: min(620px, calc(100% - 430px));
+  min-width: 0;
+  align-items: stretch;
+  border: 1px solid rgba(247, 240, 223, 0.3);
+  border-radius: 2px;
+  background: rgba(252, 249, 239, 0.97);
+  color: var(--ink);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(16px);
+}
+
+.session-restored > div {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 13px;
+}
+
+.session-restored > div > svg {
+  flex: 0 0 auto;
+  color: var(--terracotta);
+}
+
+.session-restored span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.session-restored strong {
+  color: var(--terracotta);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+
+.session-restored small {
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-family: var(--serif);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-restored button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.session-restored__fresh {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 13px;
+  border-left: 1px solid var(--line) !important;
+  color: var(--terracotta);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.session-restored__fresh.is-confirming {
+  background: var(--terracotta);
+  color: white;
+}
+
+.session-restored__dismiss {
+  display: grid;
+  width: 44px;
+  flex: 0 0 44px;
+  place-items: center;
+  color: var(--ink-soft);
+}
+
 .scene-viewer {
   position: absolute;
   inset: 0;
@@ -2881,6 +2964,18 @@ img {
   .game-topbar__progress { display: none; }
   .game-score { min-width: 58px; font-size: 17px; }
   .game-stage { height: auto; min-height: calc(100vh - 62px); overflow: visible; padding-bottom: 16px; background: #0d0e0d; }
+  .session-restored {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
+    min-width: 0;
+    margin: 10px 10px 0;
+    flex-wrap: wrap;
+    transform: none;
+  }
+  .session-restored > div { flex-basis: calc(100% - 44px); }
+  .session-restored__fresh { width: 100%; border-top: 1px solid var(--line) !important; border-left: 0 !important; }
   .scene-viewer { position: relative; height: 46vh; min-height: 340px; }
   .scene-viewer__drag { top: auto; bottom: 16px; }
   .scene-viewer__compass { display: none; }

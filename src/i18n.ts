@@ -1,17 +1,19 @@
+import { readStoredValue, writeStoredValue } from './storage'
+
 export type Locale = 'en' | 'tr'
 
 export const LOCALE_STORAGE_KEY = 'mythos-locale'
 
 export function resolveLocale(
   languages: readonly string[] = typeof navigator === 'undefined' ? [] : navigator.languages,
-  savedLocale: string | null = typeof localStorage === 'undefined' ? null : localStorage.getItem(LOCALE_STORAGE_KEY),
+  savedLocale: string | null = readStoredValue(LOCALE_STORAGE_KEY),
 ): Locale {
   if (savedLocale === 'en' || savedLocale === 'tr') return savedLocale
   return languages.some((language) => language.toLowerCase().startsWith('tr')) ? 'tr' : 'en'
 }
 
 export function persistLocale(locale: Locale) {
-  localStorage.setItem(LOCALE_STORAGE_KEY, locale)
+  return writeStoredValue(LOCALE_STORAGE_KEY, locale)
 }
 
 export function localisedNumber(value: number, locale: Locale) {
@@ -87,6 +89,9 @@ export const ui = {
       classicTitle: 'Classic Journey',
       classicNote: 'Six myths drawn from the full archive in a new order every game.',
       random: 'RANDOM',
+      continue: 'CONTINUE',
+      resumeNote: (round: number, total: number) => `Resume your saved journey at round ${round} of ${total}.`,
+      resultsSaved: 'Review the completed journey and its final score.',
       odysseyTitle: 'Odysseus’s Route',
       odysseyNote: (count: number) => `Only the Odyssey voyage: ${count} encounters, shuffled on every run.`,
       new: 'NEW',
@@ -147,7 +152,7 @@ export const ui = {
       unavailable: 'No matching story in the current archive.',
     },
     game: {
-      exit: 'Exit game',
+      saveAndExit: 'Save and exit game',
       oracle: 'ORACLE',
       odyssey: 'ODYSSEY',
       troy: 'TROY',
@@ -165,8 +170,15 @@ export const ui = {
       preserved: '+1,000 OP preserved',
       cluesRemain: (count: number) => `${count} clues remain`,
       whispers: 'THE ORACLE WHISPERS',
+      journeyRestored: 'JOURNEY RESTORED',
+      journeyRestoredNote: (round: number, total: number) => `Round ${round} of ${total} and your choices were recovered.`,
+      startFresh: 'Start a new journey',
+      confirmFresh: 'Confirm reset',
+      dismissRestore: 'Dismiss recovery message',
       roundPreparing: 'PREPARING THE ROUND',
       roundPreparingNote: 'The 75-second clock starts when the panorama and map are ready.',
+      roundRestoring: 'RESTORING THE ROUND',
+      roundRestoringNote: 'The saved deadline keeps running while the panorama and map reload.',
       timeRemaining: (seconds: number) => `${seconds} seconds remain`,
       timeExpired: 'TIME EXPIRED',
       timeoutNote: 'Completed choices were scored. Missing choices received zero points.',
@@ -277,6 +289,9 @@ export const ui = {
       classicTitle: 'Klasik Yolculuk',
       classicNote: 'Tam arşivden seçilen altı mit, her oyunda yeni bir sırayla gelir.',
       random: 'RASTGELE',
+      continue: 'DEVAM ET',
+      resumeNote: (round: number, total: number) => `${total} turluk kayıtlı yolculuğa ${round}. turdan devam et.`,
+      resultsSaved: 'Tamamlanan yolculuğu ve son puanı yeniden görüntüle.',
       odysseyTitle: 'Odysseus’un Rotası',
       odysseyNote: (count: number) => `Yalnızca Odysseia yolculuğu: ${count} karşılaşma, her oyunda karışık sırada.`,
       new: 'YENİ',
@@ -337,7 +352,7 @@ export const ui = {
       unavailable: 'Mevcut arşivde eşleşen hikâye yok.',
     },
     game: {
-      exit: 'Oyundan çık',
+      saveAndExit: 'Kaydet ve oyundan çık',
       oracle: 'KEHANET',
       odyssey: 'ODYSSEIA',
       troy: 'TROYA',
@@ -355,8 +370,15 @@ export const ui = {
       preserved: '+1.000 OP korunuyor',
       cluesRemain: (count: number) => `${count} ipucu kaldı`,
       whispers: 'KEHANET FISILDIYOR',
+      journeyRestored: 'YOLCULUK GERİ YÜKLENDİ',
+      journeyRestoredNote: (round: number, total: number) => `${total} turun ${round}. turu ve yaptığın seçimler kurtarıldı.`,
+      startFresh: 'Yeni yolculuk başlat',
+      confirmFresh: 'Sıfırlamayı onayla',
+      dismissRestore: 'Kurtarma bildirimini kapat',
       roundPreparing: 'TUR HAZIRLANIYOR',
       roundPreparingNote: '75 saniyelik sayaç panorama ve harita hazır olduğunda başlar.',
+      roundRestoring: 'TUR GERİ YÜKLENİYOR',
+      roundRestoringNote: 'Panorama ve harita yeniden yüklenirken kayıtlı süre işlemeye devam eder.',
       timeRemaining: (seconds: number) => `${seconds} saniye kaldı`,
       timeExpired: 'SÜRE DOLDU',
       timeoutNote: 'Tamamlanan seçimler puanlandı. Eksik seçimler sıfır puan aldı.',

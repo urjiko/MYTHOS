@@ -5,8 +5,10 @@ import { archiveScenesForFilter, type ArchiveFilter } from './archive'
 import { atlasPlaces, collections, mythScenes } from './data'
 import { figureProfiles, profilesForCategory, type FigureCategory } from './figures'
 import { DEFAULT_ROUND_COUNT, TROJAN_ROUTE_IDS, type GameMode } from './gameDeck'
+import { gameSessionSummary } from './gameSession'
 import { localiseMythTitle, localisedNumber, persistLocale, resolveLocale, ui, type Locale } from './i18n'
 import { appRouteTitle, appRouteToHash, parseAppRoute, type AppRoute } from './routing'
+import { readStoredNumber } from './storage'
 import { IconForMode, Logo, Ornament } from './ui'
 
 const Game = lazy(() => import('./components'))
@@ -229,8 +231,25 @@ function Header({ locale, onLocaleChange, onNavigate, onShowAbout, onStartGame }
 function Home(props: NavigationProps) {
   const { locale, onNavigate, onStartGame, onOpenFigures } = props
   const copy = ui[locale]
-  const [best, setBest] = useState(0)
-  useEffect(() => setBest(Number(localStorage.getItem('mythos-best-score') || 0)), [])
+  const [best] = useState(() => readStoredNumber('mythos-best-score'))
+  const [savedModes] = useState<Partial<Record<GameMode, {
+    round: number
+    total: number
+    finished: boolean
+  }>>>(() => {
+    const summaries: Partial<Record<GameMode, NonNullable<ReturnType<typeof gameSessionSummary>>>> = {}
+    for (const mode of ['all', 'odyssey', 'iliad'] as const) {
+      const summary = gameSessionSummary(mode)
+      if (summary) summaries[mode] = summary
+    }
+    return summaries
+  })
+
+  const modeNote = (mode: GameMode, fallback: string) => {
+    const saved = savedModes[mode]
+    if (!saved) return fallback
+    return saved.finished ? copy.modes.resultsSaved : copy.modes.resumeNote(saved.round, saved.total)
+  }
 
   const modes: Array<{
     type: string
@@ -240,9 +259,9 @@ function Home(props: NavigationProps) {
     gameMode?: GameMode
     destination?: NavigationView
   }> = [
-    { type: 'journey', title: copy.modes.classicTitle, note: copy.modes.classicNote, badge: copy.modes.random, gameMode: 'all' },
-    { type: 'odyssey', title: copy.modes.odysseyTitle, note: copy.modes.odysseyNote(odysseySceneCount), badge: copy.modes.new, gameMode: 'odyssey' },
-    { type: 'duel', title: copy.modes.iliadTitle, note: copy.modes.iliadNote(trojanSceneCount), badge: copy.modes.new, gameMode: 'iliad' },
+    { type: 'journey', title: copy.modes.classicTitle, note: modeNote('all', copy.modes.classicNote), badge: savedModes.all ? copy.modes.continue : copy.modes.random, gameMode: 'all' },
+    { type: 'odyssey', title: copy.modes.odysseyTitle, note: modeNote('odyssey', copy.modes.odysseyNote(odysseySceneCount)), badge: savedModes.odyssey ? copy.modes.continue : copy.modes.new, gameMode: 'odyssey' },
+    { type: 'duel', title: copy.modes.iliadTitle, note: modeNote('iliad', copy.modes.iliadNote(trojanSceneCount)), badge: savedModes.iliad ? copy.modes.continue : copy.modes.new, gameMode: 'iliad' },
     { type: 'archive', title: copy.modes.archiveTitle, note: copy.modes.archiveNote, destination: 'archive' },
   ]
 

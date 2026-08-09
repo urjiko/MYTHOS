@@ -15,10 +15,21 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import type { MythScene, Point } from './data'
 import { ROUND_DURATION_MS, ROUND_DURATION_SECONDS, secondsUntilDeadline } from './gameClock'
 import { createGameDeck, type GameMode } from './gameDeck'
+import {
+  clearGameSession,
+  GAME_SESSION_VERSION,
+  loadGameSession,
+  persistGameSession,
+  restoredSessionSeconds,
+  snapshotGameDeck,
+  type GameRoundResult,
+  type GameSessionSnapshot,
+} from './gameSession'
 import { localiseMythTitle, ui, type Locale } from './i18n'
 import { answerIndexForKey } from './keyboard'
 import { localiseSceneClues } from './sceneCopy'
 import { formatScore, scoreRound, type ScoreBreakdown } from './scoring'
+import { readStoredNumber, writeStoredValue } from './storage'
 import { MythMap } from './AncientMap'
 import { Logo } from './ui'
 
@@ -38,8 +49,6 @@ function SphereViewerPlaceholder({ scene, locale }: { scene: MythScene; locale: 
   )
 }
 
-type RoundResult = { sceneId: string; breakdown: ScoreBreakdown; timedOut: boolean }
-
 export default function Game({
   onExit,
   onLocaleChange,
@@ -52,21 +61,30 @@ export default function Game({
   locale?: Locale
 }) {
   const copy = ui[locale]
-  const [scenes, setScenes] = useState(() => createGameDeck(mode))
-  const [round, setRound] = useState(0)
-  const [seconds, setSeconds] = useState(ROUND_DURATION_SECONDS)
-  const [answer, setAnswer] = useState('')
-  const [guess, setGuess] = useState<Point | null>(null)
-  const [cluesUsed, setCluesUsed] = useState(0)
-  const [result, setResult] = useState<ScoreBreakdown | null>(null)
-  const [history, setHistory] = useState<RoundResult[]>([])
-  const [finished, setFinished] = useState(false)
+  const [initialSession] = useState(() => loadGameSession(mode))
+  const [scenes, setScenes] = useState(() => initialSession?.scenes ?? createGameDeck(mode))
+  const [round, setRound] = useState(() => initialSession?.round ?? 0)
+  const [seconds, setSeconds] = useState(() => initialSession
+    ? restoredSessionSeconds(initialSession)
+    : ROUND_DURATION_SECONDS)
+  const [answer, setAnswer] = useState(() => initialSession?.answer ?? '')
+  const [guess, setGuess] = useState<Point | null>(() => initialSession?.guess ?? null)
+  const [cluesUsed, setCluesUsed] = useState(() => initialSession?.cluesUsed ?? 0)
+  const [result, setResult] = useState<ScoreBreakdown | null>(() => initialSession?.result ?? null)
+  const [history, setHistory] = useState<GameRoundResult[]>(() => initialSession?.history ?? [])
+  const [finished, setFinished] = useState(() => initialSession?.finished ?? false)
   const [viewerReady, setViewerReady] = useState(false)
   const [mapReady, setMapReady] = useState(false)
-  const [roundStarted, setRoundStarted] = useState(false)
-  const [timedOut, setTimedOut] = useState(false)
+  const [roundStarted, setRoundStarted] = useState(() => initialSession?.roundStarted ?? false)
+  const [timedOut, setTimedOut] = useState(() => initialSession?.timedOut ?? false)
+  const [showRestoreNotice, setShowRestoreNotice] = useState(() => Boolean(initialSession && !initialSession.finished))
+  const [confirmFresh, setConfirmFresh] = useState(false)
+  const [restoringRound, setRestoringRound] = useState(() => Boolean(
+    initialSession?.roundStarted && !initialSession.result && !initialSession.finished,
+  ))
   const [pageVisible, setPageVisible] = useState(() => document.visibilityState === 'visible')
-  const deadlineRef = useRef<number | null>(null)
+  const deadlineRef = useRef<number | null>(initialSession?.deadlineMs ?? null)
+  const discardSessionRef = useRef(false)
   const gameMainRef = useRef<HTMLElement>(null)
   const roundResultRef = useRef<HTMLDivElement>(null)
   const finalResultRef = useRef<HTMLElement>(null)
@@ -80,6 +98,39 @@ export default function Game({
       : { bestScoreKey: 'mythos-best-score', journeyLabel: copy.game.oracle, completionLabel: copy.game.oracleComplete }
   const { bestScoreKey, journeyLabel, completionLabel } = modeCopy
   const roundReady = viewerReady && mapReady
+  const roundPlayable = roundStarted && roundReady
+  const sessionSnapshot: GameSessionSnapshot = {
+    version: GAME_SESSION_VERSION,
+    mode,
+    deck: snapshotGameDeck(scenes),
+    round,
+    seconds,
+    answer,
+    guess,
+    cluesUsed,
+    result,
+    history,
+    finished,
+    roundStarted,
+    timedOut,
+    deadlineMs: deadlineRef.current,
+    savedAt: Date.now(),
+  }
+  const latestSessionRef = useRef(sessionSnapshot)
+  latestSessionRef.current = sessionSnapshot
+
+  useEffect(() => {
+    persistGameSession(latestSessionRef.current)
+  })
+
+  useEffect(() => {
+    const persistLatestSession = () => persistGameSession(latestSessionRef.current)
+    window.addEventListener('pagehide', persistLatestSession)
+    return () => {
+      window.removeEventListener('pagehide', persistLatestSession)
+      if (!discardSessionRef.current) persistLatestSession()
+    }
+  }, [mode])
 
   useEffect(() => {
     const updateVisibility = () => setPageVisible(document.visibilityState === 'visible')
@@ -91,6 +142,10 @@ export default function Game({
     const frame = window.requestAnimationFrame(() => gameMainRef.current?.focus({ preventScroll: true }))
     return () => window.cancelAnimationFrame(frame)
   }, [])
+
+  useEffect(() => {
+    if (roundReady) setRestoringRound(false)
+  }, [roundReady])
 
   useEffect(() => {
     if (!roundReady || !pageVisible || roundStarted || result || finished) return
@@ -125,7 +180,7 @@ export default function Game({
   }, [result, round, scenes])
 
   useEffect(() => {
-    if (!roundStarted || result || finished) return
+    if (!roundPlayable || result || finished) return
 
     const selectAnswer = (event: KeyboardEvent) => {
       if (event.altKey || event.ctrlKey || event.metaKey) return
@@ -143,7 +198,7 @@ export default function Game({
 
     document.addEventListener('keydown', selectAnswer)
     return () => document.removeEventListener('keydown', selectAnswer)
-  }, [finished, result, roundStarted, scene.options])
+  }, [finished, result, roundPlayable, scene.options])
 
   useEffect(() => {
     if (!result) return
@@ -161,6 +216,17 @@ export default function Game({
     () => history.reduce((sum, item) => sum + item.breakdown.total, 0) + (result?.total ?? 0),
     [history, result],
   )
+
+  function saveAndExit() {
+    persistGameSession(latestSessionRef.current)
+    onExit()
+  }
+
+  function returnHome() {
+    discardSessionRef.current = true
+    clearGameSession(mode)
+    onExit()
+  }
 
   function resolveRound(expired = false) {
     if (result || (!expired && (!guess || !answer))) return
@@ -187,8 +253,8 @@ export default function Game({
       setHistory(nextHistory)
       setFinished(true)
       const finalScore = nextHistory.reduce((sum, item) => sum + item.breakdown.total, 0)
-      const best = Number(localStorage.getItem(bestScoreKey) || 0)
-      if (finalScore > best) localStorage.setItem(bestScoreKey, String(finalScore))
+      const best = readStoredNumber(bestScoreKey)
+      if (finalScore > best) writeStoredValue(bestScoreKey, String(finalScore))
       return
     }
     setHistory(nextHistory)
@@ -203,9 +269,14 @@ export default function Game({
     setMapReady(false)
     setRoundStarted(false)
     setTimedOut(false)
+    setShowRestoreNotice(false)
+    setConfirmFresh(false)
+    setRestoringRound(false)
   }
 
   function restart() {
+    clearGameSession(mode)
+    discardSessionRef.current = false
     setScenes(createGameDeck(mode))
     setRound(0)
     deadlineRef.current = null
@@ -220,6 +291,9 @@ export default function Game({
     setMapReady(false)
     setRoundStarted(false)
     setTimedOut(false)
+    setShowRestoreNotice(false)
+    setConfirmFresh(false)
+    setRestoringRound(false)
   }
 
   if (finished) {
@@ -236,7 +310,7 @@ export default function Game({
           <div className="results-card__stats">
             <span><strong>{correct}/{scenes.length}</strong><small>{copy.game.identified}</small></span>
             <span><strong>{Math.round((finalScore / maximumScore) * 100)}%</strong><small>{copy.game.mastery}</small></span>
-            <span><strong>{formatScore(Number(localStorage.getItem(bestScoreKey) || finalScore))}</strong><small>{copy.game.personalBest}</small></span>
+            <span><strong>{formatScore(readStoredNumber(bestScoreKey, finalScore))}</strong><small>{copy.game.personalBest}</small></span>
           </div>
           <div className="results-card__rounds">
             {history.map((item, index) => (
@@ -245,7 +319,7 @@ export default function Game({
           </div>
           <div className="results-card__actions">
             <button className="button button--gold" onClick={restart}><RotateCcw size={17} /> {copy.game.again}</button>
-            <button className="button button--ghost-inverse" onClick={onExit}>{copy.game.return}</button>
+            <button className="button button--ghost-inverse" onClick={returnHome}>{copy.game.return}</button>
           </div>
         </div>
       </main>
@@ -255,7 +329,12 @@ export default function Game({
   return (
     <main id="main-content" ref={gameMainRef} className="game-shell" tabIndex={-1}>
       <header className="game-topbar">
-        <button className="icon-button icon-button--dark" onClick={onExit} aria-label={copy.game.exit}><X size={19} /></button>
+        <button
+          className="icon-button icon-button--dark"
+          onClick={saveAndExit}
+          aria-label={copy.game.saveAndExit}
+          title={copy.game.saveAndExit}
+        ><X size={19} /></button>
         <Logo inverse />
         <div
           className="game-topbar__progress"
@@ -288,17 +367,40 @@ export default function Game({
           <SphereViewer scene={scene} locale={locale} onReadyChange={setViewerReady} />
         </Suspense>
 
-        {!roundStarted && !result && (
+        {showRestoreNotice && (roundReady || result) && (
+          <div className="session-restored">
+            <div role="status">
+              <RotateCcw size={16} aria-hidden="true" />
+              <span>
+                <strong>{copy.game.journeyRestored}</strong>
+                <small>{copy.game.journeyRestoredNote(round + 1, scenes.length)}</small>
+              </span>
+            </div>
+            <button
+              className={`session-restored__fresh ${confirmFresh ? 'is-confirming' : ''}`}
+              onClick={() => confirmFresh ? restart() : setConfirmFresh(true)}
+            >
+              {confirmFresh ? copy.game.confirmFresh : copy.game.startFresh}
+            </button>
+            <button
+              className="session-restored__dismiss"
+              onClick={() => { setShowRestoreNotice(false); setConfirmFresh(false) }}
+              aria-label={copy.game.dismissRestore}
+            ><X size={15} /></button>
+          </div>
+        )}
+
+        {!roundPlayable && !result && (
           <div className="round-preparing" role="status">
-            <span><Timer size={18} /> {copy.game.roundPreparing}</span>
-            <small>{copy.game.roundPreparingNote}</small>
+            <span><Timer size={18} /> {restoringRound ? copy.game.roundRestoring : copy.game.roundPreparing}</span>
+            <small>{restoringRound ? copy.game.roundRestoringNote : copy.game.roundPreparingNote}</small>
           </div>
         )}
 
         {!result && (
           <button
             className="oracle-button"
-            disabled={!roundStarted || cluesUsed >= sceneClues.length}
+            disabled={!roundPlayable || cluesUsed >= sceneClues.length}
             onClick={() => setCluesUsed((value) => Math.min(sceneClues.length, value + 1))}
           >
             <Sparkles size={16} /> {copy.game.ask}
@@ -328,7 +430,7 @@ export default function Game({
                       const shortcut = String.fromCharCode(65 + index)
                       return (
                         <button
-                          disabled={!roundStarted}
+                          disabled={!roundPlayable}
                           className={answer === option ? 'is-selected' : ''}
                           key={option}
                           aria-pressed={answer === option}
@@ -346,12 +448,12 @@ export default function Game({
               <section className="oracle-card oracle-card--map">
                 <div className="map-choice">
                   <h2>{copy.game.where}</h2>
-                  <MythMap interactive guess={guess} onGuess={roundStarted ? setGuess : undefined} onReadyChange={setMapReady} locale={locale} />
+                  <MythMap interactive guess={guess} onGuess={roundPlayable ? setGuess : undefined} onReadyChange={setMapReady} locale={locale} />
                   <p>{guess
                     ? copy.game.pinPlaced
                     : copy.game.pinEmpty}</p>
                 </div>
-                <button className="button button--gold oracle-card__submit" disabled={!roundStarted || !answer || !guess} onClick={submitRound}>
+                <button className="button button--gold oracle-card__submit" disabled={!roundPlayable || !answer || !guess} onClick={submitRound}>
                   {copy.game.seal} <Flame size={17} />
                 </button>
               </section>
