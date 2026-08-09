@@ -2,7 +2,7 @@ import { BookOpen, Compass, Map, Sparkles, Swords } from 'lucide-react'
 
 export function Logo({ inverse = false }: { inverse?: boolean }) {
   return (
-    <span className={`logo ${inverse ? 'logo--inverse' : ''}`} aria-label="MYTHOS home">
+    <span className={`logo ${inverse ? 'logo--inverse' : ''}`} role="img" aria-label="MYTHOS">
       <svg className="logo__mark" viewBox="0 0 48 48" aria-hidden="true">
         <circle cx="24" cy="24" r="20" />
         <path d="M12 24h24M24 12v24M16 16l16 16M32 16 16 32" />

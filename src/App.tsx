@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { ArrowRight, Compass, Map, Menu, Sparkles, X } from 'lucide-react'
 import type { MythMapProps } from './AncientMap'
 import { archiveScenesForFilter, type ArchiveFilter } from './archive'
@@ -6,7 +6,7 @@ import { atlasPlaces, collections, mythScenes } from './data'
 import { figureProfiles, profilesForCategory, type FigureCategory } from './figures'
 import { DEFAULT_ROUND_COUNT, TROJAN_ROUTE_IDS, type GameMode } from './gameDeck'
 import { localiseMythTitle, localisedNumber, persistLocale, resolveLocale, ui, type Locale } from './i18n'
-import { appRouteToHash, parseAppRoute, type AppRoute } from './routing'
+import { appRouteTitle, appRouteToHash, parseAppRoute, type AppRoute } from './routing'
 import { IconForMode, Logo, Ornament } from './ui'
 
 const Game = lazy(() => import('./components'))
@@ -66,7 +66,7 @@ function DeferredMythMap(props: MythMapProps) {
 
 function GamePlaceholder({ locale }: { locale: Locale }) {
   return (
-    <main className="game-loading" role="status">
+    <main id="main-content" className="game-loading" role="status" tabIndex={-1}>
       <Logo inverse />
       <span>{locale === 'tr' ? 'Kehanet hazırlanıyor…' : 'Preparing the oracle…'}</span>
     </main>
@@ -140,17 +140,86 @@ function LanguageSwitch({ locale, onLocaleChange, compact = false }: {
 function Header({ locale, onLocaleChange, onNavigate, onShowAbout, onStartGame }: NavigationProps) {
   const [open, setOpen] = useState(false)
   const copy = ui[locale]
+  const menuId = useId()
+  const navRef = useRef<HTMLElement>(null)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+
+    const mobileViewport = window.matchMedia('(max-width: 760px)')
+    if (!mobileViewport.matches) return
+
+    const previousOverflow = document.body.style.overflow
+    const background = Array.from(document.querySelectorAll<HTMLElement>('main, footer, .site-header > .logo-button'))
+    document.body.style.overflow = 'hidden'
+    background.forEach((element) => element.setAttribute('inert', ''))
+
+    const frame = window.requestAnimationFrame(() => {
+      navRef.current?.querySelector<HTMLElement>('button, a[href]')?.focus()
+    })
+    const closeOnDesktop = (event: MediaQueryListEvent) => {
+      if (!event.matches) setOpen(false)
+    }
+    const closeOnEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      setOpen(false)
+      window.requestAnimationFrame(() => menuButtonRef.current?.focus())
+    }
+
+    mobileViewport.addEventListener('change', closeOnDesktop)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      mobileViewport.removeEventListener('change', closeOnDesktop)
+      document.removeEventListener('keydown', closeOnEscape)
+      document.body.style.overflow = previousOverflow
+      background.forEach((element) => element.removeAttribute('inert'))
+    }
+  }, [open])
+
+  function trapMenuFocus(event: KeyboardEvent<HTMLElement>) {
+    if (!open || event.key !== 'Tab') return
+    const nav = navRef.current
+    const menuButton = menuButtonRef.current
+    if (!nav || !menuButton) return
+
+    const items = [
+      ...nav.querySelectorAll<HTMLElement>('button:not(:disabled), a[href]'),
+      menuButton,
+    ]
+    const first = items[0]
+    const last = items.at(-1)
+    if (!first || !last) return
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault()
+      last.focus()
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault()
+      first.focus()
+    }
+  }
+
   return (
-    <header className="site-header">
-      <button className="logo-button" onClick={() => onNavigate('home')}><Logo /></button>
-      <nav className={open ? 'is-open' : ''} aria-label="Primary navigation">
+    <header className="site-header" onKeyDown={trapMenuFocus}>
+      <button className="logo-button" aria-label={copy.nav.home} onClick={() => onNavigate('home')}><Logo /></button>
+      <nav ref={navRef} id={menuId} className={open ? 'is-open' : ''} aria-label={copy.nav.primary}>
         <button onClick={() => { onNavigate('archive'); setOpen(false) }}>{copy.nav.archive}</button>
         <button onClick={() => { onNavigate('atlas'); setOpen(false) }}>{copy.nav.atlas}</button>
         <a href="#/about" onClick={(event) => { event.preventDefault(); onShowAbout(); setOpen(false) }}>{copy.nav.about}</a>
         <LanguageSwitch locale={locale} onLocaleChange={onLocaleChange} />
         <button className="nav-play" onClick={() => { onStartGame('all'); setOpen(false) }}><Sparkles size={15} /> {copy.nav.begin}</button>
       </nav>
-      <button className="mobile-menu" onClick={() => setOpen(!open)} aria-label={copy.nav.menu}>
+      <button
+        ref={menuButtonRef}
+        className="mobile-menu"
+        onClick={() => setOpen(!open)}
+        aria-controls={menuId}
+        aria-expanded={open}
+        aria-label={open ? copy.nav.closeMenu : copy.nav.openMenu}
+      >
         {open ? <X /> : <Menu />}
       </button>
     </header>
@@ -187,7 +256,7 @@ function Home(props: NavigationProps) {
   return (
     <>
       <Header {...props} />
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <section className="hero">
           <div className="hero__noise" />
           <div className="hero__copy">
@@ -292,7 +361,7 @@ function Home(props: NavigationProps) {
           </div>
         </section>
 
-        <section className="manifesto" id="manifesto">
+        <section className="manifesto" id="manifesto" tabIndex={-1}>
           <Ornament />
           <span className="manifesto__symbol">Ω</span>
           <blockquote>{copy.home.quote}</blockquote>
@@ -311,7 +380,7 @@ function AtlasPage(props: NavigationProps) {
   return (
     <div className="inner-page">
       <Header {...props} />
-      <main className="inner-page__main section-shell">
+      <main id="main-content" className="inner-page__main section-shell" tabIndex={-1}>
         <span className="kicker">{copy.atlas.kicker}</span>
         <h1>{copy.atlas.title} <em>{copy.atlas.titleEm}</em></h1>
         <p className="inner-page__lede">{copy.atlas.lede}</p>
@@ -355,7 +424,7 @@ function ArchivePage(props: NavigationProps) {
   return (
     <div className="inner-page">
       <Header {...props} />
-      <main className="inner-page__main section-shell">
+      <main id="main-content" className="inner-page__main section-shell" tabIndex={-1}>
         <span className="kicker">{copy.archive.kicker}</span>
         <h1>{copy.archive.title} <em>{copy.archive.titleEm}</em></h1>
         <p className="inner-page__lede">{copy.archive.lede(mythScenes.length)}</p>
@@ -436,7 +505,7 @@ function FiguresPage({ category, selectedId, onCategoryChange, onSelectFigure, .
     return (
       <div className="inner-page figure-page">
         <Header {...props} />
-        <main className="figure-detail section-shell">
+        <main id="main-content" className="figure-detail section-shell" tabIndex={-1}>
           <button className="figure-back" onClick={() => onSelectFigure()}>← {copy.figures.back}</button>
           <div className="figure-detail__hero">
             <img src={selected.image} alt="" decoding="async" style={{ objectPosition: selected.objectPosition }} />
@@ -481,13 +550,13 @@ function FiguresPage({ category, selectedId, onCategoryChange, onSelectFigure, .
   return (
     <div className="inner-page figure-page">
       <Header {...props} />
-      <main className="inner-page__main section-shell">
+      <main id="main-content" className="inner-page__main section-shell" tabIndex={-1}>
         <span className="kicker">{copy.figures.kicker}</span>
         <h1>{category === 'heroes' ? copy.figures.heroesTitle : copy.figures.creaturesTitle}</h1>
         <p className="inner-page__lede">{category === 'heroes' ? copy.figures.heroesLede : copy.figures.creaturesLede}</p>
-        <div className="figure-tabs" role="tablist">
-          <button role="tab" aria-selected={category === 'heroes'} className={category === 'heroes' ? 'is-active' : ''} onClick={() => onCategoryChange('heroes')}>{copy.figures.heroesTitle}</button>
-          <button role="tab" aria-selected={category === 'creatures'} className={category === 'creatures' ? 'is-active' : ''} onClick={() => onCategoryChange('creatures')}>{copy.figures.creaturesTitle}</button>
+        <div className="figure-tabs" role="group" aria-label={copy.accessibility.figureCategories}>
+          <button aria-pressed={category === 'heroes'} className={category === 'heroes' ? 'is-active' : ''} onClick={() => onCategoryChange('heroes')}>{copy.figures.heroesTitle}</button>
+          <button aria-pressed={category === 'creatures'} className={category === 'creatures' ? 'is-active' : ''} onClick={() => onCategoryChange('creatures')}>{copy.figures.creaturesTitle}</button>
         </div>
         <div className="figure-grid">
           {profiles.map((profile) => (
@@ -510,7 +579,7 @@ function Footer(props: NavigationProps) {
   return (
     <footer className="site-footer">
       <div><Logo inverse /><p>{copy.footer.tagline}</p></div>
-      <nav><button onClick={() => onStartGame('all')}>{copy.footer.play}</button><button onClick={() => onNavigate('atlas')}>{copy.footer.atlas}</button><button onClick={() => onNavigate('archive')}>{copy.footer.archive}</button><a href="#/about" onClick={(event) => { event.preventDefault(); onShowAbout() }}>{copy.footer.about}</a></nav>
+      <nav aria-label={copy.nav.footer}><button onClick={() => onStartGame('all')}>{copy.footer.play}</button><button onClick={() => onNavigate('atlas')}>{copy.footer.atlas}</button><button onClick={() => onNavigate('archive')}>{copy.footer.archive}</button><a href="#/about" onClick={(event) => { event.preventDefault(); onShowAbout() }}>{copy.footer.about}</a></nav>
       <span>{copy.footer.version}<br />{copy.footer.credit}</span>
     </footer>
   )
@@ -519,6 +588,7 @@ function Footer(props: NavigationProps) {
 export default function App() {
   const [route, setRoute] = useState<AppRoute>(() => parseAppRoute(window.location.hash))
   const [locale, setLocale] = useState<Locale>(() => resolveLocale())
+  const initialRoute = useRef(true)
 
   function navigate(nextRoute: AppRoute, replace = false) {
     const hash = appRouteToHash(nextRoute)
@@ -556,7 +626,8 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.lang = locale
-  }, [locale])
+    document.title = appRouteTitle(route, locale)
+  }, [locale, route])
 
   useEffect(() => {
     const syncRoute = () => setRoute(parseAppRoute(window.location.hash))
@@ -565,12 +636,17 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    const shouldMoveFocus = !initialRoute.current
     const frame = window.requestAnimationFrame(() => {
       if (route.view === 'about') {
-        document.getElementById('manifesto')?.scrollIntoView({ block: 'start' })
+        const manifesto = document.getElementById('manifesto')
+        manifesto?.scrollIntoView({ block: 'start' })
+        if (shouldMoveFocus) manifesto?.focus({ preventScroll: true })
       } else {
         window.scrollTo({ top: 0, behavior: 'instant' })
+        if (shouldMoveFocus) document.getElementById('main-content')?.focus({ preventScroll: true })
       }
+      initialRoute.current = false
     })
 
     return () => window.cancelAnimationFrame(frame)
@@ -585,17 +661,19 @@ export default function App() {
     onOpenFigures: openFigures,
   }
 
+  let content: ReactNode
   if (route.view === 'game') {
-    return (
+    content = (
       <Suspense fallback={<GamePlaceholder locale={locale} />}>
         <Game key={route.mode} mode={route.mode} locale={locale} onLocaleChange={changeLocale} onExit={() => navigate({ view: 'home' }, true)} />
       </Suspense>
     )
-  }
-  if (route.view === 'atlas') return <AtlasPage {...navigationProps} />
-  if (route.view === 'archive') return <ArchivePage {...navigationProps} />
-  if (route.view === 'figures') {
-    return (
+  } else if (route.view === 'atlas') {
+    content = <AtlasPage {...navigationProps} />
+  } else if (route.view === 'archive') {
+    content = <ArchivePage {...navigationProps} />
+  } else if (route.view === 'figures') {
+    content = (
       <FiguresPage
         {...navigationProps}
         category={route.category}
@@ -604,6 +682,25 @@ export default function App() {
         onSelectFigure={(figureId) => navigate({ view: 'figures', category: route.category, figureId })}
       />
     )
+  } else {
+    content = <Home {...navigationProps} />
   }
-  return <Home {...navigationProps} />
+
+  return (
+    <>
+      <a
+        className="skip-link"
+        href="#main-content"
+        onClick={(event) => {
+          event.preventDefault()
+          const main = document.getElementById('main-content')
+          main?.scrollIntoView({ block: 'start' })
+          main?.focus({ preventScroll: true })
+        }}
+      >
+        {ui[locale].accessibility.skip}
+      </a>
+      {content}
+    </>
+  )
 }

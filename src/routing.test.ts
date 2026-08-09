@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { appRouteToHash, parseAppRoute, type AppRoute } from './routing'
+import { appRouteTitle, appRouteToHash, parseAppRoute, type AppRoute } from './routing'
 
 describe('MYTHOS routes', () => {
   it.each(['', '#', '#/', '#/home', '#/unknown'])('falls back to home for %s', (hash) => {
@@ -27,5 +27,12 @@ describe('MYTHOS routes', () => {
   it('rejects unsupported game modes and figure categories', () => {
     expect(parseAppRoute('#/game/troy')).toEqual({ view: 'home' })
     expect(parseAppRoute('#/figures/gods')).toEqual({ view: 'home' })
+  })
+
+  it('provides localised document titles for every route family', () => {
+    expect(appRouteTitle({ view: 'home' }, 'en')).toBe('MYTHOS · Explore Greek mythology')
+    expect(appRouteTitle({ view: 'archive' }, 'tr')).toBe('Mit Arşivi · MYTHOS')
+    expect(appRouteTitle({ view: 'game', mode: 'odyssey' }, 'en')).toBe('Odysseus’s Route · MYTHOS')
+    expect(appRouteTitle({ view: 'figures', category: 'creatures' }, 'tr')).toBe('Yaratıklar · MYTHOS')
   })
 })

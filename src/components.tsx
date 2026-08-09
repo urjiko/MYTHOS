@@ -16,6 +16,7 @@ import type { MythScene, Point } from './data'
 import { ROUND_DURATION_MS, ROUND_DURATION_SECONDS, secondsUntilDeadline } from './gameClock'
 import { createGameDeck, type GameMode } from './gameDeck'
 import { localiseMythTitle, ui, type Locale } from './i18n'
+import { answerIndexForKey } from './keyboard'
 import { localiseSceneClues } from './sceneCopy'
 import { formatScore, scoreRound, type ScoreBreakdown } from './scoring'
 import { MythMap } from './AncientMap'
@@ -66,6 +67,9 @@ export default function Game({
   const [timedOut, setTimedOut] = useState(false)
   const [pageVisible, setPageVisible] = useState(() => document.visibilityState === 'visible')
   const deadlineRef = useRef<number | null>(null)
+  const gameMainRef = useRef<HTMLElement>(null)
+  const roundResultRef = useRef<HTMLDivElement>(null)
+  const finalResultRef = useRef<HTMLElement>(null)
   const scene = scenes[round]
   const sceneClues = localiseSceneClues(scene, locale)
   const maximumScore = scenes.length * 10_000
@@ -81,6 +85,11 @@ export default function Game({
     const updateVisibility = () => setPageVisible(document.visibilityState === 'visible')
     document.addEventListener('visibilitychange', updateVisibility)
     return () => document.removeEventListener('visibilitychange', updateVisibility)
+  }, [])
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => gameMainRef.current?.focus({ preventScroll: true }))
+    return () => window.cancelAnimationFrame(frame)
   }, [])
 
   useEffect(() => {
@@ -114,6 +123,39 @@ export default function Game({
     const image = new Image()
     image.src = nextScene.image
   }, [result, round, scenes])
+
+  useEffect(() => {
+    if (!roundStarted || result || finished) return
+
+    const selectAnswer = (event: KeyboardEvent) => {
+      if (event.altKey || event.ctrlKey || event.metaKey) return
+      const target = event.target
+      if (
+        target instanceof HTMLElement
+        && (target.isContentEditable || ['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName))
+      ) return
+
+      const index = answerIndexForKey(event.key, scene.options.length)
+      if (index === null) return
+      event.preventDefault()
+      setAnswer(scene.options[index])
+    }
+
+    document.addEventListener('keydown', selectAnswer)
+    return () => document.removeEventListener('keydown', selectAnswer)
+  }, [finished, result, roundStarted, scene.options])
+
+  useEffect(() => {
+    if (!result) return
+    const frame = window.requestAnimationFrame(() => roundResultRef.current?.focus())
+    return () => window.cancelAnimationFrame(frame)
+  }, [result])
+
+  useEffect(() => {
+    if (!finished) return
+    const frame = window.requestAnimationFrame(() => finalResultRef.current?.focus())
+    return () => window.cancelAnimationFrame(frame)
+  }, [finished])
 
   const total = useMemo(
     () => history.reduce((sum, item) => sum + item.breakdown.total, 0) + (result?.total ?? 0),
@@ -184,7 +226,7 @@ export default function Game({
     const finalScore = history.reduce((sum, item) => sum + item.breakdown.total, 0)
     const correct = history.filter((item) => item.breakdown.recognition > 0).length
     return (
-      <main className="results-screen">
+      <main id="main-content" ref={finalResultRef} className="results-screen" tabIndex={-1}>
         <div className="results-screen__sun" aria-hidden="true" />
         <Logo inverse />
         <div className="results-card">
@@ -211,11 +253,19 @@ export default function Game({
   }
 
   return (
-    <main className="game-shell">
+    <main id="main-content" ref={gameMainRef} className="game-shell" tabIndex={-1}>
       <header className="game-topbar">
         <button className="icon-button icon-button--dark" onClick={onExit} aria-label={copy.game.exit}><X size={19} /></button>
         <Logo inverse />
-        <div className="game-topbar__progress">
+        <div
+          className="game-topbar__progress"
+          role="progressbar"
+          aria-label={journeyLabel}
+          aria-valuemin={1}
+          aria-valuemax={scenes.length}
+          aria-valuenow={round + 1}
+          aria-valuetext={copy.accessibility.roundProgress(round + 1, scenes.length)}
+        >
           <span>{journeyLabel} {round + 1} / {scenes.length}</span>
           <div>{scenes.map((item, index) => <i key={item.id} className={index <= round ? 'is-active' : ''} />)}</div>
         </div>
@@ -225,6 +275,9 @@ export default function Game({
           aria-label={roundStarted ? copy.game.timeRemaining(seconds) : copy.game.roundPreparing}
         >
           <Timer size={16} /> {String(Math.floor(seconds / 60)).padStart(2, '0')}:{String(seconds % 60).padStart(2, '0')}
+        </span>
+        <span className="sr-only" aria-live="assertive">
+          {roundStarted && (seconds === 15 || seconds === 5) ? copy.accessibility.timeWarning(seconds) : ''}
         </span>
         <strong className="game-score">{formatScore(total)} <small>OP</small></strong>
         <button className="game-language" onClick={() => onLocaleChange(locale === 'en' ? 'tr' : 'en')} aria-label={copy.nav.language}>{locale === 'en' ? 'TR' : 'EN'}</button>
@@ -268,14 +321,24 @@ export default function Game({
                   <span className="kicker"><Compass size={14} /> {copy.game.make}</span>
                   <strong>10,000 OP</strong>
                 </div>
-                <div className="myth-choice">
-                  <h2>{copy.game.inside}</h2>
+                <div className="myth-choice" role="group" aria-labelledby="myth-choice-title">
+                  <h2 id="myth-choice-title">{copy.game.inside}</h2>
                   <div>
-                    {scene.options.map((option, index) => (
-                      <button disabled={!roundStarted} className={answer === option ? 'is-selected' : ''} key={option} onClick={() => setAnswer(option)}>
-                        <span>{String.fromCharCode(65 + index)}</span>{localiseMythTitle(option, locale)}
-                      </button>
-                    ))}
+                    {scene.options.map((option, index) => {
+                      const shortcut = String.fromCharCode(65 + index)
+                      return (
+                        <button
+                          disabled={!roundStarted}
+                          className={answer === option ? 'is-selected' : ''}
+                          key={option}
+                          aria-pressed={answer === option}
+                          aria-keyshortcuts={shortcut}
+                          onClick={() => setAnswer(option)}
+                        >
+                          <span>{shortcut}</span>{localiseMythTitle(option, locale)}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
               </section>
@@ -294,13 +357,19 @@ export default function Game({
               </section>
             </div>
           ) : (
-            <div className="round-result">
+            <div
+              ref={roundResultRef}
+              className="round-result"
+              role="region"
+              aria-labelledby="round-result-title"
+              tabIndex={-1}
+            >
               <div className="round-result__copy">
                 <span className={`kicker ${!timedOut && result.recognition ? 'kicker--success' : 'kicker--danger'}`}>
                   {timedOut ? <TimerOff size={14} /> : result.recognition ? <Check size={14} /> : <X size={14} />}
                   {timedOut ? copy.game.timeExpired : result.recognition ? copy.game.correct : copy.game.wrong}
                 </span>
-                <h2>{localiseMythTitle(scene.title, locale)}</h2>
+                <h2 id="round-result-title">{localiseMythTitle(scene.title, locale)}</h2>
                 <p className="round-result__place"><Map size={15} /> {scene.location} · {scene.cycle}</p>
                 {timedOut && <p className="round-result__timeout">{copy.game.timeoutNote}</p>}
                 <p>{scene.reveal}</p>

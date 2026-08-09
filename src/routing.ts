@@ -1,5 +1,6 @@
 import type { FigureCategory } from './figures'
 import type { GameMode } from './gameDeck'
+import { ui, type Locale } from './i18n'
 
 export type AppRoute =
   | { view: 'home' }
@@ -68,5 +69,28 @@ export function appRouteToHash(route: AppRoute) {
       return route.figureId
         ? `#/figures/${route.category}/${encodeURIComponent(route.figureId)}`
         : `#/figures/${route.category}`
+  }
+}
+
+export function appRouteTitle(route: AppRoute, locale: Locale) {
+  const titles = ui[locale].titles
+
+  switch (route.view) {
+    case 'home':
+      return titles.home
+    case 'about':
+      return titles.about
+    case 'atlas':
+      return titles.atlas
+    case 'archive':
+      return titles.archive
+    case 'game':
+      return route.mode === 'odyssey'
+        ? titles.odyssey
+        : route.mode === 'iliad'
+          ? titles.iliad
+          : titles.classic
+    case 'figures':
+      return route.category === 'heroes' ? titles.heroes : titles.creatures
   }
 }

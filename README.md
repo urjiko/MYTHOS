@@ -21,6 +21,7 @@ An immersive web game that turns Greek mythology from a list to memorise into a 
 - Explicit confidence notes for attested, traditional, and purely mythic locations
 - Great-circle distance scoring in kilometres, with a visible full-credit region tailored to each myth’s geographic certainty
 - Progressive oracle clues, source context, and browser-saved personal best
+- Keyboard answer shortcuts, route-aware focus, localised page titles, and a focus-safe mobile menu
 - Responsive desktop and mobile layouts
 
 ## Scoring
