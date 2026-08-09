@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { localiseMythTitle, resolveLocale } from './i18n'
+import { mythScenes } from './data'
+import { localiseMythTitle, resolveLocale, ui } from './i18n'
+
+function leafPaths(value: unknown, prefix = ''): string[] {
+  if (typeof value !== 'object' || value === null) return [prefix]
+  return Object.entries(value).flatMap(([key, child]) => (
+    leafPaths(child, prefix ? `${prefix}.${key}` : key)
+  ))
+}
 
 describe('MYTHOS locale resolution', () => {
   it('uses a saved manual choice before browser preferences', () => {
@@ -19,5 +27,15 @@ describe('MYTHOS locale resolution', () => {
     expect(localiseMythTitle('Leto and the Lycian Peasants', 'tr')).toBe('Leto ve Lykialı Köylüler')
     expect(localiseMythTitle('Io’s Flight', 'tr')).toBe('Io’nun Kaçışı')
     expect(localiseMythTitle('Orpheus and Eurydice', 'en')).toBe('Orpheus and Eurydice')
+  })
+
+  it('has an explicit Turkish title for every playable scene', () => {
+    mythScenes.forEach((scene) => {
+      expect(localiseMythTitle(scene.title, 'tr')).not.toBe(scene.title)
+    })
+  })
+
+  it('keeps the English and Turkish UI dictionaries structurally complete', () => {
+    expect(leafPaths(ui.tr).sort()).toEqual(leafPaths(ui.en).sort())
   })
 })

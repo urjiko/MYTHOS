@@ -1,13 +1,16 @@
 import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import type { GeoJsonObject } from 'geojson'
 import { useEffect, useRef, useState } from 'react'
-import type { AtlasPlace, MapConfidence, Point } from './data'
+import type { MapConfidence, Point } from './data'
 import { ancientRegions, atlasPlaces, odysseyRoute } from './data'
 import type { Locale } from './i18n'
+import { mapLabelForPlace, mapPeriodLabel, mapRegionLabel, mapTypeLabel } from './mapCopy'
 
 const MEDITERRANEAN_BOUNDS = L.latLngBounds([28.5, -12], [48, 45])
 const INITIAL_BOUNDS = L.latLngBounds([30.5, -10], [45.5, 39])
 const MIN_ZOOM = 3.5
+type MapStatus = 'loading' | 'ready' | 'error'
 const MAJOR_LABELS = new Set([
   'Olympus',
   'Delphi',
@@ -20,16 +23,25 @@ const MAJOR_LABELS = new Set([
   'Corinth',
 ])
 
-export function mapLabelForPlace(place: AtlasPlace, locale: Locale) {
-  return place.gameName?.[locale] ?? place.name
-}
-
 const markerIcon = (className: string, glyph = '') => L.divIcon({
   className: `ancient-map__pin ${className}`,
   html: `<span>${glyph}</span>`,
   iconAnchor: [13, 13],
   iconSize: [26, 26],
 })
+
+export type MythMapProps = {
+  guess?: Point | null
+  target?: Point
+  targetRadiusKm?: number
+  targetConfidence?: MapConfidence
+  reveal?: boolean
+  interactive?: boolean
+  showRoute?: boolean
+  onGuess?: (point: Point) => void
+  onReadyChange?: (ready: boolean) => void
+  locale?: Locale
+}
 
 export function MythMap({
   guess,
@@ -40,18 +52,9 @@ export function MythMap({
   interactive = false,
   showRoute = false,
   onGuess,
+  onReadyChange,
   locale = 'en',
-}: {
-  guess?: Point | null
-  target?: Point
-  targetRadiusKm?: number
-  targetConfidence?: MapConfidence
-  reveal?: boolean
-  interactive?: boolean
-  showRoute?: boolean
-  onGuess?: (point: Point) => void
-  locale?: Locale
-}) {
+}: MythMapProps) {
   const text = locale === 'tr'
     ? {
         zoomIn: 'Yakınlaştır',
@@ -75,6 +78,7 @@ export function MythMap({
         keyAttested: 'Belgelenmiş',
         keyTraditional: 'Gelenek',
         keyMythic: 'Mitik',
+        ancientPlaces: 'antik yerler',
       }
     : {
         zoomIn: 'Zoom in',
@@ -98,20 +102,25 @@ export function MythMap({
         keyAttested: 'Attested',
         keyTraditional: 'Tradition',
         keyMythic: 'Mythic',
+        ancientPlaces: 'ancient places',
       }
   const hostRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const answerLayers = useRef<L.LayerGroup | null>(null)
   const onGuessRef = useRef(onGuess)
-  const [mapStatus, setMapStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+  const onReadyChangeRef = useRef(onReadyChange)
+  const [mapStatus, setMapStatus] = useState<MapStatus>('loading')
 
   onGuessRef.current = onGuess
+  onReadyChangeRef.current = onReadyChange
 
   useEffect(() => {
     if (!hostRef.current) return
 
     let cancelled = false
     const host = hostRef.current
+    setMapStatus('loading')
+    onReadyChangeRef.current?.(false)
     const map = L.map(host, {
       attributionControl: false,
       zoomControl: false,
@@ -179,7 +188,7 @@ export function MythMap({
     L.control.scale({ position: 'bottomleft', imperial: false, maxWidth: 110 }).addTo(map)
     L.control.attribution({ position: 'bottomright', prefix: false })
       .addAttribution(
-        '<a href="https://www.naturalearthdata.com/" target="_blank" rel="noreferrer">Natural Earth</a> · ancient places: <a href="https://pleiades.stoa.org/" target="_blank" rel="noreferrer">Pleiades</a>',
+        `<a href="https://www.naturalearthdata.com/" target="_blank" rel="noreferrer">Natural Earth</a> · ${text.ancientPlaces}: <a href="https://pleiades.stoa.org/" target="_blank" rel="noreferrer">Pleiades</a>`,
       )
       .addTo(map)
 
@@ -207,7 +216,7 @@ export function MythMap({
         interactive: false,
         icon: L.divIcon({
           className: `ancient-map__region ancient-map__region--${region.kind}`,
-          html: `<span>${region.name}</span>`,
+          html: `<span>${mapRegionLabel(region.name, locale)}</span>`,
           iconAnchor: [65, 8],
           iconSize: [130, 16],
         }),
@@ -241,7 +250,7 @@ export function MythMap({
           direction: 'right',
           offset: [6, 0],
         })
-        .bindPopup(`<strong>${popupName}</strong><small>${place.type} · ${place.period}<br>${confidenceLabel[place.confidence]}</small>${popupSource}`)
+        .bindPopup(`<strong>${popupName}</strong><small>${mapTypeLabel(place.type, locale)} · ${mapPeriodLabel(place.period, locale)}<br>${confidenceLabel[place.confidence]}</small>${popupSource}`)
         .addTo(map)
 
       const priority = MAJOR_LABELS.has(place.name)
@@ -307,9 +316,13 @@ export function MythMap({
           },
         }).addTo(map).bringToBack()
         setMapStatus('ready')
+        onReadyChangeRef.current?.(true)
       })
       .catch(() => {
-        if (!cancelled) setMapStatus('error')
+        if (!cancelled) {
+          setMapStatus('error')
+          onReadyChangeRef.current?.(true)
+        }
       })
 
     return () => {

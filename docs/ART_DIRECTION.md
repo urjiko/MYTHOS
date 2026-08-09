@@ -27,7 +27,16 @@ MYTHOS uses cinematic spatial depth with an aged fresco and oil-paint surface. T
 
 The forty-four game images are true monoscopic 2:1 equirectangular textures. Their 1774×887 source generations are delivered as 4096×2048 WebP files with high-quality resampling and light sharpening. Each covers 360° horizontally and 180° vertically, keeps the horizon near mid-height, and joins its left and right edges. The website maps each texture to the inside of a WebGL sphere with the camera at its centre.
 
-An asset is accepted only after these checks:
+An asset is accepted only after both automated delivery checks and manual projection review.
+
+Automated checks (`npm run check:assets`):
+
+1. Match every scene ID to exactly one documented 4096×2048 sRGB WebP source.
+2. Keep each source and the full collection inside explicit delivery budgets.
+3. Keep the measured left/right edge difference below the seam rejection threshold.
+4. Match every source to a generated 1024×512 preview whose hashes prove that it is current.
+
+Manual projection review:
 
 1. Reproject yaw 0°, 90°, 180°, and 270° into rectilinear views.
 2. Reproject zenith and nadir to catch collapsed poles.
@@ -37,6 +46,6 @@ An asset is accepted only after these checks:
 
 ### Asset optimisation
 
-Source PNGs are converted to 4096×2048 WebP at quality 90 or above. The forty-four sphere textures total roughly 35.6 MiB, a deliberate increase over the original aggressively compressed set. Browser rendering uses mipmaps, linear filtering, up to 16× anisotropy, and a device-pixel-ratio cap of 2. The landing-page art remains a separate flat image.
+Source PNGs are converted to 4096×2048 WebP at quality 90 or above. The forty-four sphere textures total roughly 34.4 MiB, a deliberate increase over the original aggressively compressed set. Generated 1024×512 previews total roughly 3.6 MiB and provide the first visual response plus a flat fallback; the full source still drives the sphere. Browser rendering uses mipmaps, linear filtering, up to 16× anisotropy, and a device-pixel-ratio cap of 2. The landing-page art remains a separate flat image.
 
 The 4K delivery pass reduces compression and sampling artefacts; it cannot recreate detail that was absent from the generated source. Native-4K generation or a dedicated projection-safe super-resolution pass remains a future upgrade.

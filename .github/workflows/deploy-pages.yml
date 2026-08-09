@@ -1,8 +1,9 @@
-name: Deploy MYTHOS to GitHub Pages
+name: Test and deploy MYTHOS
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -11,7 +12,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -24,15 +25,23 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run generate:panorama-assets
+      - run: npm run check:assets
+      - run: npm run test
       - run: npm run build
+      - run: npm run check:bundle
+      - run: npm run check:pwa
       - uses: actions/configure-pages@v5
+        if: github.event_name != 'pull_request'
         with:
           enablement: true
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           path: dist
 
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
