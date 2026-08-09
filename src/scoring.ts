@@ -1,4 +1,5 @@
 import type { Point } from './data'
+import { ROUND_DURATION_SECONDS } from './gameClock'
 
 export type ScoreBreakdown = {
   recognition: number
@@ -6,8 +7,8 @@ export type ScoreBreakdown = {
   speed: number
   oracle: number
   total: number
-  distance: number
-  scoredDistance: number
+  distance: number | null
+  scoredDistance: number | null
 }
 
 const clamp = (value: number, min: number, max: number) =>
@@ -39,20 +40,29 @@ export function scoreRound({
 }: {
   answer: string
   correctAnswer: string
-  guess: Point
+  guess?: Point | null
   target: Point
   fullCreditRadiusKm: number
   secondsLeft: number
   cluesUsed: number
 }): ScoreBreakdown {
-  const distance = haversineDistanceKm(guess, target)
-  const scoredDistance = Math.max(0, distance - Math.max(0, fullCreditRadiusKm))
+  const distance = guess ? haversineDistanceKm(guess, target) : null
+  const scoredDistance = distance === null
+    ? null
+    : Math.max(0, distance - Math.max(0, fullCreditRadiusKm))
   const recognition = answer === correctAnswer ? 3500 : 0
-  const geography = scoredDistance === 0
-    ? 4000
-    : Math.round(4000 * Math.exp(-scoredDistance / GEOGRAPHY_DECAY_KM))
-  const speed = Math.round(1500 * clamp(secondsLeft / 75, 0, 1))
-  const oracle = cluesUsed === 0 ? 1000 : Math.max(0, 750 - (cluesUsed - 1) * 375)
+  const geography = scoredDistance === null
+    ? 0
+    : scoredDistance === 0
+      ? 4000
+      : Math.round(4000 * Math.exp(-scoredDistance / GEOGRAPHY_DECAY_KM))
+  const speed = Math.round(1500 * clamp(secondsLeft / ROUND_DURATION_SECONDS, 0, 1))
+  const hasCompleteResponse = Boolean(answer && guess)
+  const oracle = hasCompleteResponse
+    ? cluesUsed === 0
+      ? 1000
+      : Math.max(0, 750 - (cluesUsed - 1) * 375)
+    : 0
   const total = recognition + geography + speed + oracle
 
   return { recognition, geography, speed, oracle, total, distance, scoredDistance }

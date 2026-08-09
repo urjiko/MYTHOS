@@ -7,11 +7,13 @@ import {
   RotateCcw,
   Sparkles,
   Timer,
+  TimerOff,
   Trophy,
   X,
 } from 'lucide-react'
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import type { MythScene, Point } from './data'
+import { ROUND_DURATION_MS, ROUND_DURATION_SECONDS, secondsUntilDeadline } from './gameClock'
 import { createGameDeck, type GameMode } from './gameDeck'
 import { localiseMythTitle, ui, type Locale } from './i18n'
 import { localiseSceneClues } from './sceneCopy'
@@ -35,7 +37,7 @@ function SphereViewerPlaceholder({ scene, locale }: { scene: MythScene; locale: 
   )
 }
 
-type RoundResult = { sceneId: string; breakdown: ScoreBreakdown }
+type RoundResult = { sceneId: string; breakdown: ScoreBreakdown; timedOut: boolean }
 
 export default function Game({
   onExit,
@@ -51,13 +53,19 @@ export default function Game({
   const copy = ui[locale]
   const [scenes, setScenes] = useState(() => createGameDeck(mode))
   const [round, setRound] = useState(0)
-  const [seconds, setSeconds] = useState(75)
+  const [seconds, setSeconds] = useState(ROUND_DURATION_SECONDS)
   const [answer, setAnswer] = useState('')
   const [guess, setGuess] = useState<Point | null>(null)
   const [cluesUsed, setCluesUsed] = useState(0)
   const [result, setResult] = useState<ScoreBreakdown | null>(null)
   const [history, setHistory] = useState<RoundResult[]>([])
   const [finished, setFinished] = useState(false)
+  const [viewerReady, setViewerReady] = useState(false)
+  const [mapReady, setMapReady] = useState(false)
+  const [roundStarted, setRoundStarted] = useState(false)
+  const [timedOut, setTimedOut] = useState(false)
+  const [pageVisible, setPageVisible] = useState(() => document.visibilityState === 'visible')
+  const deadlineRef = useRef<number | null>(null)
   const scene = scenes[round]
   const sceneClues = localiseSceneClues(scene, locale)
   const maximumScore = scenes.length * 10_000
@@ -67,40 +75,72 @@ export default function Game({
       ? { bestScoreKey: 'mythos-best-score-iliad', journeyLabel: copy.game.troy, completionLabel: copy.game.troyComplete }
       : { bestScoreKey: 'mythos-best-score', journeyLabel: copy.game.oracle, completionLabel: copy.game.oracleComplete }
   const { bestScoreKey, journeyLabel, completionLabel } = modeCopy
+  const roundReady = viewerReady && mapReady
 
   useEffect(() => {
-    if (result || finished) return
-    const timer = window.setInterval(() => setSeconds((value) => Math.max(0, value - 1)), 1000)
+    const updateVisibility = () => setPageVisible(document.visibilityState === 'visible')
+    document.addEventListener('visibilitychange', updateVisibility)
+    return () => document.removeEventListener('visibilitychange', updateVisibility)
+  }, [])
+
+  useEffect(() => {
+    if (!roundReady || !pageVisible || roundStarted || result || finished) return
+    deadlineRef.current = Date.now() + ROUND_DURATION_MS
+    setRoundStarted(true)
+  }, [finished, pageVisible, result, roundReady, roundStarted])
+
+  useEffect(() => {
+    if (!roundStarted || result || finished || deadlineRef.current === null) return
+
+    const updateClock = () => {
+      if (deadlineRef.current === null) return
+      setSeconds(secondsUntilDeadline(deadlineRef.current, Date.now()))
+    }
+    updateClock()
+    const timer = window.setInterval(updateClock, 250)
     return () => window.clearInterval(timer)
-  }, [round, result, finished])
+  }, [finished, result, round, roundStarted])
 
   useEffect(() => {
-    if (seconds === 0 && !result && guess && answer) submitRound()
-    // submitRound is intentionally driven by the current answer state.
+    if (roundStarted && seconds === 0 && !result && !finished) resolveRound(true)
+    // The timeout resolves the current answer and guess state exactly once.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seconds])
+  }, [seconds, roundStarted, result, finished])
+
+  useEffect(() => {
+    if (!result) return
+    const nextScene = scenes[round + 1]
+    if (!nextScene) return
+    const image = new Image()
+    image.src = nextScene.image
+  }, [result, round, scenes])
 
   const total = useMemo(
     () => history.reduce((sum, item) => sum + item.breakdown.total, 0) + (result?.total ?? 0),
     [history, result],
   )
 
-  function submitRound() {
-    if (!guess || !answer || result) return
+  function resolveRound(expired = false) {
+    if (result || (!expired && (!guess || !answer))) return
+    setTimedOut(expired)
     setResult(scoreRound({
       answer,
       correctAnswer: scene.title,
       guess,
       target: scene.coordinates,
       fullCreditRadiusKm: scene.accuracyRadiusKm,
-      secondsLeft: seconds,
+      secondsLeft: expired ? 0 : seconds,
       cluesUsed,
     }))
   }
 
+  function submitRound() {
+    resolveRound(seconds === 0)
+  }
+
   function nextRound() {
     if (!result) return
-    const nextHistory = [...history, { sceneId: scene.id, breakdown: result }]
+    const nextHistory = [...history, { sceneId: scene.id, breakdown: result, timedOut }]
     if (round === scenes.length - 1) {
       setHistory(nextHistory)
       setFinished(true)
@@ -111,23 +151,33 @@ export default function Game({
     }
     setHistory(nextHistory)
     setRound((value) => value + 1)
-    setSeconds(75)
+    deadlineRef.current = null
+    setSeconds(ROUND_DURATION_SECONDS)
     setAnswer('')
     setGuess(null)
     setCluesUsed(0)
     setResult(null)
+    setViewerReady(false)
+    setMapReady(false)
+    setRoundStarted(false)
+    setTimedOut(false)
   }
 
   function restart() {
     setScenes(createGameDeck(mode))
     setRound(0)
-    setSeconds(75)
+    deadlineRef.current = null
+    setSeconds(ROUND_DURATION_SECONDS)
     setAnswer('')
     setGuess(null)
     setCluesUsed(0)
     setResult(null)
     setHistory([])
     setFinished(false)
+    setViewerReady(false)
+    setMapReady(false)
+    setRoundStarted(false)
+    setTimedOut(false)
   }
 
   if (finished) {
@@ -169,7 +219,11 @@ export default function Game({
           <span>{journeyLabel} {round + 1} / {scenes.length}</span>
           <div>{scenes.map((item, index) => <i key={item.id} className={index <= round ? 'is-active' : ''} />)}</div>
         </div>
-        <span className={`game-timer ${seconds < 16 ? 'is-urgent' : ''}`}>
+        <span
+          className={`game-timer ${roundStarted && seconds < 16 ? 'is-urgent' : ''} ${!roundStarted ? 'is-paused' : ''}`}
+          role="timer"
+          aria-label={roundStarted ? copy.game.timeRemaining(seconds) : copy.game.roundPreparing}
+        >
           <Timer size={16} /> {String(Math.floor(seconds / 60)).padStart(2, '0')}:{String(seconds % 60).padStart(2, '0')}
         </span>
         <strong className="game-score">{formatScore(total)} <small>OP</small></strong>
@@ -178,13 +232,20 @@ export default function Game({
 
       <section className="game-stage">
         <Suspense fallback={<SphereViewerPlaceholder scene={scene} locale={locale} />}>
-          <SphereViewer scene={scene} locale={locale} />
+          <SphereViewer scene={scene} locale={locale} onReadyChange={setViewerReady} />
         </Suspense>
+
+        {!roundStarted && !result && (
+          <div className="round-preparing" role="status">
+            <span><Timer size={18} /> {copy.game.roundPreparing}</span>
+            <small>{copy.game.roundPreparingNote}</small>
+          </div>
+        )}
 
         {!result && (
           <button
             className="oracle-button"
-            disabled={cluesUsed >= sceneClues.length}
+            disabled={!roundStarted || cluesUsed >= sceneClues.length}
             onClick={() => setCluesUsed((value) => Math.min(sceneClues.length, value + 1))}
           >
             <Sparkles size={16} /> {copy.game.ask}
@@ -211,7 +272,7 @@ export default function Game({
                   <h2>{copy.game.inside}</h2>
                   <div>
                     {scene.options.map((option, index) => (
-                      <button className={answer === option ? 'is-selected' : ''} key={option} onClick={() => setAnswer(option)}>
+                      <button disabled={!roundStarted} className={answer === option ? 'is-selected' : ''} key={option} onClick={() => setAnswer(option)}>
                         <span>{String.fromCharCode(65 + index)}</span>{localiseMythTitle(option, locale)}
                       </button>
                     ))}
@@ -222,12 +283,12 @@ export default function Game({
               <section className="oracle-card oracle-card--map">
                 <div className="map-choice">
                   <h2>{copy.game.where}</h2>
-                  <MythMap interactive guess={guess} onGuess={setGuess} locale={locale} />
+                  <MythMap interactive guess={guess} onGuess={roundStarted ? setGuess : undefined} onReadyChange={setMapReady} locale={locale} />
                   <p>{guess
                     ? copy.game.pinPlaced
                     : copy.game.pinEmpty}</p>
                 </div>
-                <button className="button button--gold oracle-card__submit" disabled={!answer || !guess} onClick={submitRound}>
+                <button className="button button--gold oracle-card__submit" disabled={!roundStarted || !answer || !guess} onClick={submitRound}>
                   {copy.game.seal} <Flame size={17} />
                 </button>
               </section>
@@ -235,12 +296,13 @@ export default function Game({
           ) : (
             <div className="round-result">
               <div className="round-result__copy">
-                <span className={`kicker ${result.recognition ? 'kicker--success' : 'kicker--danger'}`}>
-                  {result.recognition ? <Check size={14} /> : <X size={14} />}
-                  {result.recognition ? copy.game.correct : copy.game.wrong}
+                <span className={`kicker ${!timedOut && result.recognition ? 'kicker--success' : 'kicker--danger'}`}>
+                  {timedOut ? <TimerOff size={14} /> : result.recognition ? <Check size={14} /> : <X size={14} />}
+                  {timedOut ? copy.game.timeExpired : result.recognition ? copy.game.correct : copy.game.wrong}
                 </span>
                 <h2>{localiseMythTitle(scene.title, locale)}</h2>
                 <p className="round-result__place"><Map size={15} /> {scene.location} · {scene.cycle}</p>
+                {timedOut && <p className="round-result__timeout">{copy.game.timeoutNote}</p>}
                 <p>{scene.reveal}</p>
                 <small>
                   {scene.geographyNote}<br />
@@ -262,7 +324,7 @@ export default function Game({
                 <div><span>{copy.game.geography}</span><strong>{formatScore(result.geography)}</strong><small>/ 4,000</small></div>
                 <div><span>{copy.game.speed}</span><strong>{formatScore(result.speed)}</strong><small>/ 1,500</small></div>
                 <div><span>{copy.game.bonus}</span><strong>{formatScore(result.oracle)}</strong><small>/ 1,000</small></div>
-                <div className="score-table__total"><span>{copy.game.total}</span><strong>{formatScore(result.total)}</strong><small>{copy.game.away(Math.round(result.distance))}</small></div>
+                <div className="score-table__total"><span>{copy.game.total}</span><strong>{formatScore(result.total)}</strong><small>{result.distance === null ? copy.game.noMapGuess : copy.game.away(Math.round(result.distance))}</small></div>
               </div>
               <button className="button button--gold round-result__next" onClick={nextRound}>
                 {round === scenes.length - 1 ? copy.game.final : copy.game.next} <ChevronRight size={18} />

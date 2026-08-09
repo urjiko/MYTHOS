@@ -9,6 +9,7 @@ import type { Locale } from './i18n'
 const MEDITERRANEAN_BOUNDS = L.latLngBounds([28.5, -12], [48, 45])
 const INITIAL_BOUNDS = L.latLngBounds([30.5, -10], [45.5, 39])
 const MIN_ZOOM = 3.5
+type MapStatus = 'loading' | 'ready' | 'error'
 const MAJOR_LABELS = new Set([
   'Olympus',
   'Delphi',
@@ -41,6 +42,7 @@ export type MythMapProps = {
   interactive?: boolean
   showRoute?: boolean
   onGuess?: (point: Point) => void
+  onReadyChange?: (ready: boolean) => void
   locale?: Locale
 }
 
@@ -53,6 +55,7 @@ export function MythMap({
   interactive = false,
   showRoute = false,
   onGuess,
+  onReadyChange,
   locale = 'en',
 }: MythMapProps) {
   const text = locale === 'tr'
@@ -106,15 +109,19 @@ export function MythMap({
   const mapRef = useRef<L.Map | null>(null)
   const answerLayers = useRef<L.LayerGroup | null>(null)
   const onGuessRef = useRef(onGuess)
-  const [mapStatus, setMapStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+  const onReadyChangeRef = useRef(onReadyChange)
+  const [mapStatus, setMapStatus] = useState<MapStatus>('loading')
 
   onGuessRef.current = onGuess
+  onReadyChangeRef.current = onReadyChange
 
   useEffect(() => {
     if (!hostRef.current) return
 
     let cancelled = false
     const host = hostRef.current
+    setMapStatus('loading')
+    onReadyChangeRef.current?.(false)
     const map = L.map(host, {
       attributionControl: false,
       zoomControl: false,
@@ -310,9 +317,13 @@ export function MythMap({
           },
         }).addTo(map).bringToBack()
         setMapStatus('ready')
+        onReadyChangeRef.current?.(true)
       })
       .catch(() => {
-        if (!cancelled) setMapStatus('error')
+        if (!cancelled) {
+          setMapStatus('error')
+          onReadyChangeRef.current?.(true)
+        }
       })
 
     return () => {

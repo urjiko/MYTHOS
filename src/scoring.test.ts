@@ -33,6 +33,57 @@ describe('MYTHOS scoring', () => {
     expect(result.total).toBe(6_500)
   })
 
+  it('preserves myth credit when time expires without a map guess', () => {
+    const result = scoreRound({
+      answer: 'Theseus and the Minotaur',
+      correctAnswer: 'Theseus and the Minotaur',
+      guess: null,
+      target,
+      fullCreditRadiusKm,
+      secondsLeft: 0,
+      cluesUsed: 0,
+    })
+
+    expect(result.recognition).toBe(3_500)
+    expect(result.geography).toBe(0)
+    expect(result.speed).toBe(0)
+    expect(result.oracle).toBe(0)
+    expect(result.distance).toBeNull()
+    expect(result.total).toBe(3_500)
+  })
+
+  it('preserves geography credit when time expires without a myth answer', () => {
+    const result = scoreRound({
+      answer: '',
+      correctAnswer: 'Theseus and the Minotaur',
+      guess: target,
+      target,
+      fullCreditRadiusKm,
+      secondsLeft: 0,
+      cluesUsed: 0,
+    })
+
+    expect(result.recognition).toBe(0)
+    expect(result.geography).toBe(4_000)
+    expect(result.speed).toBe(0)
+    expect(result.oracle).toBe(0)
+    expect(result.total).toBe(4_000)
+  })
+
+  it('awards zero when a round expires without either choice', () => {
+    const result = scoreRound({
+      answer: '',
+      correctAnswer: 'Theseus and the Minotaur',
+      guess: null,
+      target,
+      fullCreditRadiusKm,
+      secondsLeft: 0,
+      cluesUsed: 0,
+    })
+
+    expect(result.total).toBe(0)
+  })
+
   it('reduces geography points smoothly with distance', () => {
     const near = scoreRound({
       answer: '', correctAnswer: 'x', guess: { lat: 35.5, lng: 25.2 }, target, fullCreditRadiusKm, secondsLeft: 0, cluesUsed: 3,

@@ -2033,6 +2033,10 @@ img {
   animation: pulse 0.8s alternate infinite;
 }
 
+.game-timer.is-paused {
+  color: rgba(247, 240, 223, 0.36);
+}
+
 @keyframes pulse { to { opacity: 0.45; } }
 
 .game-score {
@@ -2048,6 +2052,50 @@ img {
   height: calc(100vh - 72px);
   min-height: 648px;
   overflow: hidden;
+}
+
+.round-preparing {
+  position: absolute;
+  z-index: 30;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  background:
+    radial-gradient(circle at center, rgba(196, 154, 77, 0.12), transparent 28%),
+    #0d0e0d;
+  color: var(--paper-light);
+}
+
+.round-preparing::before {
+  width: 38px;
+  height: 38px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(247, 240, 223, 0.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: map-placeholder-spin 900ms linear infinite;
+  content: '';
+}
+
+.round-preparing > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gold);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.round-preparing > small {
+  max-width: 320px;
+  color: rgba(247, 240, 223, 0.52);
+  font-family: var(--serif);
+  font-size: 14px;
+  text-align: center;
 }
 
 .scene-viewer {
@@ -2452,6 +2500,17 @@ img {
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+.round-result__copy > p.round-result__timeout {
+  margin: 14px 0;
+  padding: 9px 11px;
+  border-left: 2px solid var(--terracotta);
+  background: rgba(159, 67, 45, 0.08);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 10px;
+  line-height: 1.4;
 }
 
 .round-result__copy > small {

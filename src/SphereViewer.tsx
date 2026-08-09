@@ -29,15 +29,26 @@ type View = {
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
-export function SphereViewer({ scene, locale = 'en' }: { scene: MythScene; locale?: Locale }) {
+export function SphereViewer({
+  scene,
+  locale = 'en',
+  onReadyChange,
+}: {
+  scene: MythScene
+  locale?: Locale
+  onReadyChange?: (ready: boolean) => void
+}) {
   const copy = ui[locale]
   const canvasHost = useRef<HTMLDivElement>(null)
   const renderFrame = useRef<(() => void) | null>(null)
   const view = useRef<View>({ yaw: 0, pitch: 0, fov: 72 })
   const drag = useRef<{ pointerId: number; x: number; y: number; yaw: number; pitch: number } | null>(null)
+  const onReadyChangeRef = useRef(onReadyChange)
   const [status, setStatus] = useState<ViewerStatus>('loading')
   const [heading, setHeading] = useState(0)
   const [fov, setFov] = useState(72)
+
+  onReadyChangeRef.current = onReadyChange
 
   const updateView = useCallback((next: Partial<View>) => {
     const current = view.current
@@ -68,11 +79,13 @@ export function SphereViewer({ scene, locale = 'en' }: { scene: MythScene; local
     setHeading(0)
     setFov(72)
     setStatus('loading')
+    onReadyChangeRef.current?.(false)
 
     try {
       renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' })
     } catch {
       setStatus('error')
+      onReadyChangeRef.current?.(true)
       return
     }
 
@@ -146,11 +159,15 @@ export function SphereViewer({ scene, locale = 'en' }: { scene: MythScene; local
         material.needsUpdate = true
         sphere.visible = true
         setStatus('ready')
+        onReadyChangeRef.current?.(true)
         scheduleDraw()
       },
       undefined,
       () => {
-        if (!disposed) setStatus('error')
+        if (!disposed) {
+          setStatus('error')
+          onReadyChangeRef.current?.(true)
+        }
       },
     )
 
