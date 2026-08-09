@@ -1,6 +1,21 @@
 import type { Point } from './data'
 import { ROUND_DURATION_SECONDS } from './gameClock'
 
+export const SCORE_DIMENSIONS = ['recognition', 'geography', 'speed', 'oracle'] as const
+export type ScoreDimension = (typeof SCORE_DIMENSIONS)[number]
+
+export const SCORE_MAXIMUMS = {
+  recognition: 3_500,
+  geography: 4_000,
+  speed: 1_500,
+  oracle: 1_000,
+} as const satisfies Record<ScoreDimension, number>
+
+export const ROUND_MAX_SCORE = SCORE_DIMENSIONS.reduce(
+  (sum, dimension) => sum + SCORE_MAXIMUMS[dimension],
+  0,
+)
+
 export type ScoreBreakdown = {
   recognition: number
   geography: number
@@ -50,17 +65,17 @@ export function scoreRound({
   const scoredDistance = distance === null
     ? null
     : Math.max(0, distance - Math.max(0, fullCreditRadiusKm))
-  const recognition = answer === correctAnswer ? 3500 : 0
+  const recognition = answer === correctAnswer ? SCORE_MAXIMUMS.recognition : 0
   const geography = scoredDistance === null
     ? 0
     : scoredDistance === 0
-      ? 4000
-      : Math.round(4000 * Math.exp(-scoredDistance / GEOGRAPHY_DECAY_KM))
-  const speed = Math.round(1500 * clamp(secondsLeft / ROUND_DURATION_SECONDS, 0, 1))
+      ? SCORE_MAXIMUMS.geography
+      : Math.round(SCORE_MAXIMUMS.geography * Math.exp(-scoredDistance / GEOGRAPHY_DECAY_KM))
+  const speed = Math.round(SCORE_MAXIMUMS.speed * clamp(secondsLeft / ROUND_DURATION_SECONDS, 0, 1))
   const hasCompleteResponse = Boolean(answer && guess)
   const oracle = hasCompleteResponse
     ? cluesUsed === 0
-      ? 1000
+      ? SCORE_MAXIMUMS.oracle
       : Math.max(0, 750 - (cluesUsed - 1) * 375)
     : 0
   const total = recognition + geography + speed + oracle

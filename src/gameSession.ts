@@ -1,7 +1,7 @@
 import { mythScenes, type MythScene, type Point } from './data'
 import { ROUND_DURATION_SECONDS, secondsUntilDeadline } from './gameClock'
 import { DEFAULT_ROUND_COUNT, TROJAN_ROUTE_IDS, type GameMode } from './gameDeck'
-import type { ScoreBreakdown } from './scoring'
+import { ROUND_MAX_SCORE, SCORE_MAXIMUMS, type ScoreBreakdown } from './scoring'
 import { getBrowserStorage, type StorageLike } from './storage'
 
 export const GAME_SESSION_VERSION = 1 as const
@@ -70,11 +70,11 @@ function isScoreBreakdown(value: unknown): value is ScoreBreakdown {
   if (!isRecord(value)) return false
   const { recognition, geography, speed, oracle, total, distance, scoredDistance } = value
   if (
-    !isScoreValue(recognition, 3_500)
-    || !isScoreValue(geography, 4_000)
-    || !isScoreValue(speed, 1_500)
-    || !isScoreValue(oracle, 1_000)
-    || !isScoreValue(total, 10_000)
+    !isScoreValue(recognition, SCORE_MAXIMUMS.recognition)
+    || !isScoreValue(geography, SCORE_MAXIMUMS.geography)
+    || !isScoreValue(speed, SCORE_MAXIMUMS.speed)
+    || !isScoreValue(oracle, SCORE_MAXIMUMS.oracle)
+    || !isScoreValue(total, ROUND_MAX_SCORE)
   ) return false
   if (!isNullableDistance(distance) || !isNullableDistance(scoredDistance)) return false
   return total === recognition + geography + speed + oracle

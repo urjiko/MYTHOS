@@ -33,9 +33,24 @@ import {
   type GameSessionSnapshot,
 } from './gameSession'
 import { localiseMythTitle, ui, type Locale } from './i18n'
+import {
+  buildJourneyReport,
+  classifyJourneyProfile,
+  roundLearningSignal,
+  scoreDimensionPercentage,
+  type LearningSignal,
+} from './journeyReport'
 import { answerIndexForKey } from './keyboard'
 import { localiseSceneClues } from './sceneCopy'
-import { formatScore, scoreRound, type ScoreBreakdown } from './scoring'
+import {
+  formatScore,
+  ROUND_MAX_SCORE,
+  SCORE_DIMENSIONS,
+  SCORE_MAXIMUMS,
+  scoreRound,
+  type ScoreBreakdown,
+  type ScoreDimension,
+} from './scoring'
 import { readStoredNumber, writeStoredValue } from './storage'
 import { MythMap } from './AncientMap'
 import { Logo } from './ui'
@@ -102,7 +117,6 @@ export default function Game({
   const finalResultRef = useRef<HTMLElement>(null)
   const scene = scenes[round]
   const sceneClues = localiseSceneClues(scene, locale)
-  const maximumScore = scenes.length * 10_000
   const modeCopy = mode === 'odyssey'
     ? { bestScoreKey: 'mythos-best-score-odyssey', journeyLabel: copy.game.odyssey, completionLabel: copy.game.odysseyComplete }
     : mode === 'iliad'
@@ -365,30 +379,161 @@ export default function Game({
   }
 
   if (finished) {
-    const finalScore = history.reduce((sum, item) => sum + item.breakdown.total, 0)
-    const correct = history.filter((item) => item.breakdown.recognition > 0).length
+    const report = buildJourneyReport(history)
+    const averageDistance = report.averageDistanceKm === null
+      ? null
+      : Math.round(report.averageDistanceKm)
+    const profile = classifyJourneyProfile(report)
+    const hasEvenProfile = profile !== 'differentiated'
+    const hasBalancedMastery = profile === 'balanced'
+    const dimensionCopy: Record<ScoreDimension, {
+      label: string
+      strength: string
+      focus: string
+    }> = {
+      recognition: {
+        label: copy.game.reportRecognition,
+        strength: copy.game.reportRecognitionStrength,
+        focus: copy.game.reportRecognitionFocus,
+      },
+      geography: {
+        label: copy.game.reportGeography,
+        strength: copy.game.reportGeographyStrength,
+        focus: copy.game.reportGeographyFocus,
+      },
+      speed: {
+        label: copy.game.reportSpeed,
+        strength: copy.game.reportSpeedStrength,
+        focus: copy.game.reportSpeedFocus,
+      },
+      oracle: {
+        label: copy.game.reportOracle,
+        strength: copy.game.reportOracleStrength,
+        focus: copy.game.reportOracleFocus,
+      },
+    }
+    const signalLabels: Record<LearningSignal, string> = {
+      strong: copy.game.reportStrongRound,
+      time: copy.game.reportTimeRound,
+      recognition: copy.game.reportRecognitionRound,
+      geography: copy.game.reportGeographyRound,
+      speed: copy.game.reportSpeedRound,
+      oracle: copy.game.reportOracleRound,
+    }
     return (
       <main id="main-content" ref={finalResultRef} className="results-screen" tabIndex={-1}>
         <div className="results-screen__sun" aria-hidden="true" />
         <Logo inverse />
-        <div className="results-card">
-          <span className="kicker kicker--gold"><Trophy size={14} /> {completionLabel}</span>
-          <h1>{copy.game.fate}<br /><em>{copy.game.remember}</em></h1>
-          <p className="results-card__score">{formatScore(finalScore)} <small>/ {formatScore(maximumScore)}</small></p>
-          <div className="results-card__stats">
-            <span><strong>{correct}/{scenes.length}</strong><small>{copy.game.identified}</small></span>
-            <span><strong>{Math.round((finalScore / maximumScore) * 100)}%</strong><small>{copy.game.mastery}</small></span>
-            <span><strong>{formatScore(readStoredNumber(bestScoreKey, finalScore))}</strong><small>{copy.game.personalBest}</small></span>
-          </div>
-          <div className="results-card__rounds">
-            {history.map((item, index) => (
-              <span key={item.sceneId}><i>{index + 1}</i>{formatScore(item.breakdown.total)}</span>
-            ))}
-          </div>
-          <div className="results-card__actions">
-            <button className="button button--gold" onClick={restart}><RotateCcw size={17} /> {copy.game.again}</button>
-            <button className="button button--ghost-inverse" onClick={returnHome}>{copy.game.return}</button>
-          </div>
+        <div className="results-layout">
+          <section className="results-card" aria-labelledby="journey-result-title">
+            <span className="kicker kicker--gold"><Trophy size={14} /> {completionLabel}</span>
+            <h1 id="journey-result-title">{copy.game.fate}<br /><em>{copy.game.remember}</em></h1>
+            <p className="results-card__score">{formatScore(report.totalScore)} <small>/ {formatScore(report.maximumScore)}</small></p>
+            <div className="results-card__stats">
+              <span><strong>{report.identifiedCount}/{scenes.length}</strong><small>{copy.game.identified}</small></span>
+              <span><strong>{report.masteryPercentage}%</strong><small>{copy.game.mastery}</small></span>
+              <span><strong>{formatScore(readStoredNumber(bestScoreKey, report.totalScore))}</strong><small>{copy.game.personalBest}</small></span>
+            </div>
+            <div className="results-card__learning">
+              <article>
+                <small>{hasEvenProfile ? copy.game.reportEven : copy.game.reportStrength}</small>
+                <strong>
+                  {hasEvenProfile ? copy.game.reportEvenTitle : dimensionCopy[report.strongest.dimension].label}
+                  {' · '}{report.strongest.percentage}%
+                </strong>
+                <p>{hasEvenProfile ? copy.game.reportEvenNote : dimensionCopy[report.strongest.dimension].strength}</p>
+              </article>
+              <article>
+                <small>{hasBalancedMastery ? copy.game.reportBalanced : copy.game.reportFocus}</small>
+                <strong>
+                  {hasBalancedMastery ? copy.game.reportBalancedTitle : dimensionCopy[report.focus.dimension].label}
+                  {' · '}{report.focus.percentage}%
+                </strong>
+                <p>{hasBalancedMastery ? copy.game.reportBalancedNote : dimensionCopy[report.focus.dimension].focus}</p>
+              </article>
+            </div>
+          </section>
+
+          <section className="results-report" aria-labelledby="journey-report-title">
+            <header>
+              <span className="kicker kicker--gold">{copy.game.reportKicker}</span>
+              <h2 id="journey-report-title">{copy.game.reportTitle}</h2>
+              <p>{copy.game.reportOverview(report.reviewCount, history.length, report.timeoutCount, averageDistance)}</p>
+            </header>
+
+            <div className="results-report__dimensions" aria-label={copy.game.reportDimensions}>
+              {report.dimensions.map((performance) => {
+                const label = dimensionCopy[performance.dimension].label
+                return (
+                  <div
+                    key={performance.dimension}
+                    role="progressbar"
+                    aria-label={copy.game.reportMetric(label, performance.percentage)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={performance.percentage}
+                  >
+                    <span><strong>{label}</strong><small>{performance.percentage}%</small></span>
+                    <i aria-hidden="true"><b style={{ width: `${performance.percentage}%` }} /></i>
+                    <em>{formatScore(performance.earned)} / {formatScore(performance.maximum)} OP</em>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div className="results-report__heading">
+              <h3>{copy.game.reportRoundsTitle}</h3>
+              <p>{copy.game.reportRoundsLede}</p>
+            </div>
+            <ol className="results-report__rounds">
+              {history.map((item, index) => {
+                const reviewedScene = scenes.find((candidate) => candidate.id === item.sceneId)
+                if (!reviewedScene) return null
+                const signal = roundLearningSignal(item)
+                return (
+                  <li key={item.sceneId} className={`results-report__round is-${signal}`}>
+                    <div className="results-report__round-head">
+                      <span className="results-report__round-number">{String(index + 1).padStart(2, '0')}</span>
+                      <div>
+                        <small>{signalLabels[signal]}</small>
+                        <h4>{localiseMythTitle(reviewedScene.title, locale)}</h4>
+                        <p><Map size={14} aria-hidden="true" /> {reviewedScene.location} · {reviewedScene.cycle}</p>
+                      </div>
+                      <strong>{formatScore(item.breakdown.total)} <small>/ {formatScore(ROUND_MAX_SCORE)} OP</small></strong>
+                    </div>
+                    <div className="results-report__round-metrics">
+                      {SCORE_DIMENSIONS.map((dimension) => {
+                        const percentage = scoreDimensionPercentage(item.breakdown, dimension)
+                        const label = dimensionCopy[dimension].label
+                        return (
+                          <div
+                            key={dimension}
+                            role="progressbar"
+                            aria-label={copy.game.reportMetric(label, percentage)}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                            aria-valuenow={percentage}
+                          >
+                            <span><small>{label}</small><strong>{formatScore(item.breakdown[dimension])} / {formatScore(SCORE_MAXIMUMS[dimension])}</strong></span>
+                            <i aria-hidden="true"><b style={{ width: `${percentage}%` }} /></i>
+                          </div>
+                        )
+                      })}
+                    </div>
+                    <p className="results-report__distance">
+                      {item.breakdown.distance === null
+                        ? copy.game.reportNoMap
+                        : copy.game.reportDistance(Math.round(item.breakdown.distance))}
+                    </p>
+                  </li>
+                )
+              })}
+            </ol>
+            <div className="results-card__actions">
+              <button className="button button--gold" onClick={restart}><RotateCcw size={17} /> {copy.game.again}</button>
+              <button className="button button--ghost-inverse" onClick={returnHome}>{copy.game.return}</button>
+            </div>
+          </section>
         </div>
       </main>
     )
@@ -549,7 +694,7 @@ export default function Game({
               <section className="oracle-card oracle-card--myth">
                 <div className="guess-panel__head">
                   <span className="kicker"><Compass size={14} /> {copy.game.make}</span>
-                  <strong>10,000 OP</strong>
+                  <strong>{formatScore(ROUND_MAX_SCORE)} OP</strong>
                 </div>
                 <div className="myth-choice" role="group" aria-labelledby="myth-choice-title">
                   <h2 id="myth-choice-title">{copy.game.inside}</h2>
@@ -619,10 +764,10 @@ export default function Game({
                 reveal
               />
               <div className="score-table">
-                <div><span>{copy.game.myth}</span><strong>{formatScore(result.recognition)}</strong><small>/ 3,500</small></div>
-                <div><span>{copy.game.geography}</span><strong>{formatScore(result.geography)}</strong><small>/ 4,000</small></div>
-                <div><span>{copy.game.speed}</span><strong>{formatScore(result.speed)}</strong><small>/ 1,500</small></div>
-                <div><span>{copy.game.bonus}</span><strong>{formatScore(result.oracle)}</strong><small>/ 1,000</small></div>
+                <div><span>{copy.game.myth}</span><strong>{formatScore(result.recognition)}</strong><small>/ {formatScore(SCORE_MAXIMUMS.recognition)}</small></div>
+                <div><span>{copy.game.geography}</span><strong>{formatScore(result.geography)}</strong><small>/ {formatScore(SCORE_MAXIMUMS.geography)}</small></div>
+                <div><span>{copy.game.speed}</span><strong>{formatScore(result.speed)}</strong><small>/ {formatScore(SCORE_MAXIMUMS.speed)}</small></div>
+                <div><span>{copy.game.bonus}</span><strong>{formatScore(result.oracle)}</strong><small>/ {formatScore(SCORE_MAXIMUMS.oracle)}</small></div>
                 <div className="score-table__total"><span>{copy.game.total}</span><strong>{formatScore(result.total)}</strong><small>{result.distance === null ? copy.game.noMapGuess : copy.game.away(Math.round(result.distance))}</small></div>
               </div>
               <button className="button button--gold round-result__next" onClick={nextRound}>

@@ -184,6 +184,51 @@ export const ui = {
       personalBest: 'Personal best',
       again: 'Play again',
       return: 'Return to the temple',
+      reportStrength: 'STRONGEST AREA',
+      reportFocus: 'FOCUS NEXT',
+      reportEven: 'EVEN PROFILE',
+      reportEvenTitle: 'Four skills aligned',
+      reportEvenNote: 'No category leads by more than four percentage points, so the next gain should come from the focus beside it.',
+      reportBalanced: 'BALANCED MASTERY',
+      reportBalancedTitle: 'No clear weak area',
+      reportBalancedNote: 'All four skills finished above 90%; the next journey is refinement, not repair.',
+      reportRecognition: 'Myth recognition',
+      reportGeography: 'Geographic accuracy',
+      reportSpeed: 'Decision speed',
+      reportOracle: 'Clue discipline',
+      reportRecognitionStrength: 'Narrative clues led you to the right myths consistently.',
+      reportRecognitionFocus: 'Revisit the figures, objects, and transformations behind the scenes you missed.',
+      reportGeographyStrength: 'You placed stories close to their accepted mythic regions.',
+      reportGeographyFocus: 'Open the places below in the Atlas and connect each story to its wider region.',
+      reportSpeedStrength: 'You completed your oracles without wasting the active deadline.',
+      reportSpeedFocus: 'Scan the whole sphere, then commit; an unfinished answer earns nothing at timeout.',
+      reportOracleStrength: 'You preserved points by solving scenes with few oracle clues.',
+      reportOracleFocus: 'Search the panorama before asking again; every whisper trades points for certainty.',
+      reportKicker: 'LEARNING REPORT',
+      reportTitle: 'Read what the oracle revealed.',
+      reportOverview: (review: number, total: number, timeouts: number, averageDistance: number | null) => {
+        const reviewNote = review === 0
+          ? `All ${total} rounds were balanced across the scoring skills.`
+          : `${review} of ${total} rounds reveal a clear next step.`
+        const timeoutNote = timeouts === 0
+          ? ''
+          : ` Time expired in ${timeouts} round${timeouts === 1 ? '' : 's'}.`
+        return averageDistance === null
+          ? `${reviewNote}${timeoutNote} No map average was available.`
+          : `${reviewNote}${timeoutNote} Your average map distance was ${averageDistance} km.`
+      },
+      reportDimensions: 'Overall score-component performance',
+      reportMetric: (label: string, percentage: number) => `${label}: ${percentage}%`,
+      reportRoundsTitle: 'Round-by-round review',
+      reportRoundsLede: 'Each flag points to the lowest normalised part of that round—not simply the component with the fewest raw points.',
+      reportStrongRound: 'STRONG ROUND',
+      reportTimeRound: 'TIME EXPIRED',
+      reportRecognitionRound: 'REVIEW THE MYTH',
+      reportGeographyRound: 'REVIEW THE PLACE',
+      reportSpeedRound: 'DECIDE FASTER',
+      reportOracleRound: 'USE FEWER CLUES',
+      reportDistance: (distance: number) => `${distance} km from the reference point`,
+      reportNoMap: 'No map estimate was placed',
       ask: 'Ask the oracle',
       preserved: '+1,000 OP preserved',
       cluesRemain: (count: number) => `${count} clues remain`,
@@ -402,6 +447,49 @@ export const ui = {
       personalBest: 'Kişisel rekor',
       again: 'Yeniden oyna',
       return: 'Tapınağa dön',
+      reportStrength: 'GÜÇLÜ ALAN',
+      reportFocus: 'SONRAKİ ODAK',
+      reportEven: 'DENGELİ PROFİL',
+      reportEvenTitle: 'Dört beceri aynı çizgide',
+      reportEvenNote: 'Hiçbir alan diğerinden dört yüzde puanlık farkla önde değil; sıradaki gelişim yanındaki odaktan gelmeli.',
+      reportBalanced: 'DENGELİ USTALIK',
+      reportBalancedTitle: 'Belirgin zayıf alan yok',
+      reportBalancedNote: 'Dört beceri de %90’ın üzerinde; sonraki yolculuk onarım değil, inceltme meselesi.',
+      reportRecognition: 'Mit tanıma',
+      reportGeography: 'Coğrafi isabet',
+      reportSpeed: 'Karar hızı',
+      reportOracle: 'İpucu disiplini',
+      reportRecognitionStrength: 'Anlatısal ipuçları seni doğru mitlere istikrarlı biçimde götürdü.',
+      reportRecognitionFocus: 'Kaçırdığın sahnelerdeki kişileri, nesneleri ve dönüşümleri yeniden incele.',
+      reportGeographyStrength: 'Hikâyeleri kabul gören mitolojik bölgelerine yakın yerleştirdin.',
+      reportGeographyFocus: 'Aşağıdaki yerleri Atlas’ta aç ve her hikâyeyi daha geniş bölgesiyle eşleştir.',
+      reportSpeedStrength: 'Aktif süreyi boşa harcamadan kehanetlerini tamamladın.',
+      reportSpeedFocus: 'Önce kürenin tamamını tara, sonra karar ver; yarım kalan yanıt süre dolunca puan getirmez.',
+      reportOracleStrength: 'Sahneleri az kehanet ipucuyla çözerek puanını korudun.',
+      reportOracleFocus: 'Yeniden sormadan önce panoramayı tara; her fısıltı kesinlik karşılığında puan götürür.',
+      reportKicker: 'ÖĞRENME RAPORU',
+      reportTitle: 'Kehanetin ne gösterdiğini oku.',
+      reportOverview: (review: number, total: number, timeouts: number, averageDistance: number | null) => {
+        const reviewNote = review === 0
+          ? `${total} turun tamamında puan becerileri dengeliydi.`
+          : `${total} turun ${review} tanesinde belirgin bir sonraki adım var.`
+        const timeoutNote = timeouts === 0 ? '' : ` ${timeouts} turda süre doldu.`
+        return averageDistance === null
+          ? `${reviewNote}${timeoutNote} Harita ortalaması hesaplanamadı.`
+          : `${reviewNote}${timeoutNote} Ortalama harita uzaklığın ${averageDistance} km.`
+      },
+      reportDimensions: 'Genel puan bileşeni performansı',
+      reportMetric: (label: string, percentage: number) => `${label}: yüzde ${percentage}`,
+      reportRoundsTitle: 'Tur tur değerlendirme',
+      reportRoundsLede: 'Her işaret, ham puanı en düşük bileşeni değil, o turdaki oransal olarak en zayıf alanı gösterir.',
+      reportStrongRound: 'GÜÇLÜ TUR',
+      reportTimeRound: 'SÜRE DOLDU',
+      reportRecognitionRound: 'MİTİ GÖZDEN GEÇİR',
+      reportGeographyRound: 'YERİ GÖZDEN GEÇİR',
+      reportSpeedRound: 'DAHA HIZLI KARAR VER',
+      reportOracleRound: 'DAHA AZ İPUCU KULLAN',
+      reportDistance: (distance: number) => `Referans noktasına ${distance} km uzaklık`,
+      reportNoMap: 'Harita tahmini yapılmadı',
       ask: 'Kehanete sor',
       preserved: '+1.000 OP korunuyor',
       cluesRemain: (count: number) => `${count} ipucu kaldı`,
