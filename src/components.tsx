@@ -1,6 +1,7 @@
 import {
   Check,
   ChevronRight,
+  CircleHelp,
   Compass,
   Flame,
   Map,
@@ -15,6 +16,12 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import type { MythScene, Point } from './data'
 import { ROUND_DURATION_MS, ROUND_DURATION_SECONDS, secondsUntilDeadline } from './gameClock'
 import { createGameDeck, type GameMode } from './gameDeck'
+import {
+  gameGuideBlocksRoundStart,
+  markGameGuideSeen,
+  shouldShowFirstRunGameGuide,
+  type GameGuideMode,
+} from './gameGuide'
 import {
   clearGameSession,
   GAME_SESSION_VERSION,
@@ -62,6 +69,9 @@ export default function Game({
 }) {
   const copy = ui[locale]
   const [initialSession] = useState(() => loadGameSession(mode))
+  const [guideMode, setGuideMode] = useState<GameGuideMode | null>(() => (
+    shouldShowFirstRunGameGuide(Boolean(initialSession)) ? 'first-run' : null
+  ))
   const [scenes, setScenes] = useState(() => initialSession?.scenes ?? createGameDeck(mode))
   const [round, setRound] = useState(() => initialSession?.round ?? 0)
   const [seconds, setSeconds] = useState(() => initialSession
@@ -86,6 +96,8 @@ export default function Game({
   const deadlineRef = useRef<number | null>(initialSession?.deadlineMs ?? null)
   const discardSessionRef = useRef(false)
   const gameMainRef = useRef<HTMLElement>(null)
+  const guideDialogRef = useRef<HTMLDivElement>(null)
+  const guidePrimaryRef = useRef<HTMLButtonElement>(null)
   const roundResultRef = useRef<HTMLDivElement>(null)
   const finalResultRef = useRef<HTMLElement>(null)
   const scene = scenes[round]
@@ -98,7 +110,7 @@ export default function Game({
       : { bestScoreKey: 'mythos-best-score', journeyLabel: copy.game.oracle, completionLabel: copy.game.oracleComplete }
   const { bestScoreKey, journeyLabel, completionLabel } = modeCopy
   const roundReady = viewerReady && mapReady
-  const roundPlayable = roundStarted && roundReady
+  const roundPlayable = roundStarted && roundReady && guideMode === null
   const sessionSnapshot: GameSessionSnapshot = {
     version: GAME_SESSION_VERSION,
     mode,
@@ -144,14 +156,65 @@ export default function Game({
   }, [])
 
   useEffect(() => {
+    if (!guideMode) return
+
+    const previousFocus = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null
+    const previousBodyOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const frame = window.requestAnimationFrame(() => guidePrimaryRef.current?.focus())
+    const keepFocusInsideGuide = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeGameGuide()
+        return
+      }
+      if (event.key !== 'Tab' || !guideDialogRef.current) return
+
+      const buttons = Array.from(
+        guideDialogRef.current.querySelectorAll<HTMLButtonElement>('button:not([disabled])'),
+      )
+      if (buttons.length === 0) return
+      const first = buttons[0]
+      const last = buttons[buttons.length - 1]
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === guideDialogRef.current)) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', keepFocusInsideGuide)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      document.removeEventListener('keydown', keepFocusInsideGuide)
+      document.body.style.overflow = previousBodyOverflow
+      window.requestAnimationFrame(() => {
+        const focusTarget = previousFocus?.isConnected ? previousFocus : gameMainRef.current
+        focusTarget?.focus({ preventScroll: true })
+      })
+    }
+  }, [guideMode])
+
+  useEffect(() => {
     if (roundReady) setRestoringRound(false)
   }, [roundReady])
 
   useEffect(() => {
-    if (!roundReady || !pageVisible || roundStarted || result || finished) return
+    if (
+      !roundReady
+      || !pageVisible
+      || roundStarted
+      || result
+      || finished
+      || gameGuideBlocksRoundStart(guideMode)
+    ) return
     deadlineRef.current = Date.now() + ROUND_DURATION_MS
     setRoundStarted(true)
-  }, [finished, pageVisible, result, roundReady, roundStarted])
+  }, [finished, guideMode, pageVisible, result, roundReady, roundStarted])
 
   useEffect(() => {
     if (!roundStarted || result || finished || deadlineRef.current === null) return
@@ -220,6 +283,11 @@ export default function Game({
   function saveAndExit() {
     persistGameSession(latestSessionRef.current)
     onExit()
+  }
+
+  function closeGameGuide() {
+    if (guideMode === 'first-run') markGameGuideSeen()
+    setGuideMode(null)
   }
 
   function returnHome() {
@@ -351,7 +419,11 @@ export default function Game({
         <span
           className={`game-timer ${roundStarted && seconds < 16 ? 'is-urgent' : ''} ${!roundStarted ? 'is-paused' : ''}`}
           role="timer"
-          aria-label={roundStarted ? copy.game.timeRemaining(seconds) : copy.game.roundPreparing}
+          aria-label={roundStarted
+            ? copy.game.timeRemaining(seconds)
+            : gameGuideBlocksRoundStart(guideMode)
+              ? copy.game.guideWaiting
+              : copy.game.roundPreparing}
         >
           <Timer size={16} /> {String(Math.floor(seconds / 60)).padStart(2, '0')}:{String(seconds % 60).padStart(2, '0')}
         </span>
@@ -359,6 +431,12 @@ export default function Game({
           {roundStarted && (seconds === 15 || seconds === 5) ? copy.accessibility.timeWarning(seconds) : ''}
         </span>
         <strong className="game-score">{formatScore(total)} <small>OP</small></strong>
+        <button
+          className="game-help"
+          onClick={() => setGuideMode('help')}
+          aria-label={copy.game.help}
+          title={copy.game.help}
+        ><CircleHelp size={16} /></button>
         <button className="game-language" onClick={() => onLocaleChange(locale === 'en' ? 'tr' : 'en')} aria-label={copy.nav.language}>{locale === 'en' ? 'TR' : 'EN'}</button>
       </header>
 
@@ -366,6 +444,56 @@ export default function Game({
         <Suspense fallback={<SphereViewerPlaceholder scene={scene} locale={locale} />}>
           <SphereViewer scene={scene} locale={locale} onReadyChange={setViewerReady} />
         </Suspense>
+
+        {guideMode && (
+          <div className="game-guide-backdrop">
+            <div
+              ref={guideDialogRef}
+              className="game-guide"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="game-guide-title"
+              aria-describedby="game-guide-lede"
+              tabIndex={-1}
+            >
+              <button
+                className="game-guide__close"
+                onClick={closeGameGuide}
+                aria-label={copy.game.closeGuide}
+              ><X size={18} /></button>
+              <span className="kicker kicker--gold"><CircleHelp size={14} /> {copy.game.guideKicker}</span>
+              <h2 id="game-guide-title">{copy.game.guideTitle}</h2>
+              <p id="game-guide-lede">
+                {guideMode === 'first-run' ? copy.game.guideLede : copy.game.guideHelpLede}
+              </p>
+              {guideMode === 'help' && (
+                <p className="game-guide__live"><Timer size={15} /> {copy.game.guideLive}</p>
+              )}
+              <div className="game-guide__steps">
+                <article>
+                  <span><Compass size={18} /></span>
+                  <div><small>01</small><h3>{copy.game.guideLookTitle}</h3><p>{copy.game.guideLookBody}</p></div>
+                </article>
+                <article>
+                  <span><Check size={18} /></span>
+                  <div><small>02</small><h3>{copy.game.guideAnswerTitle}</h3><p>{copy.game.guideAnswerBody}</p></div>
+                </article>
+                <article>
+                  <span><Map size={18} /></span>
+                  <div><small>03</small><h3>{copy.game.guideMapTitle}</h3><p>{copy.game.guideMapBody}</p></div>
+                </article>
+                <article>
+                  <span><Sparkles size={18} /></span>
+                  <div><small>04</small><h3>{copy.game.guideScoreTitle}</h3><p>{copy.game.guideScoreBody}</p></div>
+                </article>
+              </div>
+              <button ref={guidePrimaryRef} className="button button--gold game-guide__primary" onClick={closeGameGuide}>
+                {guideMode === 'first-run' ? copy.game.guideBegin : copy.game.guideReturn}
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+        )}
 
         {showRestoreNotice && (roundReady || result) && (
           <div className="session-restored">

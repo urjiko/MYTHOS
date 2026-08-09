@@ -22,6 +22,7 @@ An immersive web game that turns Greek mythology from a list to memorise into a 
 - Great-circle distance scoring in kilometres, with a visible full-credit region tailored to each myth’s geographic certainty
 - Progressive oracle clues, source context, and browser-saved personal best
 - Versioned per-mode journey recovery that preserves shuffled decks, choices, scores, and active deadlines
+- A first-run oracle briefing that teaches the complete loop before the opening clock starts, with non-pausing in-game help thereafter
 - Keyboard answer shortcuts, route-aware focus, localised page titles, and a focus-safe mobile menu
 - Responsive desktop and mobile layouts
 
