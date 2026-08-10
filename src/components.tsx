@@ -128,6 +128,8 @@ export default function Game({
     ? { bestScoreKey: 'mythos-best-score-odyssey', journeyLabel: copy.game.odyssey, completionLabel: copy.game.odysseyComplete }
     : mode === 'iliad'
       ? { bestScoreKey: 'mythos-best-score-iliad', journeyLabel: copy.game.troy, completionLabel: copy.game.troyComplete }
+      : mode === 'hippolyta'
+        ? { bestScoreKey: 'mythos-best-score-hippolyta', journeyLabel: copy.game.hippolyta, completionLabel: copy.game.hippolytaComplete }
       : { bestScoreKey: 'mythos-best-score', journeyLabel: copy.game.oracle, completionLabel: copy.game.oracleComplete }
   const { bestScoreKey, journeyLabel, completionLabel } = modeCopy
   const roundReady = viewerReady && mapReady

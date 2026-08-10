@@ -19,6 +19,7 @@ describe('MYTHOS routes', () => {
     { view: 'game', mode: 'all' },
     { view: 'game', mode: 'odyssey' },
     { view: 'game', mode: 'iliad' },
+    { view: 'game', mode: 'hippolyta' },
     { view: 'figures', category: 'heroes' },
     { view: 'figures', category: 'creatures', figureId: 'scylla & charybdis' },
   ])('round-trips $view routes', (route) => {
@@ -35,6 +36,7 @@ describe('MYTHOS routes', () => {
     expect(appRouteTitle({ view: 'home' }, 'en')).toBe('MYTHOS · Explore Greek mythology')
     expect(appRouteTitle({ view: 'archive' }, 'tr')).toBe('Mit Arşivi · MYTHOS')
     expect(appRouteTitle({ view: 'game', mode: 'odyssey' }, 'en')).toBe('Odysseus’s Route · MYTHOS')
+    expect(appRouteTitle({ view: 'game', mode: 'hippolyta' }, 'tr')).toBe('Hippolyta’nın Kuşağı · MYTHOS')
     expect(appRouteTitle({ view: 'figures', category: 'creatures' }, 'tr')).toBe('Yaratıklar · MYTHOS')
   })
 })

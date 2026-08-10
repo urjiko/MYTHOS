@@ -13,6 +13,10 @@ The source hash, measured seam value, and decision for every current threshold c
 | `scene-hippolyta-girdle.webp` | The 19.07 seam MAE, crowded edge detail, conspicuous pole convergence, and oversized heroic figure worked against a convincing sphere. | Rebuilt as a distributed Themiscyra shore scene, then corrected so Heracles remains fully clothed and secondary to the environment. All six review views are coherent; seam MAE is 9.52. |
 | `scene-telephus-achilles.webp` | The armour and formation read as later Roman/imperial, while foliage and equipment collapsed toward the poles. | Rebuilt around the Mysian coast and corrected to restrained Late Bronze Age Mycenaean clothing, low helmets, and period-appropriate shields. All six review views are coherent; seam MAE is 9.31. |
 
+## Hippolyta route art pass
+
+The five new route panoramas were generated as environment-first 2:1 equirectangular scenes and inspected in their flat source form before delivery at 4096×2048. Their seam measurements remain below the 14 MAE projection-review threshold: Admete’s request 7.51, Paros 11.80, Mygdon 9.68, Hera among the Amazons 7.85, and Hesione 8.38. The existing 9.52 MAE Themiskyra panorama remains the peaceful centre of the six-scene route.
+
 ## Decision queue
 
 | Priority | Asset | Finding | Decision |

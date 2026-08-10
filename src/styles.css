@@ -733,7 +733,7 @@ img {
 
 .mode-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 14px;
   margin-top: 58px;
 }
@@ -742,7 +742,7 @@ img {
   position: relative;
   min-height: 330px;
   overflow: hidden;
-  padding: 32px;
+  padding: 28px;
   border: 1px solid var(--line);
   background: rgba(252, 249, 239, 0.64);
   text-align: left;
@@ -803,7 +803,7 @@ img {
 .mode-card h3 {
   margin: 0 0 10px;
   font-family: var(--serif);
-  font-size: 29px;
+  font-size: clamp(23px, 2vw, 29px);
   font-weight: 500;
 }
 

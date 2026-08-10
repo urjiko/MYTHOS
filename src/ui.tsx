@@ -1,4 +1,4 @@
-import { BookOpen, Compass, Map, Sparkles, Swords } from 'lucide-react'
+import { BookOpen, Compass, Map, Shield, Sparkles, Swords } from 'lucide-react'
 
 export function Logo({ inverse = false }: { inverse?: boolean }) {
   return (
@@ -30,5 +30,6 @@ export function IconForMode({ type }: { type: string }) {
   if (type === 'journey') return <Compass />
   if (type === 'odyssey') return <Map />
   if (type === 'duel') return <Swords />
+  if (type === 'labour') return <Shield />
   return <BookOpen />
 }

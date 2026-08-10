@@ -1,6 +1,6 @@
 import { mythScenes, type MythScene, type Point } from './data'
 import { ROUND_DURATION_SECONDS, secondsUntilDeadline } from './gameClock'
-import { DEFAULT_ROUND_COUNT, TROJAN_ROUTE_IDS, type GameMode } from './gameConfig'
+import { DEFAULT_ROUND_COUNT, HIPPOLYTA_ROUTE_IDS, TROJAN_ROUTE_IDS, type GameMode } from './gameConfig'
 import { GAME_SESSION_VERSION, gameSessionKey } from './gameSessionSummary'
 import { ROUND_MAX_SCORE, SCORE_MAXIMUMS, type ScoreBreakdown } from './scoring'
 import { getBrowserStorage, type StorageLike } from './storage'
@@ -118,14 +118,18 @@ export function restoreGameSession(
   }
 
   const trojanIds = new Set<string>(TROJAN_ROUTE_IDS)
+  const hippolytaIds = new Set<string>(HIPPOLYTA_ROUTE_IDS)
   const expectedDeckSize = expectedMode === 'all'
     ? Math.min(DEFAULT_ROUND_COUNT, catalog.length)
     : expectedMode === 'odyssey'
       ? catalog.filter((scene) => scene.category === 'odyssey').length
-      : TROJAN_ROUTE_IDS.length
+      : expectedMode === 'iliad'
+        ? TROJAN_ROUTE_IDS.length
+        : HIPPOLYTA_ROUTE_IDS.length
   if (scenes.length !== expectedDeckSize) return null
   if (expectedMode === 'odyssey' && scenes.some((scene) => scene.category !== 'odyssey')) return null
   if (expectedMode === 'iliad' && scenes.some((scene) => !trojanIds.has(scene.id))) return null
+  if (expectedMode === 'hippolyta' && scenes.some((scene) => !hippolytaIds.has(scene.id))) return null
 
   const {
     round,

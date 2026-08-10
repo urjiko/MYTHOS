@@ -9,12 +9,12 @@ describe('MYTHOS archive filters', () => {
 
     expect(result).toEqual(mythScenes)
     expect(result).not.toBe(mythScenes)
-    expect(result).toHaveLength(44)
+    expect(result).toHaveLength(49)
   })
 
   it.each([
     ['gods', 12],
-    ['heroes', 11],
+    ['heroes', 16],
     ['odyssey', 13],
     ['trojan', 8],
   ] as const)('returns the %s category', (filter, count) => {

@@ -112,6 +112,32 @@ describe('MYTHOS game session recovery', () => {
     expect(restoredSessionSeconds(completed, 4_000_000)).toBe(0)
   })
 
+  it('restores the six-stop Hippolyta expedition as its own mode', () => {
+    const routeScenes = createGameDeck('hippolyta', () => 0.5)
+    const routeBreakdown = scoreRound({
+      answer: routeScenes[0].title,
+      correctAnswer: routeScenes[0].title,
+      guess: routeScenes[0].coordinates,
+      target: routeScenes[0].coordinates,
+      fullCreditRadiusKm: routeScenes[0].accuracyRadiusKm,
+      secondsLeft: 40,
+      cluesUsed: 0,
+    })
+    const routeSnapshot: GameSessionSnapshot = {
+      ...validSnapshot(),
+      mode: 'hippolyta',
+      deck: snapshotGameDeck(routeScenes),
+      answer: routeScenes[1].options[0],
+      history: [{ sceneId: routeScenes[0].id, breakdown: routeBreakdown, timedOut: false }],
+    }
+
+    const restored = restoreGameSession(routeSnapshot, 'hippolyta')
+
+    expect(restored?.mode).toBe('hippolyta')
+    expect(restored?.scenes).toHaveLength(6)
+    expect(restored?.scenes.map((scene) => scene.id)).toEqual(routeScenes.map((scene) => scene.id))
+  })
+
   it('rejects another mode, an unknown version, and altered option sets', () => {
     expect(restoreGameSession(validSnapshot(), 'odyssey')).toBeNull()
     expect(restoreGameSession({ ...validSnapshot(), version: 99 }, 'all')).toBeNull()

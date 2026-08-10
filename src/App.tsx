@@ -3,7 +3,7 @@ import { ArrowRight, Compass, Map, Menu, Sparkles, X } from 'lucide-react'
 import type { MythMapProps } from './AncientMap'
 import { catalogSummary, collections } from './catalogSummary'
 import type { FigureCategory } from './figures'
-import { DEFAULT_ROUND_COUNT, TROJAN_ROUTE_IDS, type GameMode } from './gameConfig'
+import { DEFAULT_ROUND_COUNT, HIPPOLYTA_ROUTE_IDS, TROJAN_ROUTE_IDS, type GameMode } from './gameConfig'
 import { gameSessionSummary, type GameSessionSummary } from './gameSessionSummary'
 import { localisedNumber, persistLocale, resolveLocale, ui, type Locale } from './i18n'
 import InstallPrompt from './InstallPrompt'
@@ -21,6 +21,7 @@ type NavigationView = 'home' | 'atlas' | 'archive'
 const maximumScore = DEFAULT_ROUND_COUNT * 10_000
 const odysseySceneCount = catalogSummary.odysseyScenes
 const trojanSceneCount = TROJAN_ROUTE_IDS.length
+const hippolytaSceneCount = HIPPOLYTA_ROUTE_IDS.length
 
 function MapPlaceholder({ locale = 'en' }: { locale?: Locale }) {
   return (
@@ -247,7 +248,7 @@ function Home(props: NavigationProps) {
   const [best] = useState(() => readStoredNumber('mythos-best-score'))
   const [savedModes] = useState<Partial<Record<GameMode, GameSessionSummary>>>(() => {
     const summaries: Partial<Record<GameMode, GameSessionSummary>> = {}
-    for (const mode of ['all', 'odyssey', 'iliad'] as const) {
+    for (const mode of ['all', 'odyssey', 'iliad', 'hippolyta'] as const) {
       const summary = gameSessionSummary(mode)
       if (summary) summaries[mode] = summary
     }
@@ -271,6 +272,7 @@ function Home(props: NavigationProps) {
     { type: 'journey', title: copy.modes.classicTitle, note: modeNote('all', copy.modes.classicNote), badge: savedModes.all ? copy.modes.continue : copy.modes.random, gameMode: 'all' },
     { type: 'odyssey', title: copy.modes.odysseyTitle, note: modeNote('odyssey', copy.modes.odysseyNote(odysseySceneCount)), badge: savedModes.odyssey ? copy.modes.continue : copy.modes.new, gameMode: 'odyssey' },
     { type: 'duel', title: copy.modes.iliadTitle, note: modeNote('iliad', copy.modes.iliadNote(trojanSceneCount)), badge: savedModes.iliad ? copy.modes.continue : copy.modes.new, gameMode: 'iliad' },
+    { type: 'labour', title: copy.modes.hippolytaTitle, note: modeNote('hippolyta', copy.modes.hippolytaNote(hippolytaSceneCount)), badge: savedModes.hippolyta ? copy.modes.continue : copy.modes.new, gameMode: 'hippolyta' },
     { type: 'archive', title: copy.modes.archiveTitle, note: copy.modes.archiveNote, destination: 'archive' },
   ]
 

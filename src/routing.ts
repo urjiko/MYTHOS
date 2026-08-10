@@ -10,7 +10,7 @@ export type AppRoute =
   | { view: 'game'; mode: GameMode }
   | { view: 'figures'; category: FigureCategory; figureId?: string }
 
-const gameModes = new Set<GameMode>(['all', 'odyssey', 'iliad'])
+const gameModes = new Set<GameMode>(['all', 'odyssey', 'iliad', 'hippolyta'])
 const figureCategories = new Set<FigureCategory>(['heroes', 'creatures'])
 
 function safeDecode(value: string) {
@@ -94,6 +94,8 @@ export function appRouteTitle(route: AppRoute, locale: Locale) {
         ? titles.odyssey
         : route.mode === 'iliad'
           ? titles.iliad
+          : route.mode === 'hippolyta'
+            ? titles.hippolyta
           : titles.classic
     case 'figures':
       return route.category === 'heroes' ? titles.heroes : titles.creatures

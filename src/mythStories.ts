@@ -73,8 +73,8 @@ const storyOpeningOverrides: Partial<Record<string, LocalisedStory>> = {
     tr: 'Leandros her gece Hellespontos’u yüzerek Sestos’ta Hero’nun yaktığı kandile ilerler. Bir kış fırtınası ışığı söndürür; karanlık akıntıda yönünü kaybeden Leandros’un ölümü iki sevgilinin de yaşamını sona erdirir.',
   },
   'hippolyta-girdle': {
-    en: 'Heracles reaches the Amazons to obtain the war belt that Ares gave their queen Hippolyta. She first agrees to surrender it willingly, but Hera spreads a false warning and turns the meeting into battle.',
-    tr: 'Herakles, Ares’in Amazon kraliçesi Hippolyta’ya verdiği savaş kuşağını almak için Amazonlara ulaşır. Hippolyta önce kuşağı gönüllü vermeyi kabul eder; fakat Hera yanlış bir uyarı yayarak buluşmayı savaşa çevirir.',
+    en: 'Heracles reaches the Amazons to obtain the war belt that Ares gave their queen Hippolyta. She receives him without hostility and agrees to surrender it willingly.',
+    tr: 'Herakles, Ares’in Amazon kraliçesi Hippolyta’ya verdiği savaş kuşağını almak için Amazonlara ulaşır. Hippolyta onu düşmanca karşılamaz ve kuşağı gönüllü vermeyi kabul eder.',
   },
   'attis-great-mother': {
     en: 'Attis comes to Pessinus to marry a king’s daughter, but Agdistis appears and casts the celebration into divine madness. The young man dies beneath a pine, and the Great Mother ensures that his body and memory do not decay.',

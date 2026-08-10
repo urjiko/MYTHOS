@@ -369,6 +369,90 @@ const additionalCharacters: MythCharacter[] = [
     },
   },
   {
+    id: 'eurystheus',
+    name: { en: 'Eurystheus', tr: 'Eurystheus' },
+    aliases: { en: ['Eurystheus'], tr: ['Eurystheus'] },
+    info: {
+      en: 'King of Tiryns and Mycenae who assigns the labours to his cousin Heracles. His command turns Admete’s desire for Hippolyta’s belt into the ninth labour.',
+      tr: 'Kuzeni Herakles’e görevleri veren Tiryns ve Mykenai kralıdır. Buyruğu, Admete’nin Hippolyta’nın kuşağına duyduğu isteği dokuzuncu göreve dönüştürür.',
+    },
+    facts: [
+      { en: 'Father of Admete', tr: 'Admete’nin babasıdır' },
+      { en: 'Grandson of Perseus and rival claimant to heroic prestige', tr: 'Perseus’un torunu ve kahramanlık saygınlığında Herakles’in rakibidir' },
+    ],
+  },
+  {
+    id: 'admete',
+    name: { en: 'Admete', tr: 'Admete' },
+    aliases: { en: ['Admete'], tr: ['Admete'] },
+    info: {
+      en: 'Daughter of Eurystheus. Her desire to possess Hippolyta’s war belt supplies the immediate reason for Heracles’ ninth labour in Pseudo-Apollodorus.',
+      tr: 'Eurystheus’un kızıdır. Ps.-Apollodoros’ta Hippolyta’nın savaş kuşağına sahip olma isteği, Herakles’in dokuzuncu görevinin doğrudan gerekçesidir.',
+    },
+    facts: [
+      { en: 'Princess of Mycenae in the labour tradition', tr: 'Görev geleneğinde Mykenai prensesidir' },
+      { en: 'She does not join the expedition', tr: 'Sefere katılmaz' },
+    ],
+  },
+  {
+    id: 'alcaeus',
+    name: { en: 'Alcaeus', tr: 'Alkaios' },
+    aliases: { en: ['Alcaeus'], tr: ['Alkaios'] },
+    info: {
+      en: 'A son of Androgeus and grandson of Minos. He joins Heracles on Paros as one of two replacements for the companions killed there.',
+      tr: 'Androgeos’un oğlu, Minos’un torunudur. Paros’ta öldürülen yoldaşların yerine Herakles’e katılan iki kişiden biridir.',
+    },
+  },
+  {
+    id: 'sthenelus',
+    name: { en: 'Sthenelus', tr: 'Sthenelos' },
+    aliases: { en: ['Sthenelus'], tr: ['Sthenelos'] },
+    info: {
+      en: 'Brother of Alcaeus, son of Androgeus and grandson of Minos. He becomes a replacement voyager during the settlement on Paros.',
+      tr: 'Alkaios’un kardeşi, Androgeos’un oğlu ve Minos’un torunudur. Paros’taki uzlaşmada sefere katılan yeni yolculardan biri olur.',
+    },
+  },
+  {
+    id: 'lycus-mariandynian',
+    name: { en: 'King Lycus', tr: 'Kral Lykos' },
+    aliases: { en: ['King Lycus', 'Lycus'], tr: ['Kral Lykos', 'Lykos'] },
+    info: {
+      en: 'King of the Mariandynians who welcomes Heracles in northern Anatolia. Heracles helps him defeat Mygdon and gives him the conquered land.',
+      tr: 'Kuzey Anadolu’da Herakles’i ağırlayan Mariandynia kralıdır. Herakles Mygdon’u yenmesine yardım eder ve ele geçirilen toprağı ona verir.',
+    },
+  },
+  {
+    id: 'mygdon',
+    name: { en: 'Mygdon', tr: 'Mygdon' },
+    aliases: { en: ['Mygdon'], tr: ['Mygdon'] },
+    info: {
+      en: 'King of the Bebryces and enemy of Lycus. He is defeated during Heracles’ stop in Mysia before the expedition continues to the Amazons.',
+      tr: 'Bebrykler’in kralı ve Lykos’un düşmanıdır. Herakles’in Mysia durağında yenilir; ardından sefer Amazonlara doğru sürer.',
+    },
+  },
+  {
+    id: 'hesione',
+    name: { en: 'Hesione', tr: 'Hesione' },
+    aliases: { en: ['Hesione'], tr: ['Hesione'] },
+    info: {
+      en: 'Princess of Troy, daughter of Laomedon and sister of Priam. Heracles rescues her from a sea monster on the return voyage from Themiskyra.',
+      tr: 'Troya prensesi, Laomedon’un kızı ve Priamos’un kız kardeşidir. Herakles onu Themiskyra dönüşünde bir deniz canavarından kurtarır.',
+    },
+    facts: [
+      { en: 'Daughter of Laomedon', tr: 'Laomedon’un kızıdır' },
+      { en: 'Sister of Priam', tr: 'Priamos’un kız kardeşidir' },
+    ],
+  },
+  {
+    id: 'laomedon',
+    name: { en: 'Laomedon', tr: 'Laomedon' },
+    aliases: { en: ['Laomedon'], tr: ['Laomedon'] },
+    info: {
+      en: 'King of Troy and father of Hesione and Priam. He promises Heracles divine mares for rescuing Hesione, then refuses to pay and creates a later feud.',
+      tr: 'Troya kralı, Hesione ile Priamos’un babasıdır. Hesione’yi kurtarması karşılığında Herakles’e tanrısal kısraklar vaat eder; sonra ödemeyi reddederek daha sonraki düşmanlığı başlatır.',
+    },
+  },
+  {
     id: 'chrysaor',
     name: { en: 'Chrysaor', tr: 'Khrysaor' },
     aliases: { en: ['Chrysaor'], tr: ['Khrysaor'] },
