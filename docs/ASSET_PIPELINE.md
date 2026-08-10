@@ -39,7 +39,7 @@ The checker rejects:
 - any mobile texture that is not 2048×1024 sRGB WebP;
 - any preview that is not 1024×512 sRGB WebP;
 - suspiciously small placeholders or files above their delivery budgets;
-- a complete 4K collection above 40 MiB or mobile collection above 12 MiB;
+- a complete 4K collection above 42 MiB or mobile collection above 12 MiB;
 - source/mobile/preview hashes that no longer match their manifests;
 - a left/right edge mean absolute error above the rejection threshold.
 

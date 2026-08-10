@@ -247,6 +247,11 @@ export const sceneCluesTr: Record<string, readonly [string, string, string]> = {
     'Boynuzlu, inek biçimli gezgin Avrupa ile Asya’yı ayıran boğazdan geçer.',
     'Bosporos adı halk etimolojisinde “inek geçidi” olarak açıklanır.',
   ],
+  'ganymedes-zeus': [
+    'Olympos’ta Ganymedes ölümsüzlüğe kavuşur ve tanrıların sakisi olarak altın kâseyi eline alır.',
+    'Tros, Zeus Troyalı krala acıyıncaya dek oğlunun kayboluşunun yasını tutar.',
+    'Hermes karşılık olarak görkemli ölümsüz atlar getirir ve Tros’a oğlunun asla yaşlanmayacağını söyler.',
+  ],
 }
 
 type SceneDetails = Pick<MythScene, 'location' | 'geographyNote' | 'reveal' | 'sourceNote'>
@@ -546,6 +551,12 @@ export const sceneDetailsTr: Record<string, SceneDetails> = {
     reveal: 'Hera’nın at sineği tarafından sürülen İo, Trakya Bosporosu’ndan Avrupa’dan Asya’ya geçer. Aiskhylos bu geçişi çok daha uzun yolculuğun bir aşaması yapar; boğazın adı halk arasında ineğin geçişiyle açıklanır.',
     sourceNote: 'Antik yazarlar İo’nun rotasının her aşamasında uyuşmaz. İğne, Aiskhylos’un güzergâhında adı verilen Bosporos geçişini gösterir.',
   },
+  'ganymedes-zeus': {
+    location: 'İda Dağı ve Troas',
+    geographyNote: 'Erken şiirler Ganymedes’i Troya kralı Tros’un oğlu yapar; ancak kaçırılış için güvenilir tek bir yer belirtmez. İda Dağı geleneksel Troas ortamı olarak kullanılır; Strabon Dardanos ve Harpagia yakınındaki başka konumları da aktarır.',
+    reveal: 'Zeus, Kral Tros’un oğlu Ganymedes’i babasının sürülerini güderken görür. Tanrı büyük kartalını onu Olympos’a taşıması için gönderir.',
+    sourceNote: 'Homeros Troya soy bağını ve tanrısal sakiliği verir; ilahi Tros’un yasını, Hermes’i ve atları ekler; Ps.-Apollodoros ise kartalı açıkça Zeus’un aracısı yapar.',
+  },
 }
 
 const sceneCyclesTr: Record<string, string> = {
@@ -568,10 +579,12 @@ const sceneCyclesTr: Record<string, string> = {
   'Anatolian Sea Legends': 'Anadolu Deniz Efsaneleri',
   'Labours of Heracles': 'Herakles’in Görevleri',
   'Trojan Prelude': 'Troya’ya Giden Yol',
+  'Trojan Origins': 'Troya’nın Kökenleri',
   'Gods of Anatolia': 'Anadolu Tanrıları',
 }
 
 const sourceNameReplacements: readonly (readonly [string, string])[] = [
+  ['Homeric Hymn to Aphrodite', 'Aphrodite’ye Homeros İlahisi'],
   ['Homeric Hymn to Apollo', 'Apollon’a Homeros İlahisi'],
   ['Pseudo-Apollodorus', 'Ps.-Apollodoros'],
   ['Apollonius Rhodius', 'Rodoslu Apollonios'],

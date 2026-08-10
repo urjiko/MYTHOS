@@ -211,3 +211,7 @@ Every game-scene prompt begins with this contract:
 ## `scene-io-flight.webp`
 
 > The Thracian Bosporus at storm-lit dawn as the horned, fully clothed Io reaches the crossing between Europe and Asia. Hera’s gadfly, a passing archaic ship, churning currents, and subtle peacock-eyed motifs of surveillance are distributed around the full sphere. The opposing shores remain one continuous environment; the cow transformation is suggested through horns and reflection rather than body horror.
+
+## `scene-ganymedes-zeus.webp`
+
+> Mount Ida above the Trojan plain at luminous dawn after rain. Fully clothed Ganymedes, shown as a mature-looking Trojan shepherd-prince at respectful middle distance, is lifted gently by his cloak in the divine whirlwind beneath Zeus’s great eagle. A golden serving bowl beside the shepherd gear, Tros’s extraordinary horses, royal cattle, an Ida camp, distant waterways, rocks, and pines occupy different yaw directions. True monoscopic 2:1 equirectangular projection with a midpoint horizon and continuous ground and sky. No nudity, childlike anatomy, eroticisation, romantic framing, injury, talons on skin, kidnapping horror, Classical temples, Roman armour, modern objects, text, UI, or watermark.

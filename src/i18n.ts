@@ -40,6 +40,14 @@ export const ui = {
       roundProgress: (round: number, total: number) => `Round ${round} of ${total}`,
       timeWarning: (seconds: number) => `${seconds} seconds remaining`,
     },
+    audio: {
+      label: 'MUSIC',
+      start: 'Start background music',
+      mute: 'Mute background music',
+      playing: 'Background music is playing',
+      waiting: 'Background music will begin after your first interaction',
+      muted: 'Background music is muted',
+    },
     titles: {
       home: 'MYTHOS · Explore Greek mythology',
       about: 'About · MYTHOS',
@@ -337,6 +345,14 @@ export const ui = {
       figureCategories: 'Kişi kategorileri',
       roundProgress: (round: number, total: number) => `${total} turun ${round}. turu`,
       timeWarning: (seconds: number) => `${seconds} saniye kaldı`,
+    },
+    audio: {
+      label: 'MÜZİK',
+      start: 'Arka plan müziğini başlat',
+      mute: 'Arka plan müziğini kapat',
+      playing: 'Arka plan müziği çalıyor',
+      waiting: 'Arka plan müziği ilk dokunuşundan sonra başlayacak',
+      muted: 'Arka plan müziği kapalı',
     },
     titles: {
       home: 'MYTHOS · Yunan mitolojisini keşfet',
@@ -755,6 +771,8 @@ const sceneTitleTr: Record<string, string> = {
   'Telephus and Achilles': 'Telephos ve Akhilleus',
   'Attis and the Great Mother': 'Attis ve Büyük Ana',
   'Io’s Flight': 'Io’nun Kaçışı',
+  'Zeus and Ganymedes': 'Zeus ve Ganymedes',
+  'Leda and the Swan': 'Leda ve Kuğu',
   'Adonis and Aphrodite': 'Adonis ve Aphrodite',
   'Europa and the Bull': 'Europa ve Boğa',
   'The Wanderings of Leto': 'Leto’nun Yolculukları',

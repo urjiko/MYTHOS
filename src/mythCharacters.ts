@@ -488,6 +488,33 @@ const additionalCharacters: MythCharacter[] = [
       tr: 'Anadolu’nun güçlü ana tanrıçası, yaygın adıyla Kybele’dir. Pessinus’taki kült merkezi onu Attis anlatısına bağlar.',
     },
   },
+  {
+    id: 'ganymedes',
+    name: { en: 'Ganymedes', tr: 'Ganymedes' },
+    aliases: { en: ['Ganymedes', 'Ganymede'], tr: ['Ganymedes'] },
+    info: {
+      en: 'A Trojan prince, son of King Tros and brother of Ilus and Assaracus. Zeus carries him to Olympus, grants him immortality and makes him cupbearer of the gods.',
+      tr: 'Troya prensi; Kral Tros’un oğlu, İlos ile Assarakos’un kardeşidir. Zeus onu Olympos’a taşır, ölümsüz kılar ve tanrıların sakisi yapar.',
+    },
+    facts: [
+      { en: 'Father: Tros', tr: 'Babası: Tros' },
+      { en: 'Divine role: cupbearer of the gods', tr: 'Tanrısal görevi: tanrıların sakisi' },
+      { en: 'The constellation Aquarius is later associated with him.', tr: 'Kova takımyıldızı sonraki gelenekte onunla ilişkilendirilir.' },
+    ],
+  },
+  {
+    id: 'tros',
+    name: { en: 'Tros', tr: 'Tros' },
+    aliases: { en: ['Tros'], tr: ['Tros'] },
+    info: {
+      en: 'Eponymous king of the Trojans and father of Ganymedes, Ilus and Assaracus. Hermes ends his grief by explaining Ganymedes’ immortality and bringing Zeus’s extraordinary horses.',
+      tr: 'Troyalılara adını veren kral; Ganymedes, İlos ve Assarakos’un babasıdır. Hermes, Ganymedes’in ölümsüzlüğünü açıklayıp Zeus’un olağanüstü atlarını getirerek yasını dindirir.',
+    },
+    facts: [
+      { en: 'Wife: Callirhoe, daughter of Scamander', tr: 'Eşi: Skamandros’un kızı Kallirhoe' },
+      { en: 'His name becomes attached to the Trojans and the Troad.', tr: 'Adı Troyalılar ve Troas bölgesiyle özdeşleşir.' },
+    ],
+  },
 ]
 
 export const mythCharacters: readonly MythCharacter[] = [

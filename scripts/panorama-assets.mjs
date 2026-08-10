@@ -16,7 +16,7 @@ export const SOURCE_CONTRACT = Object.freeze({
   height: 2_048,
   minimumBytes: 250 * 1_024,
   maximumBytes: 2.5 * 1_024 * 1_024,
-  maximumCollectionBytes: 40 * 1_024 * 1_024,
+  maximumCollectionBytes: 42 * 1_024 * 1_024,
   maximumSeamMae: 22,
   reviewSeamMae: 14,
 })

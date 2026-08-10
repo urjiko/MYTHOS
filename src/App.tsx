@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { ArrowRight, Compass, Map, Menu, Sparkles, X } from 'lucide-react'
 import type { MythMapProps } from './AncientMap'
+import AmbientAudio from './AmbientAudio'
 import { catalogSummary, collections } from './catalogSummary'
 import type { FigureCategory } from './figures'
 import { DEFAULT_ROUND_COUNT, HIPPOLYTA_ROUTE_IDS, TROJAN_ROUTE_IDS, type GameMode } from './gameConfig'
@@ -629,6 +630,7 @@ export default function App() {
       >
         {ui[locale].accessibility.skip}
       </a>
+      <AmbientAudio locale={locale} placement={route.view === 'game' ? 'game' : 'site'} />
       {content}
     </>
   )

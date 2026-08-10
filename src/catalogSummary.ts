@@ -1,6 +1,6 @@
 export const catalogSummary = {
   atlasPlaces: 46,
-  mythScenes: 49,
+  mythScenes: 50,
   odysseyScenes: 13,
 } as const
 
