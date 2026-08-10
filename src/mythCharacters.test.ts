@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { segmentStoryCharacters } from './mythCharacters'
+import { mythScenes } from './data'
+import { mythCharactersForScene, segmentStoryCharacters } from './mythCharacters'
 
 describe('interactive myth character annotations', () => {
   it('preserves the complete story while finding multiple character names', () => {
@@ -21,5 +22,11 @@ describe('interactive myth character annotations', () => {
       'achilles',
       'patroclus',
     ])
+  })
+
+  it.each(['en', 'tr'] as const)('provides at least one character dossier for every archive story in %s', (locale) => {
+    mythScenes.forEach((scene) => {
+      expect(mythCharactersForScene(scene, locale).length, scene.id).toBeGreaterThan(0)
+    })
   })
 })

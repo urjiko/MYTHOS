@@ -6,7 +6,7 @@ export type AppRoute =
   | { view: 'home' }
   | { view: 'about' }
   | { view: 'atlas' }
-  | { view: 'archive' }
+  | { view: 'archive'; sceneId?: string }
   | { view: 'game'; mode: GameMode }
   | { view: 'figures'; category: FigureCategory; figureId?: string }
 
@@ -39,6 +39,11 @@ export function parseAppRoute(hash: string): AppRoute {
     return { view: 'game', mode: segments[1] as GameMode }
   }
 
+  if (segments[0] === 'archive' && segments.length === 2) {
+    const sceneId = safeDecode(segments[1])
+    return sceneId ? { view: 'archive', sceneId } : { view: 'home' }
+  }
+
   if (
     segments[0] === 'figures'
     && (segments.length === 2 || segments.length === 3)
@@ -62,7 +67,7 @@ export function appRouteToHash(route: AppRoute) {
     case 'atlas':
       return '#/atlas'
     case 'archive':
-      return '#/archive'
+      return route.sceneId ? `#/archive/${encodeURIComponent(route.sceneId)}` : '#/archive'
     case 'game':
       return `#/game/${route.mode}`
     case 'figures':

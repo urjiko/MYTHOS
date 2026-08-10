@@ -435,19 +435,31 @@ function AtlasPage(props: NavigationProps) {
   )
 }
 
-function ArchivePage(props: NavigationProps) {
+function ArchivePage({ selectedId, onSelectScene, ...props }: NavigationProps & {
+  selectedId?: string
+  onSelectScene: (sceneId?: string) => void
+}) {
   const { locale } = props
   const copy = ui[locale]
 
   return (
-    <div className="inner-page">
+    <div className={`inner-page ${selectedId ? 'archive-detail-page' : ''}`}>
       <Header {...props} />
       <main id="main-content" className="inner-page__main section-shell" tabIndex={-1}>
-        <span className="kicker">{copy.archive.kicker}</span>
-        <h1>{copy.archive.title} <em>{copy.archive.titleEm}</em></h1>
-        <p className="inner-page__lede">{copy.archive.lede(catalogSummary.mythScenes)}</p>
+        {!selectedId && (
+          <>
+            <span className="kicker">{copy.archive.kicker}</span>
+            <h1>{copy.archive.title} <em>{copy.archive.titleEm}</em></h1>
+            <p className="inner-page__lede">{copy.archive.lede(catalogSummary.mythScenes)}</p>
+          </>
+        )}
         <Suspense fallback={<RouteContentPlaceholder locale={locale} section="archive" />}>
-          <ArchiveContent locale={locale} onStartGame={props.onStartGame} />
+          <ArchiveContent
+            locale={locale}
+            selectedId={selectedId}
+            onSelectScene={onSelectScene}
+            onStartGame={props.onStartGame}
+          />
         </Suspense>
       </main>
       <Footer {...props} />
@@ -580,7 +592,13 @@ export default function App() {
   } else if (route.view === 'atlas') {
     content = <AtlasPage {...navigationProps} />
   } else if (route.view === 'archive') {
-    content = <ArchivePage {...navigationProps} />
+    content = (
+      <ArchivePage
+        {...navigationProps}
+        selectedId={route.sceneId}
+        onSelectScene={(sceneId) => navigate({ view: 'archive', sceneId })}
+      />
+    )
   } else if (route.view === 'figures') {
     content = (
       <FiguresPage

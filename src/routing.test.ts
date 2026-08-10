@@ -15,6 +15,7 @@ describe('MYTHOS routes', () => {
     { view: 'about' },
     { view: 'atlas' },
     { view: 'archive' },
+    { view: 'archive', sceneId: 'scylla & charybdis' },
     { view: 'game', mode: 'all' },
     { view: 'game', mode: 'odyssey' },
     { view: 'game', mode: 'iliad' },
@@ -27,6 +28,7 @@ describe('MYTHOS routes', () => {
   it('rejects unsupported game modes and figure categories', () => {
     expect(parseAppRoute('#/game/troy')).toEqual({ view: 'home' })
     expect(parseAppRoute('#/figures/gods')).toEqual({ view: 'home' })
+    expect(parseAppRoute('#/archive/story/extra')).toEqual({ view: 'home' })
   })
 
   it('provides localised document titles for every route family', () => {

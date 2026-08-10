@@ -1,4 +1,4 @@
-import { Eye, Minus, Plus } from 'lucide-react'
+import { Compass, Eye, Minus, Plus, RotateCcw } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   LinearFilter,
@@ -332,13 +332,33 @@ export function SphereViewer({
       {status === 'error' && <div className="scene-viewer__status" role="status" aria-live="polite">{copy.viewer.error}</div>}
 
       <div className="scene-viewer__drag"><Eye size={16} /> {copy.viewer.drag}</div>
-      <div className="scene-viewer__compass" aria-hidden="true">
-        <span>{String(heading).padStart(3, '0')}°</span><i style={{ transform: `rotate(${heading}deg)` }} />
-      </div>
-      <div className="scene-viewer__zoom" aria-label={copy.viewer.zoom}>
-        <button type="button" onClick={() => updateView({ fov: view.current.fov + 6 })} aria-label={copy.viewer.zoomOut}><Minus size={15} /></button>
-        <span>{fov}°</span>
-        <button type="button" onClick={() => updateView({ fov: view.current.fov - 6 })} aria-label={copy.viewer.zoomIn}><Plus size={15} /></button>
+      <div
+        className="scene-viewer__instruments"
+        onPointerDown={(event) => event.stopPropagation()}
+        onDoubleClick={(event) => event.stopPropagation()}
+      >
+        <div className="scene-viewer__compass" aria-label={`${copy.viewer.heading}: ${heading}°`}>
+          <div className="scene-viewer__compass-dial" aria-hidden="true">
+            <span>N</span>
+            <i style={{ transform: `rotate(${heading}deg)` }} />
+            <Compass size={14} />
+          </div>
+          <div>
+            <small>{copy.viewer.heading}</small>
+            <strong>{String(heading).padStart(3, '0')}°</strong>
+          </div>
+        </div>
+        <div className="scene-viewer__zoom" aria-label={copy.viewer.zoom}>
+          <span className="scene-viewer__zoom-label">{copy.viewer.fieldOfView}</span>
+          <div className="scene-viewer__zoom-controls">
+            <button type="button" onClick={() => updateView({ fov: view.current.fov + 6 })} aria-label={copy.viewer.zoomOut}><Minus size={16} /></button>
+            <output aria-live="off">{fov}°</output>
+            <button type="button" onClick={() => updateView({ fov: view.current.fov - 6 })} aria-label={copy.viewer.zoomIn}><Plus size={16} /></button>
+          </div>
+          <button className="scene-viewer__reset" type="button" onClick={resetView} aria-label={copy.viewer.reset}>
+            <RotateCcw size={14} /> <span>{copy.viewer.reset}</span>
+          </button>
+        </div>
       </div>
     </div>
   )

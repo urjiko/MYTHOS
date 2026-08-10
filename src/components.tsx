@@ -905,7 +905,11 @@ export default function Game({
                     : copy.game.pinEmpty}</p>
                 </div>
                 <button className="button button--gold oracle-card__submit" disabled={!roundPlayable || !answer || !guess} onClick={submitRound}>
-                  {copy.game.seal} <Flame size={17} />
+                  <span className="oracle-card__submit-copy">
+                    <small>{answer && guess ? copy.game.sealReady : copy.game.sealWaiting}</small>
+                    <strong>{copy.game.seal}</strong>
+                  </span>
+                  <span className="oracle-card__submit-icon"><Flame size={19} /></span>
                 </button>
               </section>
             </div>

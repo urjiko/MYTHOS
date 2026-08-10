@@ -1,5 +1,7 @@
 import { figureProfiles } from './figures'
+import type { MythScene } from './data'
 import type { Locale } from './i18n'
+import { localiseMythStory } from './mythStories'
 
 type LocalisedText = Record<Locale, string>
 
@@ -8,6 +10,7 @@ export type MythCharacter = {
   name: LocalisedText
   aliases: Record<Locale, readonly string[]>
   info: LocalisedText
+  facts?: readonly LocalisedText[]
 }
 
 const figureAliasOverrides: Record<string, Partial<Record<Locale, readonly string[]>>> = {
@@ -37,6 +40,7 @@ const figureCharacters: MythCharacter[] = figureProfiles.map((profile) => ({
     tr: figureAliasOverrides[profile.id]?.tr ?? [profile.name.tr],
   },
   info: profile.summary,
+  facts: profile.facts,
 }))
 
 const additionalCharacters: MythCharacter[] = [
@@ -436,4 +440,23 @@ export function segmentStoryCharacters(text: string, locale: Locale): StoryChara
 
   if (cursor < text.length) segments.push({ text: text.slice(cursor) })
   return segments
+}
+
+export function mythCharactersForScene(scene: MythScene, locale: Locale): MythCharacter[] {
+  const storyCharacters = segmentStoryCharacters(localiseMythStory(scene, locale), locale)
+    .flatMap((segment) => segment.character ? [segment.character] : [])
+  const featuredIds = figureProfiles
+    .filter((profile) => profile.appearanceIds.includes(scene.id))
+    .map((profile) => profile.id)
+  const ordered = [
+    ...featuredIds.flatMap((id) => mythCharacters.find((character) => character.id === id) ?? []),
+    ...storyCharacters,
+  ]
+  const seen = new Set<string>()
+
+  return ordered.filter((character) => {
+    if (seen.has(character.id)) return false
+    seen.add(character.id)
+    return true
+  })
 }
