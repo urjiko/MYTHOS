@@ -40,7 +40,7 @@ An immersive web game that turns Greek mythology from a list to memorise into a 
 | Complete without clues | 1,000 |
 | **Round total** | **10,000** |
 
-The general journey and Trojan chronicle are each worth 60,000 Oracle Points; Odysseus’s thirteen-scene route is worth 130,000. Geographic proximity uses Haversine distance, so guesses are scored in real kilometres rather than arbitrary screen coordinates. Exact pins are not required: every myth defines a deliberately tight full-credit radius, after which points decay smoothly with distance.
+The five-scene general journey is worth 50,000 Oracle Points, the Trojan chronicle is worth 60,000, and Odysseus’s thirteen-scene route is worth 130,000. Geographic proximity uses Haversine distance, so guesses are scored in real kilometres rather than arbitrary screen coordinates. Exact pins are not required: every myth defines a deliberately tight full-credit radius, after which points decay smoothly with distance.
 
 ## Local development
 

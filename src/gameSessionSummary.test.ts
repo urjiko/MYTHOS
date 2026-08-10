@@ -18,7 +18,7 @@ describe('MYTHOS lightweight session summary', () => {
       [key]: JSON.stringify({
         version: GAME_SESSION_VERSION,
         mode: 'all',
-        deck: Array.from({ length: 6 }, (_, index) => ({ sceneId: `scene-${index}`, options: ['A', 'B'] })),
+        deck: Array.from({ length: 5 }, (_, index) => ({ sceneId: `scene-${index}`, options: ['A', 'B'] })),
         round: 2,
         finished: false,
         roundStarted: true,
@@ -27,7 +27,7 @@ describe('MYTHOS lightweight session summary', () => {
       }),
     })
 
-    expect(gameSessionSummary('all', storage)).toEqual({ round: 3, total: 6, finished: false })
+    expect(gameSessionSummary('all', storage)).toEqual({ round: 3, total: 5, finished: false })
   })
 
   it('removes malformed previews instead of exposing a broken resume action', () => {

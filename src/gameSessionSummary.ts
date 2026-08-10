@@ -1,7 +1,7 @@
 import type { GameMode } from './gameConfig'
 import { getBrowserStorage, type StorageLike } from './storage'
 
-export const GAME_SESSION_VERSION = 1 as const
+export const GAME_SESSION_VERSION = 2 as const
 
 export type GameSessionSummary = {
   round: number

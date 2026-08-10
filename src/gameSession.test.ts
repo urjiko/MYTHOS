@@ -70,7 +70,7 @@ describe('MYTHOS game session recovery', () => {
 
     expect(saveGameSession(validSnapshot(), storage)).toBe(true)
     expect(loadGameSession('all', storage)?.round).toBe(1)
-    expect(gameSessionSummary('all', storage)).toEqual({ round: 2, total: 6, finished: false })
+    expect(gameSessionSummary('all', storage)).toEqual({ round: 2, total: 5, finished: false })
   })
 
   it('does not present an untouched loading screen as saved progress', () => {
@@ -129,7 +129,7 @@ describe('MYTHOS game session recovery', () => {
   })
 
   it('removes malformed storage instead of crashing the game', () => {
-    const key = 'mythos-game-session-v1-all'
+    const key = 'mythos-game-session-v2-all'
     const storage = memoryStorage({ [key]: '{not-json' })
 
     expect(loadGameSession('all', storage)).toBeNull()
