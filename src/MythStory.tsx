@@ -5,9 +5,37 @@ import type { Locale } from './i18n'
 import { segmentStoryCharacters, type MythCharacter } from './mythCharacters'
 import { localiseMythStory } from './mythStories'
 
+type DossierPosition = {
+  left: number
+  top: number
+}
+
 type ActiveCharacter = {
   segment: number
   character: MythCharacter
+  position?: DossierPosition
+}
+
+function dossierPosition(clientX: number, clientY: number): DossierPosition {
+  const margin = 16
+  const gap = 14
+  const width = Math.min(350, Math.max(240, window.innerWidth - margin * 2))
+  const height = Math.min(310, Math.max(180, window.innerHeight - margin * 2))
+
+  let left = clientX + gap
+  let top = clientY + gap
+
+  if (left + width > window.innerWidth - margin) left = clientX - width - gap
+  if (top + height > window.innerHeight - margin) top = clientY - height - gap
+
+  return {
+    left: Math.max(margin, Math.min(left, window.innerWidth - width - margin)),
+    top: Math.max(margin, Math.min(top, window.innerHeight - height - margin)),
+  }
+}
+
+function usesFinePointer() {
+  return window.matchMedia('(hover: hover) and (pointer: fine)').matches
 }
 
 export function MythStory({ scene, locale }: { scene: MythScene; locale: Locale }) {
@@ -60,16 +88,43 @@ export function MythStory({ scene, locale }: { scene: MythScene; locale: Locale 
               aria-expanded={isOpen}
               aria-controls={dossierId}
               onPointerEnter={(event) => {
-                if (event.pointerType === 'mouse') {
-                  setActiveCharacter({ segment: index, character: segment.character! })
-                }
+                if (event.pointerType !== 'mouse') return
+                setActiveCharacter({
+                  segment: index,
+                  character: segment.character!,
+                  position: dossierPosition(event.clientX, event.clientY),
+                })
               }}
-              onFocus={() => setActiveCharacter({ segment: index, character: segment.character! })}
-              onClick={() => setActiveCharacter((current) => {
-                const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-                return current?.segment === index && !finePointer
-                  ? null
-                  : { segment: index, character: segment.character! }
+              onPointerMove={(event) => {
+                if (event.pointerType !== 'mouse' || activeCharacter?.segment !== index) return
+                setActiveCharacter({
+                  segment: index,
+                  character: segment.character!,
+                  position: dossierPosition(event.clientX, event.clientY),
+                })
+              }}
+              onFocus={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect()
+                setActiveCharacter({
+                  segment: index,
+                  character: segment.character!,
+                  position: usesFinePointer()
+                    ? dossierPosition(rect.right, rect.bottom)
+                    : undefined,
+                })
+              }}
+              onClick={(event) => setActiveCharacter((current) => {
+                const finePointer = usesFinePointer()
+                if (current?.segment === index && !finePointer) return null
+
+                const rect = event.currentTarget.getBoundingClientRect()
+                const pointerX = event.clientX || rect.right
+                const pointerY = event.clientY || rect.bottom
+                return {
+                  segment: index,
+                  character: segment.character!,
+                  position: finePointer ? dossierPosition(pointerX, pointerY) : undefined,
+                }
               })}
             >
               {segment.text}
@@ -83,6 +138,7 @@ export function MythStory({ scene, locale }: { scene: MythScene; locale: Locale 
           ref={dossierRef}
           id={`myth-character-dossier-${scene.id}`}
           className="myth-character-dossier"
+          style={activeCharacter.position}
           aria-live="polite"
           aria-label={locale === 'tr' ? 'Karakter kısa bilgisi' : 'Character quick profile'}
         >
