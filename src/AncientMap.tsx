@@ -412,6 +412,7 @@ export function MythMap({
           onGuessRef.current?.({ lat: centre.lat, lng: centre.lng })
         }}
       />
+      <div className="myth-map__edge-fog" aria-hidden="true" />
       {mapStatus === 'loading' && <span className="myth-map__status">{text.loading}</span>}
       {mapStatus === 'error' && <span className="myth-map__status">{text.error}</span>}
       <span className="myth-map__era">{text.era}</span>

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { mythScenes } from './data'
-import { createGameDeck, DEFAULT_ROUND_COUNT } from './gameDeck'
+import { createGameDeck, DEFAULT_ROUND_COUNT, HIPPOLYTA_ROUTE_IDS } from './gameDeck'
 
 describe('MYTHOS game decks', () => {
   it('keeps the expanded archive complete', () => {
-    expect(mythScenes).toHaveLength(44)
+    expect(mythScenes).toHaveLength(49)
     expect(mythScenes.map((scene) => scene.id)).toEqual(expect.arrayContaining([
       'echo',
       'pegasus-birth',
@@ -27,6 +27,11 @@ describe('MYTHOS game decks', () => {
       'salmacis-hermaphroditus',
       'hero-leander',
       'hippolyta-girdle',
+      'admete-request',
+      'paros-crisis',
+      'heracles-mygdon',
+      'hera-amazons',
+      'hesione-rescue',
       'leto-lycians',
       'telephus-achilles',
       'attis-great-mother',
@@ -59,6 +64,18 @@ describe('MYTHOS game decks', () => {
     expect(deck).toHaveLength(6)
     expect(deck.every((scene) => scene.category === 'trojan')).toBe(true)
     expect(deck.some((scene) => scene.id === 'trojan-horse')).toBe(false)
+  })
+
+  it('builds a source-linked ninth-labour route with only route-specific answers', () => {
+    const deck = createGameDeck('hippolyta', () => 0.43)
+    const routeIds = new Set<string>(HIPPOLYTA_ROUTE_IDS)
+    const routeTitles = new Set(
+      mythScenes.filter((scene) => routeIds.has(scene.id)).map((scene) => scene.title),
+    )
+
+    expect(deck).toHaveLength(6)
+    expect(deck.map((scene) => scene.id)).toEqual([...HIPPOLYTA_ROUTE_IDS])
+    expect(deck.every((scene) => scene.options.every((option) => routeTitles.has(option)))).toBe(true)
   })
 
   it('shuffles answer slots without mutating the archive data', () => {

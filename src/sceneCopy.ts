@@ -197,10 +197,35 @@ export const sceneCluesTr: Record<string, readonly [string, string, string]> = {
     'Aphrodite rahibesi Sestos’ta, sevgilisi ise karşıdaki Abydos’ta yaşar.',
     'Kış fırtınası ışığı söndürünce yüzücü karanlık akıntıda yönünü kaybeder.',
   ],
+  'admete-request': [
+    'İstenen kuşak, Ares’in bir Amazon kraliçesine verdiği ve yetkesini simgeleyen armağandır.',
+    'Dokuzuncu görev Herakles’i Ege üzerinden doğuya, Thermodon’a gönderir.',
+    'Yolculuk Themiskyra’ya varmadan önce Paros ve Mysia’dan geçecektir.',
+  ],
+  'paros-crisis': [
+    'Geminin yanındaki iki boş kalkan, karaya çıktıktan sonra kaybedilen yoldaşları gösterir.',
+    'Ölümler Hippolyta’nın kuşağını alma yolculuğunu kesintiye uğratır.',
+    'Çatışma sona erince Alkaios ile Sthenelos Paros’tan Herakles’le birlikte ayrılır.',
+  ],
+  'heracles-mygdon': [
+    'Ele geçirilen toprak zaferden sonra Herakleia adını alır.',
+    'Kral Lykos toprak kazanırken sefer güvenilir bir ev sahibi ve müttefik kazanır.',
+    'Herakles ile yoldaşları Themiskyra’ya doğru doğu yolculuğunu sürdürür.',
+  ],
   'hippolyta-girdle': [
     'Dokuzuncu görev, Ares’in bir Amazon kraliçesine verdiği savaş kuşağını getirmektir.',
     'Kraliçe önce kuşağı isteyerek vermeyi kabul eder.',
-    'Hera kılık değiştirip yabancıların kraliçeyi kaçıracağını söyleyince barışçıl buluşma savaşa dönüşür.',
+    'Kısa bir süre için görev, zor kullanmak yerine konukseverlikle sonuçlanacak gibi görünür.',
+  ],
+  'hera-amazons': [
+    'Silahlı biniciler yabancıların gemisine doğru atılınca barışçıl söz bozulur.',
+    'Bu anlatıda Herakles, Hippolyta’nın kendisine ihanet ettiğini sanarak onu öldürür ve kuşağı alır.',
+    'Sefer kıyıya kadar savaşarak Themiskyra’dan denize açılır.',
+  ],
+  'hesione-rescue': [
+    'Laomedon kızı kurtarıldıktan sonra söz verdiği kısrakları vermeyi reddeder.',
+    'Herakles öcünü erteler; fakat daha sonra bozulan yemini cezalandırmak için geri döner.',
+    'Sefer Troya’dan ayrılır ve sonunda Hippolyta’nın kuşağını Eurystheus’a teslim eder.',
   ],
   'leto-lycians': [
     'Kucağında tanrısal ikizleri taşıyan gezgin anne, berrak bir gölden yalnızca bir yudum su ister.',
@@ -461,11 +486,41 @@ export const sceneDetailsTr: Record<string, SceneDetails> = {
     reveal: 'Leandros geceleri Sestos’taki Hero’nun kandiline doğru Hellespontos’u yüzer. Ovidius ile Musaios’un koruduğu trajik sonda fırtına ışığı söndürür ve sevgililer aynı geçidin karşı kıyılarında ölür.',
     sourceNote: 'Kentler ve boğaz tarihseldir; âşıkların kulesi ile gece yüzüşleri antik edebî geleneğe aittir.',
   },
+  'admete-request': {
+    location: 'Mykenai, Argolis',
+    geographyNote: 'İğne Tunç Çağı Mykenai’sini gösterir. Kraliyet buyruğu mite aitken, kale arkeolojik olarak belgelenmiş bir yerdir.',
+    reveal: 'Eurystheus, kızı Admete istediği için Herakles’e Hippolyta’nın savaş kuşağını getirmesini emreder. Herakles gönüllü yoldaşlarını toplar ve Mykenai’den tek bir gemiyle ayrılır.',
+    sourceNote: 'Bu güzergâh Ps.-Apollodoros’un sırasını izler; sonraki anlatımlar her durağı ya da gerekçeyi korumaz.',
+  },
+  'paros-crisis': {
+    location: 'Paros, Kykladlar',
+    geographyNote: 'Paros belgelenmiş bir Kyklad adasıdır; çatışma ile kesin limanı mitik güzergâha aittir.',
+    reveal: 'Paros’ta Minos’un oğulları, karaya çıkan Herakles’in iki yoldaşını öldürür. Herakles adalılara saldırır; çatışma sona erdiğinde Alkaios ile Sthenelos’u kayıpların yerine kabul eder.',
+    sourceNote: 'Ps.-Apollodoros, Paros’u sefer Mysia’ya ve Amazonlara varmadan önce ayrı bir durak yapar.',
+  },
+  'heracles-mygdon': {
+    location: 'Mariandynia Herakleia’sı, Kuzey Anadolu',
+    geographyNote: 'Herakleia Pontike, Mariandynia ortamını bölgesel olarak sabitler. Mygdon’a karşı sefer edebî gelenek olduğundan puan çemberi geniş tutulur.',
+    reveal: 'Kral Lykos Mysia’da Herakles’i ağırlar ve komşu Bebrykler’e karşı yardımını ister. Herakles onların kralı Mygdon’u yenerek ele geçirilen toprağı Lykos’a verir.',
+    sourceNote: 'Güzergâh, kesin bir savaş alanı ileri sürmeden Mariandynia bölümü için Herakleia Pontike’yi dayanak alır.',
+  },
   'hippolyta-girdle': {
     location: 'Thermodon üzerindeki Themiskyra, Pontos',
     geographyNote: 'Antik kaynaklar Themiskyra’yı Thermodon yakınlarına yerleştirir. Kesin alanı güvenle saptanamadığından bölgesel çember, belgelenmiş kentlere göre bilinçli biçimde daha geniştir.',
-    reveal: 'Herakles, Hippolyta’nın kuşağını almak için Themiskyra limanına ulaşır. Apollodoros onun başta kuşağı gönüllü vermeyi kabul ettiğini; Hera’nın yanlış alarmının Amazonları kışkırtıp barışçı olasılığı yok ettiğini anlatır.',
+    reveal: 'Herakles Themiskyra limanına ulaşır ve neden geldiğini açıklar. Hippolyta onu düşmanca karşılamaz ve kuşağı gönüllü vermeyi vaat eder.',
     sourceNote: 'Antik anlatılar savaş, Hippolyta’nın sonu ve daha sonra Theseus’a eşlik eden Amazon konusunda farklılaşır.',
+  },
+  'hera-amazons': {
+    location: 'Thermodon üzerindeki Themiskyra, Pontos',
+    geographyNote: 'Sahne barışçıl buluşmayla aynı geleneksel Themiskyra bölgesini paylaşır; antik yerin kesin konumu güvenle saptanamamıştır.',
+    reveal: 'Hera bir Amazon kılığına girip yabancıların Hippolyta’yı kaçıracağını söyler. Silahlı biniciler gemiye doğru atılınca Herakles bu alarmı ihanet sanır.',
+    sourceNote: 'Bu sahne Ps.-Apollodoros’u izler; başka antik anlatılar savaşı, Hippolyta’nın sonunu ya da olayın Amazonunu değiştirir.',
+  },
+  'hesione-rescue': {
+    location: 'İlion / Troya, Anadolu',
+    geographyNote: 'İğne Hisarlık’taki arkeolojik höyüğü gösterir. Hesione’nin deniz canavarından kurtarılması, İlyada savaşından daha eski bir Troya’da geçen mitik bölümdür.',
+    reveal: 'Dönüş yolunda Herakles, Hesione’nin bir deniz canavarına sunulduğu sırada Troya’ya ulaşır. Laomedon tanrısal kısraklarını vaat edince yaratığı öldürür ve prensesi kurtarır.',
+    sourceNote: 'Bu bölüm daha sonraki Troya Savaşı değil, Hesione’nin daha eski anlatısıdır; Ps.-Apollodoros onu Themiskyra dönüşüne yerleştirir.',
   },
   'leto-lycians': {
     location: 'Letoon ve Ksantos Vadisi, Lykia',

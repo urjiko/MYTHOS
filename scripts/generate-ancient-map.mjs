@@ -10,7 +10,7 @@ const worldLand = worldLandCollection.features[0]
 // Keep a generous visual margin around the playable Mediterranean. Leaflet can
 // reveal far more north/south terrain in a tall mobile viewport; clipping land
 // to the interaction bounds made those areas look like abrupt, artificial sea.
-const visualLandBounds = [-35, -5, 80, 75]
+const visualLandBounds = [-85, -65, 155, 88]
 const mediterraneanLand = bboxClip(worldLand, visualLandBounds)
 
 const roundCoordinates = (value) => {

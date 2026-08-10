@@ -3,7 +3,7 @@ import { ArrowRight, Compass, Map, Menu, Sparkles, X } from 'lucide-react'
 import type { MythMapProps } from './AncientMap'
 import { catalogSummary, collections } from './catalogSummary'
 import type { FigureCategory } from './figures'
-import { DEFAULT_ROUND_COUNT, TROJAN_ROUTE_IDS, type GameMode } from './gameConfig'
+import { DEFAULT_ROUND_COUNT, HIPPOLYTA_ROUTE_IDS, TROJAN_ROUTE_IDS, type GameMode } from './gameConfig'
 import { gameSessionSummary, type GameSessionSummary } from './gameSessionSummary'
 import { localisedNumber, persistLocale, resolveLocale, ui, type Locale } from './i18n'
 import InstallPrompt from './InstallPrompt'
@@ -21,6 +21,7 @@ type NavigationView = 'home' | 'atlas' | 'archive'
 const maximumScore = DEFAULT_ROUND_COUNT * 10_000
 const odysseySceneCount = catalogSummary.odysseyScenes
 const trojanSceneCount = TROJAN_ROUTE_IDS.length
+const hippolytaSceneCount = HIPPOLYTA_ROUTE_IDS.length
 
 function MapPlaceholder({ locale = 'en' }: { locale?: Locale }) {
   return (
@@ -247,7 +248,7 @@ function Home(props: NavigationProps) {
   const [best] = useState(() => readStoredNumber('mythos-best-score'))
   const [savedModes] = useState<Partial<Record<GameMode, GameSessionSummary>>>(() => {
     const summaries: Partial<Record<GameMode, GameSessionSummary>> = {}
-    for (const mode of ['all', 'odyssey', 'iliad'] as const) {
+    for (const mode of ['all', 'odyssey', 'iliad', 'hippolyta'] as const) {
       const summary = gameSessionSummary(mode)
       if (summary) summaries[mode] = summary
     }
@@ -271,6 +272,7 @@ function Home(props: NavigationProps) {
     { type: 'journey', title: copy.modes.classicTitle, note: modeNote('all', copy.modes.classicNote), badge: savedModes.all ? copy.modes.continue : copy.modes.random, gameMode: 'all' },
     { type: 'odyssey', title: copy.modes.odysseyTitle, note: modeNote('odyssey', copy.modes.odysseyNote(odysseySceneCount)), badge: savedModes.odyssey ? copy.modes.continue : copy.modes.new, gameMode: 'odyssey' },
     { type: 'duel', title: copy.modes.iliadTitle, note: modeNote('iliad', copy.modes.iliadNote(trojanSceneCount)), badge: savedModes.iliad ? copy.modes.continue : copy.modes.new, gameMode: 'iliad' },
+    { type: 'labour', title: copy.modes.hippolytaTitle, note: modeNote('hippolyta', copy.modes.hippolytaNote(hippolytaSceneCount)), badge: savedModes.hippolyta ? copy.modes.continue : copy.modes.new, gameMode: 'hippolyta' },
     { type: 'archive', title: copy.modes.archiveTitle, note: copy.modes.archiveNote, destination: 'archive' },
   ]
 
@@ -435,19 +437,31 @@ function AtlasPage(props: NavigationProps) {
   )
 }
 
-function ArchivePage(props: NavigationProps) {
+function ArchivePage({ selectedId, onSelectScene, ...props }: NavigationProps & {
+  selectedId?: string
+  onSelectScene: (sceneId?: string) => void
+}) {
   const { locale } = props
   const copy = ui[locale]
 
   return (
-    <div className="inner-page">
+    <div className={`inner-page ${selectedId ? 'archive-detail-page' : ''}`}>
       <Header {...props} />
       <main id="main-content" className="inner-page__main section-shell" tabIndex={-1}>
-        <span className="kicker">{copy.archive.kicker}</span>
-        <h1>{copy.archive.title} <em>{copy.archive.titleEm}</em></h1>
-        <p className="inner-page__lede">{copy.archive.lede(catalogSummary.mythScenes)}</p>
+        {!selectedId && (
+          <>
+            <span className="kicker">{copy.archive.kicker}</span>
+            <h1>{copy.archive.title} <em>{copy.archive.titleEm}</em></h1>
+            <p className="inner-page__lede">{copy.archive.lede(catalogSummary.mythScenes)}</p>
+          </>
+        )}
         <Suspense fallback={<RouteContentPlaceholder locale={locale} section="archive" />}>
-          <ArchiveContent locale={locale} onStartGame={props.onStartGame} />
+          <ArchiveContent
+            locale={locale}
+            selectedId={selectedId}
+            onSelectScene={onSelectScene}
+            onStartGame={props.onStartGame}
+          />
         </Suspense>
       </main>
       <Footer {...props} />
@@ -580,7 +594,13 @@ export default function App() {
   } else if (route.view === 'atlas') {
     content = <AtlasPage {...navigationProps} />
   } else if (route.view === 'archive') {
-    content = <ArchivePage {...navigationProps} />
+    content = (
+      <ArchivePage
+        {...navigationProps}
+        selectedId={route.sceneId}
+        onSelectScene={(sceneId) => navigate({ view: 'archive', sceneId })}
+      />
+    )
   } else if (route.view === 'figures') {
     content = (
       <FiguresPage

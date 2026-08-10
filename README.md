@@ -4,14 +4,15 @@ An immersive web game that turns Greek mythology from a list to memorise into a 
 
 ## Prototype 0.9
 
-- Forty-four playable myths, including eight new Anatolian stories spanning Hypaipa, Halicarnassus, the Hellespont, Themiscyra, Letoon, Teuthrania, Pessinus, and the Bosporus
+- Forty-nine playable myths, including a six-scene route through Heracles’ ninth labour from Mycenae to Themiskyra and Troy
 - Browser-language detection for the English/Turkish interface, with a persistent manual override and English fallback
 - Complete English/Turkish titles, progressive clues, archive/result copy, source context, and geographic metadata for every playable story
 - Clickable Heroes and Creatures collections with square scene portraits, expanded bilingual profiles, story appearances, and further-reading links
-- Six-round general journeys drawn at random from the full archive
+- Five-round general journeys drawn at random from the full archive
 - A thirteen-encounter Odysseus’s Route mode that draws only from the Odyssey cycle
 - A six-encounter Trojan chronicle spanning two war preludes and four episodes from Homer’s Iliad
-- Forty-four monoscopic 360° scenes rendered from inside a WebGL sphere
+- A six-encounter Girdle of Hippolyta expedition following Pseudo-Apollodorus, with route-only answer choices
+- Forty-nine monoscopic 360° scenes rendered from inside a WebGL sphere
 - Device-aware 2K/4K sphere delivery plus lightweight previews and a bounded flat fallback when WebGL or the texture request fails
 - Route-level code splitting keeps the initial JavaScript under a 300 KiB budget; archive copy, figure profiles, map code, and the 360° viewer load only when needed
 - Full-stage desktop panoramas with separate translucent answer and map cards
@@ -40,7 +41,7 @@ An immersive web game that turns Greek mythology from a list to memorise into a 
 | Complete without clues | 1,000 |
 | **Round total** | **10,000** |
 
-The five-scene general journey is worth 50,000 Oracle Points, the Trojan chronicle is worth 60,000, and Odysseus’s thirteen-scene route is worth 130,000. Geographic proximity uses Haversine distance, so guesses are scored in real kilometres rather than arbitrary screen coordinates. Exact pins are not required: every myth defines a deliberately tight full-credit radius, after which points decay smoothly with distance.
+The five-scene general journey is worth 50,000 Oracle Points; the Trojan chronicle and Hippolyta expedition are worth 60,000 each; and Odysseus’s thirteen-scene route is worth 130,000. Geographic proximity uses Haversine distance, so guesses are scored in real kilometres rather than arbitrary screen coordinates. Exact pins are not required: every myth defines a deliberately tight full-credit radius, after which points decay smoothly with distance.
 
 ## Local development
 
@@ -70,7 +71,7 @@ Map data credits are always visible in the atlas. Natural Earth data is public d
 
 ## 360° scenes
 
-The forty-four source textures in `public/assets/` are 4096×2048 WebP files. They cover 360° horizontally and 180° vertically, keep the horizon near the middle, and are mapped to the inside of a Three.js sphere with the camera at its centre. Phones, coarse-pointer tablets, data-saving connections, and devices reporting 4 GB or less memory receive generated 2048×1024 textures from `public/assets/mobile/`; capable desktop devices retain the 4K source. Every scene also has a 1024×512 preview in `public/assets/previews/`, so it appears immediately while the projected texture loads. If the mobile derivative is unavailable the viewer retries the 4K source, and if WebGL or both texture requests fail the preview remains usable instead of blocking the round.
+The forty-nine source textures in `public/assets/` are 4096×2048 WebP files. They cover 360° horizontally and 180° vertically, keep the horizon near the middle, and are mapped to the inside of a Three.js sphere with the camera at its centre. Phones, coarse-pointer tablets, data-saving connections, and devices reporting 4 GB or less memory receive generated 2048×1024 textures from `public/assets/mobile/`; capable desktop devices retain the 4K source. Every scene also has a 1024×512 preview in `public/assets/previews/`, so it appears immediately while the projected texture loads. If the mobile derivative is unavailable the viewer retries the 4K source, and if WebGL or both texture requests fail the preview remains usable instead of blocking the round.
 
 The source generations are 1774×887 PNGs. The 4K delivery files use high-quality resampling and lighter compression to reduce browser artefacts; that improves presentation but does not invent the same detail as a future native-4K or dedicated super-resolution source pass. Mobile textures and previews are reproducible, gitignored build outputs generated automatically before development and production builds; CI regenerates them before validation and deployment. `npm run check:assets` enforces source/mobile/preview dimensions, sRGB WebP delivery, per-file and collection budgets, one-to-one scene/prompt coverage, derivative freshness, and a left/right seam threshold. Projection views at yaw 0°/90°/180°/270° plus zenith and nadir remain a deliberate human review because a numeric seam score cannot prove spherical composition.
 

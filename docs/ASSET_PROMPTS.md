@@ -172,9 +172,29 @@ Every game-scene prompt begins with this contract:
 
 > A storm-dark night at the Hellespont Narrows between Sestos and Abydos. The viewer stands on the rocky terrace of Hero’s small sanctuary tower. Hero shields a bright oil lamp in one direction; Leander is a small swimmer in the moonlit current in another; Abydos glows on the opposite shore while rain threatens the beacon. Tragic foreboding without depicting drowning or injury.
 
+## `scene-admete-request.webp`
+
+> A Late Bronze Age Mycenaean palace forecourt at dawn. Eurystheus gives the royal command in one direction; Admete indicates a small ceremonial belt design; fully clothed, travel-worn Heracles listens at middle distance. Volunteer companions, bronze gear, storage jars, Cyclopean masonry, a departing road, and one ship being prepared beyond the gate occupy other directions. The actual girdle is not present. No Roman architecture, text, or superhero pose.
+
+## `scene-paros-crisis.webp`
+
+> A rocky Cycladic harbour on Paros after two of Heracles’ companions have been killed, shown without bodies or wounds. Two empty cloaks and shields mark the loss; island envoys negotiate with Heracles; Alcaeus and Sthenelus step forward as replacement voyagers. One archaic ship, pale marble outcrops, low stone houses, fishing gear, and the compact siege camp continue around the sphere.
+
+## `scene-heracles-mygdon.webp`
+
+> A forested northern Anatolian valley after Heracles helps King Lycus defeat the Bebryces. Heracles and Lycus survey the newly secured land; subdued warriors lower their shields beside Mygdon’s abandoned standard and a broken chariot wheel. Survey ropes, boundary stones, the first Heraclea settlement, wooded hills, horses, campfires, and the distant expedition ship distribute the aftermath around the panorama. No active combat or bodies.
+
 ## `scene-hippolyta-girdle.webp`
 
 > Dawn at the harbour and river plain of Themiscyra beside the Thermodon, composed as one continuous navigable shore rather than a hero tableau. Queen Hippolyta and the Amazons occupy one direction, Hippolyta openly holding Ares’ ornate war belt; a fully clothed, travel-worn Heracles approaches peacefully at middle distance from a newly arrived archaic ship; tents, horses, river reeds, Black Sea water, foothills, and camp objects continue through the other directions. Historically grounded Anatolian riding dress and restrained Bronze Age-inspired equipment. Heracles must not be bare-chested, oversized, or posed as a superhero. No active battle, Roman armour, modern fantasy costume, or comic-book styling.
+
+## `scene-hera-amazons.webp`
+
+> The same Themiskyra camp under a darkening, windblown morning sky. Hera, disguised as an ordinary Amazon and marked only by a subtle peacock-eye motif, spreads a false rumour in one direction. Amazons mount and arm elsewhere; Hippolyta still holds the belt in confusion; Heracles waits by the ship and misreads the sudden movement. Capture the fatal misunderstanding immediately before violence, with no battle, wounds, magical glow, or sexualised armour.
+
+## `scene-hesione-rescue.webp`
+
+> The stormy coast beneath Late Bronze Age Troy. Fully clothed Hesione waits with dignity on a sea-washed rock; a plausible sea creature rises partly from the surf; Heracles approaches at respectful middle distance to begin the rescue. King Laomedon stands by the promised mares in another direction while the expedition ship, Trojan witnesses, anchors, shrines, and Troy’s walls occupy the rest of the sphere. No Classical temple, graphic attack, or eroticised captivity.
 
 ## `scene-leto-lycians.webp`
 

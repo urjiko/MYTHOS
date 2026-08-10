@@ -8,9 +8,9 @@ describe('generated ancient map land coverage', () => {
       'utf8',
     ))
 
-    expect(land.properties.bounds[0]).toBeLessThanOrEqual(-30)
-    expect(land.properties.bounds[1]).toBeLessThanOrEqual(0)
-    expect(land.properties.bounds[2]).toBeGreaterThanOrEqual(70)
-    expect(land.properties.bounds[3]).toBeGreaterThanOrEqual(70)
+    expect(land.properties.bounds[0]).toBeLessThanOrEqual(-80)
+    expect(land.properties.bounds[1]).toBeLessThanOrEqual(-60)
+    expect(land.properties.bounds[2]).toBeGreaterThanOrEqual(150)
+    expect(land.properties.bounds[3]).toBeGreaterThanOrEqual(85)
   })
 })
