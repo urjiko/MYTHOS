@@ -34,7 +34,16 @@ type View = {
   fov: number
 }
 
+type TouchPoint = {
+  x: number
+  y: number
+}
+
+const DEFAULT_FOV = 80
+const MIN_FOV = 42
+const MAX_FOV = 100
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
+const distanceBetween = (first: TouchPoint, second: TouchPoint) => Math.hypot(second.x - first.x, second.y - first.y)
 
 type DeliveryNavigator = Navigator & {
   deviceMemory?: number
@@ -68,12 +77,14 @@ export function SphereViewer({
   const copy = ui[locale]
   const canvasHost = useRef<HTMLDivElement>(null)
   const renderFrame = useRef<(() => void) | null>(null)
-  const view = useRef<View>({ yaw: 0, pitch: 0, fov: 72 })
+  const view = useRef<View>({ yaw: 0, pitch: 0, fov: DEFAULT_FOV })
   const drag = useRef<{ pointerId: number; x: number; y: number; yaw: number; pitch: number } | null>(null)
+  const touchPointers = useRef(new Map<number, TouchPoint>())
+  const pinch = useRef<{ distance: number; fov: number } | null>(null)
   const onReadyChangeRef = useRef(onReadyChange)
   const [status, setStatus] = useState<ViewerStatus>('loading')
   const [heading, setHeading] = useState(0)
-  const [fov, setFov] = useState(72)
+  const [fov, setFov] = useState(DEFAULT_FOV)
   const [previewFailedFor, setPreviewFailedFor] = useState<string | null>(null)
   const [panoramaQuality, setPanoramaQuality] = useState<PanoramaQuality>(readPanoramaQuality)
 
@@ -89,7 +100,7 @@ export function SphereViewer({
     const current = view.current
     current.yaw = next.yaw ?? current.yaw
     current.pitch = clamp(next.pitch ?? current.pitch, -85, 85)
-    current.fov = clamp(next.fov ?? current.fov, 42, 92)
+    current.fov = clamp(next.fov ?? current.fov, MIN_FOV, MAX_FOV)
 
     const normalisedHeading = ((current.yaw % 360) + 360) % 360
     setHeading(Math.round(normalisedHeading))
@@ -98,7 +109,7 @@ export function SphereViewer({
   }, [])
 
   const resetView = useCallback(() => {
-    updateView({ yaw: 0, pitch: 0, fov: 72 })
+    updateView({ yaw: 0, pitch: 0, fov: DEFAULT_FOV })
   }, [updateView])
 
   useEffect(() => {
@@ -124,9 +135,12 @@ export function SphereViewer({
     let disposed = false
     let loadDeadline = 0
 
-    view.current = { yaw: 0, pitch: 0, fov: 72 }
+    view.current = { yaw: 0, pitch: 0, fov: DEFAULT_FOV }
+    drag.current = null
+    touchPointers.current.clear()
+    pinch.current = null
     setHeading(0)
-    setFov(72)
+    setFov(DEFAULT_FOV)
     setStatus('loading')
     onReadyChangeRef.current?.(false)
 
@@ -155,7 +169,7 @@ export function SphereViewer({
     }, PANORAMA_LOAD_TIMEOUT_MS)
 
     const world = new Scene()
-    const camera = new PerspectiveCamera(72, 1, 0.01, 30)
+    const camera = new PerspectiveCamera(DEFAULT_FOV, 1, 0.01, 30)
     const cameraTarget = new Vector3()
     camera.position.set(0, 0, 0)
 
@@ -270,6 +284,19 @@ export function SphereViewer({
       tabIndex={0}
       onPointerDown={(event) => {
         if ((event.target as HTMLElement).closest('button')) return
+
+        if (event.pointerType === 'touch') {
+          touchPointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY })
+          event.currentTarget.setPointerCapture(event.pointerId)
+
+          if (touchPointers.current.size >= 2) {
+            const [first, second] = Array.from(touchPointers.current.values())
+            pinch.current = { distance: distanceBetween(first, second), fov: view.current.fov }
+            drag.current = null
+            return
+          }
+        }
+
         drag.current = {
           pointerId: event.pointerId,
           x: event.clientX,
@@ -277,9 +304,27 @@ export function SphereViewer({
           yaw: view.current.yaw,
           pitch: view.current.pitch,
         }
-        event.currentTarget.setPointerCapture(event.pointerId)
+        if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+          event.currentTarget.setPointerCapture(event.pointerId)
+        }
       }}
       onPointerMove={(event) => {
+        if (event.pointerType === 'touch' && touchPointers.current.has(event.pointerId)) {
+          touchPointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY })
+
+          if (touchPointers.current.size >= 2) {
+            const [first, second] = Array.from(touchPointers.current.values())
+            const currentDistance = distanceBetween(first, second)
+            if (!pinch.current) {
+              pinch.current = { distance: currentDistance, fov: view.current.fov }
+            }
+            if (currentDistance > 0 && pinch.current.distance > 0) {
+              updateView({ fov: pinch.current.fov * (pinch.current.distance / currentDistance) })
+            }
+            return
+          }
+        }
+
         if (!drag.current || drag.current.pointerId !== event.pointerId) return
         updateView({
           yaw: drag.current.yaw + (event.clientX - drag.current.x) * 0.12,
@@ -287,13 +332,35 @@ export function SphereViewer({
         })
       }}
       onPointerUp={(event) => {
-        if (drag.current?.pointerId !== event.pointerId) return
-        drag.current = null
+        if (event.pointerType === 'touch') {
+          touchPointers.current.delete(event.pointerId)
+          pinch.current = null
+          const remaining = touchPointers.current.entries().next().value as [number, TouchPoint] | undefined
+          drag.current = remaining
+            ? {
+                pointerId: remaining[0],
+                x: remaining[1].x,
+                y: remaining[1].y,
+                yaw: view.current.yaw,
+                pitch: view.current.pitch,
+              }
+            : null
+        } else if (drag.current?.pointerId === event.pointerId) {
+          drag.current = null
+        }
+
         if (event.currentTarget.hasPointerCapture(event.pointerId)) {
           event.currentTarget.releasePointerCapture(event.pointerId)
         }
       }}
-      onPointerCancel={() => { drag.current = null }}
+      onPointerCancel={(event) => {
+        touchPointers.current.delete(event.pointerId)
+        pinch.current = null
+        if (drag.current?.pointerId === event.pointerId) drag.current = null
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+          event.currentTarget.releasePointerCapture(event.pointerId)
+        }
+      }}
       onWheel={(event) => {
         event.preventDefault()
         updateView({ fov: view.current.fov + event.deltaY * 0.025 })
