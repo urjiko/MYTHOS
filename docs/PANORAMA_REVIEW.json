@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "reviewedAt": "2026-08-09",
+  "assets": {
+    "scene-attis-great-mother.webp": {
+      "sourceSha256": "d73cd4857fdad0b348fc68be6e544977125bc644881c7583d36b1dbef39c11a9",
+      "seamMae": 16.01,
+      "decision": "replace-later"
+    },
+    "scene-leto-lycians.webp": {
+      "sourceSha256": "e9484a5df0c8d5f6d5b24f97398359dfa86eb20a70f5ccdd7ebb555d63c9e904",
+      "seamMae": 18.13,
+      "decision": "replace-later"
+    },
+    "scene-niobe-sipylus.webp": {
+      "sourceSha256": "6a73231bbd036f603a49379000e6bd54ef4505116328c227d0846dc37e04428f",
+      "seamMae": 17.4,
+      "decision": "keep"
+    },
+    "scene-phaeacians.webp": {
+      "sourceSha256": "73956d8a7ecf4a19f4ba6491bb3cb6bc36ce0f11908d909ff9cd857503e02fa4",
+      "seamMae": 14.24,
+      "decision": "replace-later"
+    },
+    "scene-salmacis-hermaphroditus.webp": {
+      "sourceSha256": "c56d7b2c6fb99c59a82f6fc5fdff2fc3c8300de161428820813d0878f1e73084",
+      "seamMae": 16.17,
+      "decision": "keep"
+    }
+  }
+}

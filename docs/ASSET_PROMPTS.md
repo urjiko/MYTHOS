@@ -174,7 +174,7 @@ Every game-scene prompt begins with this contract:
 
 ## `scene-hippolyta-girdle.webp`
 
-> Dawn at the harbour and river plain of Themiscyra beside the Thermodon. Queen Hippolyta openly holds Ares’ ornate war belt as Heracles approaches peacefully from a newly arrived ship. Elsewhere, disguised Hera spreads alarm among mounted Amazons, who begin to reach for bows before the misunderstanding turns violent. Historically grounded Anatolian riding dress, river reeds, Black Sea light, no active battle or comic-book styling.
+> Dawn at the harbour and river plain of Themiscyra beside the Thermodon, composed as one continuous navigable shore rather than a hero tableau. Queen Hippolyta and the Amazons occupy one direction, Hippolyta openly holding Ares’ ornate war belt; a fully clothed, travel-worn Heracles approaches peacefully at middle distance from a newly arrived archaic ship; tents, horses, river reeds, Black Sea water, foothills, and camp objects continue through the other directions. Historically grounded Anatolian riding dress and restrained Bronze Age-inspired equipment. Heracles must not be bare-chested, oversized, or posed as a superhero. No active battle, Roman armour, modern fantasy costume, or comic-book styling.
 
 ## `scene-leto-lycians.webp`
 
@@ -182,7 +182,7 @@ Every game-scene prompt begins with this contract:
 
 ## `scene-telephus-achilles.webp`
 
-> The Mysian coast and plain of Teuthrania during the Achaeans’ mistaken landing before Troy. Greek ships crowd the wrong shore; Telephus defends his kingdom while a vine catches around him and Achilles holds the Pelian spear at a distance. The later cure is suggested through a bronze basin and filings from the same spear. The panorama stops before any wound and contains no active violence.
+> The Mysian coast and plain of Teuthrania during the Achaeans’ mistaken landing before Troy. Greek ships occupy the wrong shore; the wounded king Telephus is readable at middle distance where grapevines catch around him, while Achilles stands apart holding the Pelian spear. The clues, vineyard, coastal settlement, mountains, ships, and warriors remain distributed around the sphere. All armed figures use plausible Late Bronze Age Mycenaean material culture: layered woven or linen protection, simple tunics and cloaks, restrained bronze elements, low undecorated bronze or subtle boar-tusk helmets without tall crests, and hide-covered round, tower, or figure-eight shields. No muscle cuirasses, pteruges, Corinthian helmets, Roman formations, imperial shields, active violence, or graphic injury.
 
 ## `scene-attis-great-mother.webp`
 

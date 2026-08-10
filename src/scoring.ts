@@ -1,4 +1,20 @@
 import type { Point } from './data'
+import { ROUND_DURATION_SECONDS } from './gameClock'
+
+export const SCORE_DIMENSIONS = ['recognition', 'geography', 'speed', 'oracle'] as const
+export type ScoreDimension = (typeof SCORE_DIMENSIONS)[number]
+
+export const SCORE_MAXIMUMS = {
+  recognition: 3_500,
+  geography: 4_000,
+  speed: 1_500,
+  oracle: 1_000,
+} as const satisfies Record<ScoreDimension, number>
+
+export const ROUND_MAX_SCORE = SCORE_DIMENSIONS.reduce(
+  (sum, dimension) => sum + SCORE_MAXIMUMS[dimension],
+  0,
+)
 
 export type ScoreBreakdown = {
   recognition: number
@@ -6,8 +22,8 @@ export type ScoreBreakdown = {
   speed: number
   oracle: number
   total: number
-  distance: number
-  scoredDistance: number
+  distance: number | null
+  scoredDistance: number | null
 }
 
 const clamp = (value: number, min: number, max: number) =>
@@ -39,25 +55,34 @@ export function scoreRound({
 }: {
   answer: string
   correctAnswer: string
-  guess: Point
+  guess?: Point | null
   target: Point
   fullCreditRadiusKm: number
   secondsLeft: number
   cluesUsed: number
 }): ScoreBreakdown {
-  const distance = haversineDistanceKm(guess, target)
-  const scoredDistance = Math.max(0, distance - Math.max(0, fullCreditRadiusKm))
-  const recognition = answer === correctAnswer ? 3500 : 0
-  const geography = scoredDistance === 0
-    ? 4000
-    : Math.round(4000 * Math.exp(-scoredDistance / GEOGRAPHY_DECAY_KM))
-  const speed = Math.round(1500 * clamp(secondsLeft / 75, 0, 1))
-  const oracle = cluesUsed === 0 ? 1000 : Math.max(0, 750 - (cluesUsed - 1) * 375)
+  const distance = guess ? haversineDistanceKm(guess, target) : null
+  const scoredDistance = distance === null
+    ? null
+    : Math.max(0, distance - Math.max(0, fullCreditRadiusKm))
+  const recognition = answer === correctAnswer ? SCORE_MAXIMUMS.recognition : 0
+  const geography = scoredDistance === null
+    ? 0
+    : scoredDistance === 0
+      ? SCORE_MAXIMUMS.geography
+      : Math.round(SCORE_MAXIMUMS.geography * Math.exp(-scoredDistance / GEOGRAPHY_DECAY_KM))
+  const speed = Math.round(SCORE_MAXIMUMS.speed * clamp(secondsLeft / ROUND_DURATION_SECONDS, 0, 1))
+  const hasCompleteResponse = Boolean(answer && guess)
+  const oracle = hasCompleteResponse
+    ? cluesUsed === 0
+      ? SCORE_MAXIMUMS.oracle
+      : Math.max(0, 750 - (cluesUsed - 1) * 375)
+    : 0
   const total = recognition + geography + speed + oracle
 
   return { recognition, geography, speed, oracle, total, distance, scoredDistance }
 }
 
-export function formatScore(value: number) {
-  return new Intl.NumberFormat('en-US').format(value)
+export function formatScore(value: number, locale: 'en' | 'tr' = 'en') {
+  return new Intl.NumberFormat(locale === 'tr' ? 'tr-TR' : 'en-US').format(value)
 }

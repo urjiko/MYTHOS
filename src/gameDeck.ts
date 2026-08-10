@@ -1,16 +1,7 @@
 import { mythScenes, type MythScene } from './data'
+import { DEFAULT_ROUND_COUNT, TROJAN_ROUTE_IDS, type GameMode } from './gameConfig'
 
-export type GameMode = 'all' | 'odyssey' | 'iliad'
-
-export const DEFAULT_ROUND_COUNT = 6
-export const TROJAN_ROUTE_IDS = [
-  'judgement-paris',
-  'iphigenia-aulis',
-  'hector-andromache',
-  'patroclus-falls',
-  'achilles-hector',
-  'priam-achilles',
-] as const
+export { DEFAULT_ROUND_COUNT, TROJAN_ROUTE_IDS, type GameMode } from './gameConfig'
 
 const trojanRouteIds = new Set<string>(TROJAN_ROUTE_IDS)
 

@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import { mythScenes } from './data'
-import { haversineDistanceKm, scoreRound } from './scoring'
+import { formatScore, haversineDistanceKm, scoreRound } from './scoring'
 
 const target = { lat: 35.2989, lng: 25.1603 }
 const fullCreditRadiusKm = 90
 
 describe('MYTHOS scoring', () => {
+  it('formats scores with the active locale', () => {
+    expect(formatScore(10_000, 'en')).toBe('10,000')
+    expect(formatScore(10_000, 'tr')).toBe('10.000')
+  })
+
   it('awards the full 10,000 points for a perfect unaided answer', () => {
     expect(scoreRound({
       answer: 'Theseus and the Minotaur',
@@ -31,6 +36,57 @@ describe('MYTHOS scoring', () => {
 
     expect(result.recognition).toBe(0)
     expect(result.total).toBe(6_500)
+  })
+
+  it('preserves myth credit when time expires without a map guess', () => {
+    const result = scoreRound({
+      answer: 'Theseus and the Minotaur',
+      correctAnswer: 'Theseus and the Minotaur',
+      guess: null,
+      target,
+      fullCreditRadiusKm,
+      secondsLeft: 0,
+      cluesUsed: 0,
+    })
+
+    expect(result.recognition).toBe(3_500)
+    expect(result.geography).toBe(0)
+    expect(result.speed).toBe(0)
+    expect(result.oracle).toBe(0)
+    expect(result.distance).toBeNull()
+    expect(result.total).toBe(3_500)
+  })
+
+  it('preserves geography credit when time expires without a myth answer', () => {
+    const result = scoreRound({
+      answer: '',
+      correctAnswer: 'Theseus and the Minotaur',
+      guess: target,
+      target,
+      fullCreditRadiusKm,
+      secondsLeft: 0,
+      cluesUsed: 0,
+    })
+
+    expect(result.recognition).toBe(0)
+    expect(result.geography).toBe(4_000)
+    expect(result.speed).toBe(0)
+    expect(result.oracle).toBe(0)
+    expect(result.total).toBe(4_000)
+  })
+
+  it('awards zero when a round expires without either choice', () => {
+    const result = scoreRound({
+      answer: '',
+      correctAnswer: 'Theseus and the Minotaur',
+      guess: null,
+      target,
+      fullCreditRadiusKm,
+      secondsLeft: 0,
+      cluesUsed: 0,
+    })
+
+    expect(result.total).toBe(0)
   })
 
   it('reduces geography points smoothly with distance', () => {

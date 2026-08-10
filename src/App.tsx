@@ -1,51 +1,116 @@
-import { useEffect, useState } from 'react'
-import { atlasPlaces, collections, mythScenes } from './data'
-import { figureProfiles, profilesForCategory, type FigureCategory } from './figures'
-import { DEFAULT_ROUND_COUNT, TROJAN_ROUTE_IDS, type GameMode } from './gameDeck'
-import { localiseMythTitle, localisedNumber, persistLocale, resolveLocale, ui, type Locale } from './i18n'
-import {
-  ArrowRight,
-  Compass,
-  Game,
-  IconForMode,
-  Logo,
-  Map,
-  Menu,
-  MythMap,
-  Ornament,
-  Sparkles,
-  X,
-} from './components'
+import { lazy, Suspense, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { ArrowRight, Compass, Map, Menu, Sparkles, X } from 'lucide-react'
+import type { MythMapProps } from './AncientMap'
+import { catalogSummary, collections } from './catalogSummary'
+import type { FigureCategory } from './figures'
+import { DEFAULT_ROUND_COUNT, TROJAN_ROUTE_IDS, type GameMode } from './gameConfig'
+import { gameSessionSummary, type GameSessionSummary } from './gameSessionSummary'
+import { localisedNumber, persistLocale, resolveLocale, ui, type Locale } from './i18n'
+import InstallPrompt from './InstallPrompt'
+import { appRouteTitle, appRouteToHash, parseAppRoute, type AppRoute } from './routing'
+import { readStoredNumber } from './storage'
+import { IconForMode, Logo, Ornament } from './ui'
 
-type View = 'home' | 'game' | 'atlas' | 'archive' | 'figures'
+const Game = lazy(() => import('./components'))
+const MythMap = lazy(() => import('./AncientMap').then((module) => ({ default: module.MythMap })))
+const ArchiveContent = lazy(() => import('./ArchiveContent'))
+const FiguresContent = lazy(() => import('./FiguresContent'))
+
+type NavigationView = 'home' | 'atlas' | 'archive'
 
 const maximumScore = DEFAULT_ROUND_COUNT * 10_000
-const odysseySceneCount = mythScenes.filter((scene) => scene.category === 'odyssey').length
+const odysseySceneCount = catalogSummary.odysseyScenes
 const trojanSceneCount = TROJAN_ROUTE_IDS.length
 
+function MapPlaceholder({ locale = 'en' }: { locale?: Locale }) {
+  return (
+    <div className="myth-map myth-map--placeholder" role="status">
+      <span>{locale === 'tr' ? 'Antik harita hazırlanıyor…' : 'Preparing the ancient map…'}</span>
+    </div>
+  )
+}
+
+function DeferredMythMap(props: MythMapProps) {
+  const placeholderRef = useRef<HTMLDivElement>(null)
+  const [shouldLoad, setShouldLoad] = useState(false)
+
+  useEffect(() => {
+    const placeholder = placeholderRef.current
+    if (!placeholder || shouldLoad) return
+
+    if (!('IntersectionObserver' in window)) {
+      setShouldLoad(true)
+      return
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return
+      setShouldLoad(true)
+      observer.disconnect()
+    }, { rootMargin: '400px' })
+
+    observer.observe(placeholder)
+    return () => observer.disconnect()
+  }, [shouldLoad])
+
+  if (!shouldLoad) {
+    return (
+      <div ref={placeholderRef} className="myth-map myth-map--placeholder" role="status">
+        <span>{props.locale === 'tr' ? 'Antik harita kaydırınca yüklenecek' : 'The ancient map will load as you scroll'}</span>
+      </div>
+    )
+  }
+
+  return (
+    <Suspense fallback={<MapPlaceholder locale={props.locale} />}>
+      <MythMap {...props} />
+    </Suspense>
+  )
+}
+
+function GamePlaceholder({ locale }: { locale: Locale }) {
+  return (
+    <main id="main-content" className="game-loading" role="status" tabIndex={-1}>
+      <Logo inverse />
+      <span>{locale === 'tr' ? 'Kehanet hazırlanıyor…' : 'Preparing the oracle…'}</span>
+    </main>
+  )
+}
+
+function RouteContentPlaceholder({ locale, section }: { locale: Locale; section: 'archive' | 'figures' }) {
+  const label = section === 'archive'
+    ? locale === 'tr' ? 'Mit arşivi hazırlanıyor…' : 'Preparing the myth archive…'
+    : locale === 'tr' ? 'Kişiler ve varlıklar hazırlanıyor…' : 'Preparing people and beings…'
+
+  return <div className="route-content-loading" role="status"><span>{label}</span></div>
+}
+
 const routeStops = [
-  { name: 'Troy', note: { en: 'The war ends', tr: 'Savaş sona erer' } },
-  { name: 'Ismaros', note: { en: 'The Cicones strike back', tr: 'Kikonlar karşı saldırıya geçer' } },
-  { name: 'Djerba', note: { en: 'The lotus temptation', tr: 'Lotus ayartısı' } },
-  { name: 'Cyclopes’ Coast', note: { en: 'Nobody and the giant', tr: 'Hiç Kimse ve dev' } },
-  { name: 'Lipari', note: { en: 'The bag of winds', tr: 'Rüzgâr torbası' } },
-  { name: 'Formiae', note: { en: 'The fleet is shattered', tr: 'Filo parçalanır' } },
-  { name: 'Aeaea', note: { en: 'Circe’s enchantment', tr: 'Kirke’nin büyüsü' } },
-  { name: 'Acheron', note: { en: 'Counsel from the dead', tr: 'Ölülerden öğüt' } },
-  { name: 'Siren Rocks', note: { en: 'The forbidden song', tr: 'Yasak şarkı' } },
-  { name: 'Messina Strait', note: { en: 'Two sea dangers', tr: 'İki deniz tehlikesi' } },
-  { name: 'Thrinacia', note: { en: 'The Sun’s sacred cattle', tr: 'Güneş’in kutsal sığırları' } },
-  { name: 'Ogygia', note: { en: 'Calypso’s distant island', tr: 'Kalypso’nun uzak adası' } },
-  { name: 'Scheria', note: { en: 'The Phaeacians’ welcome', tr: 'Phaiakların karşılaması' } },
-  { name: 'Ithaca', note: { en: 'The homecoming', tr: 'Eve dönüş' } },
+  { name: { en: 'Troy', tr: 'Troya' }, note: { en: 'The war ends', tr: 'Savaş sona erer' } },
+  { name: { en: 'Ismaros', tr: 'Ismaros' }, note: { en: 'The Cicones strike back', tr: 'Kikonlar karşı saldırıya geçer' } },
+  { name: { en: 'Djerba', tr: 'Cerbe' }, note: { en: 'The lotus temptation', tr: 'Lotus ayartısı' } },
+  { name: { en: 'Cyclopes’ Coast', tr: 'Kykloplar Kıyısı' }, note: { en: 'Nobody and the giant', tr: 'Hiç Kimse ve dev' } },
+  { name: { en: 'Lipari', tr: 'Lipari' }, note: { en: 'The bag of winds', tr: 'Rüzgâr torbası' } },
+  { name: { en: 'Formiae', tr: 'Formiae' }, note: { en: 'The fleet is shattered', tr: 'Filo parçalanır' } },
+  { name: { en: 'Aeaea', tr: 'Aiaia' }, note: { en: 'Circe’s enchantment', tr: 'Kirke’nin büyüsü' } },
+  { name: { en: 'Acheron', tr: 'Akheron' }, note: { en: 'Counsel from the dead', tr: 'Ölülerden öğüt' } },
+  { name: { en: 'Siren Rocks', tr: 'Siren Kayalıkları' }, note: { en: 'The forbidden song', tr: 'Yasak şarkı' } },
+  { name: { en: 'Messina Strait', tr: 'Messina Boğazı' }, note: { en: 'Two sea dangers', tr: 'İki deniz tehlikesi' } },
+  { name: { en: 'Thrinacia', tr: 'Thrinakia' }, note: { en: 'The Sun’s sacred cattle', tr: 'Güneş’in kutsal sığırları' } },
+  { name: { en: 'Ogygia', tr: 'Ogygia' }, note: { en: 'Calypso’s distant island', tr: 'Kalypso’nun uzak adası' } },
+  { name: { en: 'Scheria', tr: 'Skheria' }, note: { en: 'The Phaeacians’ welcome', tr: 'Phaiakların karşılaması' } },
+  { name: { en: 'Ithaca', tr: 'İthaka' }, note: { en: 'The homecoming', tr: 'Eve dönüş' } },
 ]
 
-function FateDisk() {
+function FateDisk({ locale }: { locale: Locale }) {
+  const labels = locale === 'tr'
+    ? { olympus: 'Olympos', delphi: 'Delphoi', troy: 'Troya', crete: 'Girit' }
+    : { olympus: 'Olympus', delphi: 'Delphi', troy: 'Troy', crete: 'Crete' }
   return (
     <div className="fate-disk" aria-hidden="true">
       <div className="fate-disk__aura" />
       <div className="fate-disk__orbit fate-disk__orbit--outer">
-        <span>OLYMPUS</span><span>DELPHI</span><span>TROIA</span><span>KNOSSOS</span>
+        <span>{labels.olympus.toUpperCase()}</span><span>{labels.delphi.toUpperCase()}</span><span>TROIA</span><span>KNOSSOS</span>
       </div>
       <div className="fate-disk__orbit fate-disk__orbit--middle" />
       <div className="fate-disk__face">
@@ -56,9 +121,9 @@ function FateDisk() {
         <span className="fate-disk__symbol fate-disk__symbol--four">☾</span>
         <div className="fate-disk__eye"><i /></div>
       </div>
-      <span className="fate-pin fate-pin--one"><i />Olympus</span>
-      <span className="fate-pin fate-pin--two"><i />Troy</span>
-      <span className="fate-pin fate-pin--three"><i />Crete</span>
+      <span className="fate-pin fate-pin--one"><i />{labels.olympus}</span>
+      <span className="fate-pin fate-pin--two"><i />{labels.troy}</span>
+      <span className="fate-pin fate-pin--three"><i />{labels.crete}</span>
     </div>
   )
 }
@@ -66,7 +131,8 @@ function FateDisk() {
 type NavigationProps = {
   locale: Locale
   onLocaleChange: (locale: Locale) => void
-  onNavigate: (view: View) => void
+  onNavigate: (view: NavigationView) => void
+  onShowAbout: () => void
   onStartGame: (mode: GameMode) => void
   onOpenFigures: (category: FigureCategory) => void
 }
@@ -86,20 +152,89 @@ function LanguageSwitch({ locale, onLocaleChange, compact = false }: {
   )
 }
 
-function Header({ locale, onLocaleChange, onNavigate, onStartGame }: NavigationProps) {
+function Header({ locale, onLocaleChange, onNavigate, onShowAbout, onStartGame }: NavigationProps) {
   const [open, setOpen] = useState(false)
   const copy = ui[locale]
+  const menuId = useId()
+  const navRef = useRef<HTMLElement>(null)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+
+    const mobileViewport = window.matchMedia('(max-width: 760px)')
+    if (!mobileViewport.matches) return
+
+    const previousOverflow = document.body.style.overflow
+    const background = Array.from(document.querySelectorAll<HTMLElement>('main, footer, .site-header > .logo-button'))
+    document.body.style.overflow = 'hidden'
+    background.forEach((element) => element.setAttribute('inert', ''))
+
+    const frame = window.requestAnimationFrame(() => {
+      navRef.current?.querySelector<HTMLElement>('button, a[href]')?.focus()
+    })
+    const closeOnDesktop = (event: MediaQueryListEvent) => {
+      if (!event.matches) setOpen(false)
+    }
+    const closeOnEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      setOpen(false)
+      window.requestAnimationFrame(() => menuButtonRef.current?.focus())
+    }
+
+    mobileViewport.addEventListener('change', closeOnDesktop)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      mobileViewport.removeEventListener('change', closeOnDesktop)
+      document.removeEventListener('keydown', closeOnEscape)
+      document.body.style.overflow = previousOverflow
+      background.forEach((element) => element.removeAttribute('inert'))
+    }
+  }, [open])
+
+  function trapMenuFocus(event: KeyboardEvent<HTMLElement>) {
+    if (!open || event.key !== 'Tab') return
+    const nav = navRef.current
+    const menuButton = menuButtonRef.current
+    if (!nav || !menuButton) return
+
+    const items = [
+      ...nav.querySelectorAll<HTMLElement>('button:not(:disabled), a[href]'),
+      menuButton,
+    ]
+    const first = items[0]
+    const last = items.at(-1)
+    if (!first || !last) return
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault()
+      last.focus()
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault()
+      first.focus()
+    }
+  }
+
   return (
-    <header className="site-header">
-      <button className="logo-button" onClick={() => onNavigate('home')}><Logo /></button>
-      <nav className={open ? 'is-open' : ''} aria-label="Primary navigation">
+    <header className="site-header" onKeyDown={trapMenuFocus}>
+      <button className="logo-button" aria-label={copy.nav.home} onClick={() => onNavigate('home')}><Logo /></button>
+      <nav ref={navRef} id={menuId} className={open ? 'is-open' : ''} aria-label={copy.nav.primary}>
         <button onClick={() => { onNavigate('archive'); setOpen(false) }}>{copy.nav.archive}</button>
         <button onClick={() => { onNavigate('atlas'); setOpen(false) }}>{copy.nav.atlas}</button>
-        <a href="#manifesto" onClick={() => setOpen(false)}>{copy.nav.about}</a>
+        <a href="#/about" onClick={(event) => { event.preventDefault(); onShowAbout(); setOpen(false) }}>{copy.nav.about}</a>
         <LanguageSwitch locale={locale} onLocaleChange={onLocaleChange} />
         <button className="nav-play" onClick={() => { onStartGame('all'); setOpen(false) }}><Sparkles size={15} /> {copy.nav.begin}</button>
       </nav>
-      <button className="mobile-menu" onClick={() => setOpen(!open)} aria-label={copy.nav.menu}>
+      <button
+        ref={menuButtonRef}
+        className="mobile-menu"
+        onClick={() => setOpen(!open)}
+        aria-controls={menuId}
+        aria-expanded={open}
+        aria-label={open ? copy.nav.closeMenu : copy.nav.openMenu}
+      >
         {open ? <X /> : <Menu />}
       </button>
     </header>
@@ -109,8 +244,21 @@ function Header({ locale, onLocaleChange, onNavigate, onStartGame }: NavigationP
 function Home(props: NavigationProps) {
   const { locale, onNavigate, onStartGame, onOpenFigures } = props
   const copy = ui[locale]
-  const [best, setBest] = useState(0)
-  useEffect(() => setBest(Number(localStorage.getItem('mythos-best-score') || 0)), [])
+  const [best] = useState(() => readStoredNumber('mythos-best-score'))
+  const [savedModes] = useState<Partial<Record<GameMode, GameSessionSummary>>>(() => {
+    const summaries: Partial<Record<GameMode, GameSessionSummary>> = {}
+    for (const mode of ['all', 'odyssey', 'iliad'] as const) {
+      const summary = gameSessionSummary(mode)
+      if (summary) summaries[mode] = summary
+    }
+    return summaries
+  })
+
+  const modeNote = (mode: GameMode, fallback: string) => {
+    const saved = savedModes[mode]
+    if (!saved) return fallback
+    return saved.finished ? copy.modes.resultsSaved : copy.modes.resumeNote(saved.round, saved.total)
+  }
 
   const modes: Array<{
     type: string
@@ -118,11 +266,11 @@ function Home(props: NavigationProps) {
     note: string
     badge?: string
     gameMode?: GameMode
-    destination?: View
+    destination?: NavigationView
   }> = [
-    { type: 'journey', title: copy.modes.classicTitle, note: copy.modes.classicNote, badge: copy.modes.random, gameMode: 'all' },
-    { type: 'odyssey', title: copy.modes.odysseyTitle, note: copy.modes.odysseyNote(odysseySceneCount), badge: copy.modes.new, gameMode: 'odyssey' },
-    { type: 'duel', title: copy.modes.iliadTitle, note: copy.modes.iliadNote(trojanSceneCount), badge: copy.modes.new, gameMode: 'iliad' },
+    { type: 'journey', title: copy.modes.classicTitle, note: modeNote('all', copy.modes.classicNote), badge: savedModes.all ? copy.modes.continue : copy.modes.random, gameMode: 'all' },
+    { type: 'odyssey', title: copy.modes.odysseyTitle, note: modeNote('odyssey', copy.modes.odysseyNote(odysseySceneCount)), badge: savedModes.odyssey ? copy.modes.continue : copy.modes.new, gameMode: 'odyssey' },
+    { type: 'duel', title: copy.modes.iliadTitle, note: modeNote('iliad', copy.modes.iliadNote(trojanSceneCount)), badge: savedModes.iliad ? copy.modes.continue : copy.modes.new, gameMode: 'iliad' },
     { type: 'archive', title: copy.modes.archiveTitle, note: copy.modes.archiveNote, destination: 'archive' },
   ]
 
@@ -136,7 +284,8 @@ function Home(props: NavigationProps) {
   return (
     <>
       <Header {...props} />
-      <main>
+      <InstallPrompt locale={locale} />
+      <main id="main-content" tabIndex={-1}>
         <section className="hero">
           <div className="hero__noise" />
           <div className="hero__copy">
@@ -157,7 +306,7 @@ function Home(props: NavigationProps) {
               <span><strong>{best ? localisedNumber(best, locale) : '—'}</strong> {copy.home.best}</span>
             </div>
           </div>
-          <div className="hero__visual"><FateDisk /></div>
+          <div className="hero__visual"><FateDisk locale={locale} /></div>
           <div className="hero__scroll"><span /> {copy.home.descend}</div>
         </section>
 
@@ -206,7 +355,7 @@ function Home(props: NavigationProps) {
                     style={{ '--accent': collection.color } as React.CSSProperties}
                     onClick={() => figureCategory ? onOpenFigures(figureCategory) : onNavigate('archive')}
                   >
-                    <img src={collection.art} alt="" onError={(event) => { event.currentTarget.style.display = 'none' }} />
+                    <img src={collection.art} alt="" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.style.display = 'none' }} />
                     <span className="collection-card__veil" />
                     <span>{collection.count} {copy.home.stories}</span>
                     <div>
@@ -228,20 +377,20 @@ function Home(props: NavigationProps) {
             <h2>{copy.home.legends}<br /><em>{copy.home.void}</em></h2>
             <p>{copy.home.geographyText}</p>
             <div className="atlas-preview__stats">
-              <span><strong>{atlasPlaces.length}</strong><small>{copy.home.mappedPlaces}</small></span>
-              <span><strong>{mythScenes.length}</strong><small>{copy.home.playableMyths}</small></span>
+              <span><strong>{catalogSummary.atlasPlaces}</strong><small>{copy.home.mappedPlaces}</small></span>
+              <span><strong>{catalogSummary.mythScenes}</strong><small>{copy.home.playableMyths}</small></span>
               <span><strong>01</strong><small>{copy.home.livingAtlas}</small></span>
             </div>
             <button className="button button--ink" onClick={() => onNavigate('atlas')}>{copy.home.exploreAtlas} <Compass size={17} /></button>
           </div>
           <div className="atlas-preview__map">
             <div className="browser-bar"><i /><i /><i /><span>MYTHOS / ATLAS</span></div>
-            <MythMap showRoute locale={locale} />
+            <DeferredMythMap showRoute locale={locale} />
             <span className="atlas-preview__legend">{copy.home.mapLegend}</span>
           </div>
         </section>
 
-        <section className="manifesto" id="manifesto">
+        <section className="manifesto" id="manifesto" tabIndex={-1}>
           <Ornament />
           <span className="manifesto__symbol">Ω</span>
           <blockquote>{copy.home.quote}</blockquote>
@@ -260,19 +409,21 @@ function AtlasPage(props: NavigationProps) {
   return (
     <div className="inner-page">
       <Header {...props} />
-      <main className="inner-page__main section-shell">
+      <main id="main-content" className="inner-page__main section-shell" tabIndex={-1}>
         <span className="kicker">{copy.atlas.kicker}</span>
         <h1>{copy.atlas.title} <em>{copy.atlas.titleEm}</em></h1>
         <p className="inner-page__lede">{copy.atlas.lede}</p>
         <div className="atlas-page__layout">
-          <MythMap showRoute locale={locale} />
+          <Suspense fallback={<MapPlaceholder locale={locale} />}>
+            <MythMap showRoute locale={locale} />
+          </Suspense>
           <aside>
             <span>{copy.atlas.selected}</span>
             <h2>{copy.atlas.route}</h2>
             <p>{copy.atlas.routeText}</p>
             <ol>
               {routeStops.map((stop, index) => (
-                <li key={stop.name}><i>{String(index + 1).padStart(2, '0')}</i>{stop.name}<small>{stop.note[locale]}</small></li>
+                <li key={stop.name.en}><i>{String(index + 1).padStart(2, '0')}</i>{stop.name[locale]}<small>{stop.note[locale]}</small></li>
               ))}
             </ol>
             <button className="button button--terracotta" onClick={() => onStartGame('odyssey')}>{copy.atlas.play} <ArrowRight size={17} /></button>
@@ -285,164 +436,96 @@ function AtlasPage(props: NavigationProps) {
 }
 
 function ArchivePage(props: NavigationProps) {
-  const { locale, onStartGame, onOpenFigures } = props
+  const { locale } = props
   const copy = ui[locale]
-  const collectionCopy = {
-    Olympians: { title: copy.collections.olympians, note: copy.collections.olympiansNote },
-    Heroes: { title: copy.collections.heroes, note: copy.collections.heroesNote },
-    Creatures: { title: copy.collections.creatures, note: copy.collections.creaturesNote },
-    'Trojan Cycle': { title: copy.collections.trojan, note: copy.collections.trojanNote },
-  }
+
   return (
     <div className="inner-page">
       <Header {...props} />
-      <main className="inner-page__main section-shell">
+      <main id="main-content" className="inner-page__main section-shell" tabIndex={-1}>
         <span className="kicker">{copy.archive.kicker}</span>
         <h1>{copy.archive.title} <em>{copy.archive.titleEm}</em></h1>
-        <p className="inner-page__lede">{copy.archive.lede(mythScenes.length)}</p>
-        <div className="archive-page__filters">
-          <button className="is-active">{copy.archive.all}</button><button>{copy.archive.gods}</button><button onClick={() => onOpenFigures('heroes')}>{copy.archive.heroes}</button><button onClick={() => onOpenFigures('creatures')}>{copy.archive.creatures}</button><button>{copy.archive.troy}</button>
-        </div>
-        <div className="archive-page__grid">
-          {collections.map((collection, index) => {
-            const translated = collectionCopy[collection.title as keyof typeof collectionCopy]
-            const figureCategory = collection.title === 'Heroes'
-              ? 'heroes'
-              : collection.title === 'Creatures'
-                ? 'creatures'
-                : null
-            return (
-              <article key={collection.title} style={{ '--accent': collection.color } as React.CSSProperties}>
-                <div><img src={collection.art} alt="" onError={(event) => { event.currentTarget.style.display = 'none' }} /><span>0{index + 1}</span></div>
-                <small>{collection.count} {copy.archive.planned}</small>
-                <h2>{translated.title}</h2>
-                <p>{translated.note}</p>
-                <button onClick={() => figureCategory ? onOpenFigures(figureCategory) : onStartGame('all')}>
-                  {figureCategory ? copy.home.exploreFigures : copy.archive.play} <ArrowRight size={15} />
-                </button>
-              </article>
-            )
-          })}
-        </div>
+        <p className="inner-page__lede">{copy.archive.lede(catalogSummary.mythScenes)}</p>
+        <Suspense fallback={<RouteContentPlaceholder locale={locale} section="archive" />}>
+          <ArchiveContent locale={locale} onStartGame={props.onStartGame} />
+        </Suspense>
       </main>
       <Footer {...props} />
     </div>
   )
 }
 
-function FiguresPage({ category, onCategoryChange, ...props }: NavigationProps & {
+function FiguresPage({ category, selectedId, onCategoryChange, onSelectFigure, ...props }: NavigationProps & {
   category: FigureCategory
+  selectedId?: string
   onCategoryChange: (category: FigureCategory) => void
+  onSelectFigure: (figureId?: string) => void
 }) {
-  const { locale } = props
-  const copy = ui[locale]
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const profiles = profilesForCategory(category)
-  const selected = figureProfiles.find((profile) => profile.id === selectedId)
-
-  useEffect(() => setSelectedId(null), [category])
-
-  if (selected) {
-    const appearances = selected.appearanceIds
-      .map((id) => mythScenes.find((scene) => scene.id === id))
-      .filter((scene): scene is NonNullable<typeof scene> => Boolean(scene))
-    return (
-      <div className="inner-page figure-page">
-        <Header {...props} />
-        <main className="figure-detail section-shell">
-          <button className="figure-back" onClick={() => setSelectedId(null)}>← {copy.figures.back}</button>
-          <div className="figure-detail__hero">
-            <img src={selected.image} alt="" style={{ objectPosition: selected.objectPosition }} />
-            <div className="figure-detail__veil" />
-            <div>
-              <span className="kicker">{category === 'heroes' ? copy.figures.heroesTitle : copy.figures.creaturesTitle}</span>
-              <h1>{selected.name[locale]}</h1>
-              <p>{selected.epithet[locale]}</p>
-            </div>
-          </div>
-          <div className="figure-detail__body">
-            <div className="figure-detail__summary">
-              <p>{selected.summary[locale]}</p>
-              <a href={selected.externalUrl} target="_blank" rel="noreferrer">
-                {copy.figures.more} {selected.externalSite} <ArrowRight size={16} />
-              </a>
-            </div>
-            <aside>
-              <span>{copy.figures.facts}</span>
-              <ul>{selected.facts.map((fact) => <li key={fact.en}>{fact[locale]}</li>)}</ul>
-            </aside>
-          </div>
-          <section className="figure-appearances">
-            <span className="kicker">{copy.figures.appears}</span>
-            <div>
-              {appearances.length
-                ? appearances.map((scene) => (
-                  <article key={scene.id}>
-                    <img src={scene.image} alt="" />
-                    <span>{localiseMythTitle(scene.title, locale)}</span>
-                  </article>
-                ))
-                : <p>{copy.figures.unavailable}</p>}
-            </div>
-          </section>
-        </main>
-        <Footer {...props} />
-      </div>
-    )
-  }
-
   return (
     <div className="inner-page figure-page">
       <Header {...props} />
-      <main className="inner-page__main section-shell">
-        <span className="kicker">{copy.figures.kicker}</span>
-        <h1>{category === 'heroes' ? copy.figures.heroesTitle : copy.figures.creaturesTitle}</h1>
-        <p className="inner-page__lede">{category === 'heroes' ? copy.figures.heroesLede : copy.figures.creaturesLede}</p>
-        <div className="figure-tabs" role="tablist">
-          <button role="tab" aria-selected={category === 'heroes'} className={category === 'heroes' ? 'is-active' : ''} onClick={() => onCategoryChange('heroes')}>{copy.figures.heroesTitle}</button>
-          <button role="tab" aria-selected={category === 'creatures'} className={category === 'creatures' ? 'is-active' : ''} onClick={() => onCategoryChange('creatures')}>{copy.figures.creaturesTitle}</button>
-        </div>
-        <div className="figure-grid">
-          {profiles.map((profile) => (
-            <button className="figure-card" key={profile.id} onClick={() => setSelectedId(profile.id)} aria-label={`${copy.figures.open}: ${profile.name[locale]}`}>
-              <img src={profile.image} alt="" style={{ objectPosition: profile.objectPosition }} />
-              <span><strong>{profile.name[locale]}</strong><small>{profile.epithet[locale]}</small></span>
-              <ArrowRight size={18} />
-            </button>
-          ))}
-        </div>
-      </main>
+      <Suspense fallback={(
+        <main id="main-content" className="inner-page__main section-shell" tabIndex={-1}>
+          <RouteContentPlaceholder locale={props.locale} section="figures" />
+        </main>
+      )}>
+        <FiguresContent
+          category={category}
+          locale={props.locale}
+          selectedId={selectedId}
+          onCategoryChange={onCategoryChange}
+          onSelectFigure={onSelectFigure}
+        />
+      </Suspense>
       <Footer {...props} />
     </div>
   )
 }
 
 function Footer(props: NavigationProps) {
-  const { locale, onNavigate, onStartGame } = props
+  const { locale, onNavigate, onShowAbout, onStartGame } = props
   const copy = ui[locale]
   return (
     <footer className="site-footer">
       <div><Logo inverse /><p>{copy.footer.tagline}</p></div>
-      <nav><button onClick={() => onStartGame('all')}>{copy.footer.play}</button><button onClick={() => onNavigate('atlas')}>{copy.footer.atlas}</button><button onClick={() => onNavigate('archive')}>{copy.footer.archive}</button><a href="#manifesto">{copy.footer.about}</a></nav>
+      <nav aria-label={copy.nav.footer}><button onClick={() => onStartGame('all')}>{copy.footer.play}</button><button onClick={() => onNavigate('atlas')}>{copy.footer.atlas}</button><button onClick={() => onNavigate('archive')}>{copy.footer.archive}</button><a href="#/about" onClick={(event) => { event.preventDefault(); onShowAbout() }}>{copy.footer.about}</a></nav>
       <span>{copy.footer.version}<br />{copy.footer.credit}</span>
     </footer>
   )
 }
 
 export default function App() {
-  const [view, setView] = useState<View>('home')
-  const [gameMode, setGameMode] = useState<GameMode>('all')
-  const [figureCategory, setFigureCategory] = useState<FigureCategory>('heroes')
+  const [route, setRoute] = useState<AppRoute>(() => parseAppRoute(window.location.hash))
   const [locale, setLocale] = useState<Locale>(() => resolveLocale())
+  const initialRoute = useRef(true)
+
+  function navigate(nextRoute: AppRoute, replace = false) {
+    const hash = appRouteToHash(nextRoute)
+
+    if (replace) {
+      window.history.replaceState(null, '', hash)
+      setRoute(nextRoute)
+      return
+    }
+
+    if (window.location.hash === hash) {
+      setRoute({ ...nextRoute })
+      return
+    }
+
+    window.location.hash = hash
+  }
+
+  function navigateView(view: NavigationView) {
+    navigate({ view })
+  }
 
   function startGame(mode: GameMode) {
-    setGameMode(mode)
-    setView('game')
+    navigate({ view: 'game', mode })
   }
 
   function openFigures(category: FigureCategory) {
-    setFigureCategory(category)
-    setView('figures')
+    navigate({ view: 'figures', category })
   }
 
   function changeLocale(nextLocale: Locale) {
@@ -452,23 +535,81 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.lang = locale
-  }, [locale])
+    document.title = appRouteTitle(route, locale)
+  }, [locale, route])
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' })
-  }, [view])
+    const syncRoute = () => setRoute(parseAppRoute(window.location.hash))
+    window.addEventListener('hashchange', syncRoute)
+    return () => window.removeEventListener('hashchange', syncRoute)
+  }, [])
+
+  useEffect(() => {
+    const shouldMoveFocus = !initialRoute.current
+    const frame = window.requestAnimationFrame(() => {
+      if (route.view === 'about') {
+        const manifesto = document.getElementById('manifesto')
+        manifesto?.scrollIntoView({ block: 'start' })
+        if (shouldMoveFocus) manifesto?.focus({ preventScroll: true })
+      } else {
+        window.scrollTo({ top: 0, behavior: 'instant' })
+        if (shouldMoveFocus) document.getElementById('main-content')?.focus({ preventScroll: true })
+      }
+      initialRoute.current = false
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [route])
 
   const navigationProps: NavigationProps = {
     locale,
     onLocaleChange: changeLocale,
-    onNavigate: setView,
+    onNavigate: navigateView,
+    onShowAbout: () => navigate({ view: 'about' }),
     onStartGame: startGame,
     onOpenFigures: openFigures,
   }
 
-  if (view === 'game') return <Game key={gameMode} mode={gameMode} locale={locale} onLocaleChange={changeLocale} onExit={() => setView('home')} />
-  if (view === 'atlas') return <AtlasPage {...navigationProps} />
-  if (view === 'archive') return <ArchivePage {...navigationProps} />
-  if (view === 'figures') return <FiguresPage {...navigationProps} category={figureCategory} onCategoryChange={setFigureCategory} />
-  return <Home {...navigationProps} />
+  let content: ReactNode
+  if (route.view === 'game') {
+    content = (
+      <Suspense fallback={<GamePlaceholder locale={locale} />}>
+        <Game key={route.mode} mode={route.mode} locale={locale} onLocaleChange={changeLocale} onExit={() => navigate({ view: 'home' }, true)} />
+      </Suspense>
+    )
+  } else if (route.view === 'atlas') {
+    content = <AtlasPage {...navigationProps} />
+  } else if (route.view === 'archive') {
+    content = <ArchivePage {...navigationProps} />
+  } else if (route.view === 'figures') {
+    content = (
+      <FiguresPage
+        {...navigationProps}
+        category={route.category}
+        selectedId={route.figureId}
+        onCategoryChange={(category) => navigate({ view: 'figures', category })}
+        onSelectFigure={(figureId) => navigate({ view: 'figures', category: route.category, figureId })}
+      />
+    )
+  } else {
+    content = <Home {...navigationProps} />
+  }
+
+  return (
+    <>
+      <a
+        className="skip-link"
+        href="#main-content"
+        onClick={(event) => {
+          event.preventDefault()
+          const main = document.getElementById('main-content')
+          main?.scrollIntoView({ block: 'start' })
+          main?.focus({ preventScroll: true })
+        }}
+      >
+        {ui[locale].accessibility.skip}
+      </a>
+      {content}
+    </>
+  )
 }

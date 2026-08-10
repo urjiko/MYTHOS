@@ -1,0 +1,35 @@
+{
+  "name": "MYTHOS — Enter the Legend",
+  "short_name": "MYTHOS",
+  "description": "Explore Greek mythology through immersive 360° scenes and an ancient map.",
+  "lang": "en",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./#/",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#191813",
+  "theme_color": "#191813",
+  "categories": ["education", "games"],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
