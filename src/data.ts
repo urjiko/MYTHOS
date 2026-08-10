@@ -99,7 +99,7 @@ export const mythScenes: MythScene[] = [
       'The captain wants to hear the song, so he has himself tied to the mast.',
       'This happens during the voyage home from Troy to Ithaca.',
     ],
-    options: ['Jason and the Harpies', 'Theseus and Ariadne', 'The Fall of Phaethon', 'Odysseus and the Sirens'],
+    options: ['Odysseus and Polyphemus', 'Odysseus and Circe', 'Scylla and Charybdis', 'Odysseus and the Sirens'],
     reveal:
       'Following Circe’s warning, Odysseus seals his crew’s ears with wax and has himself bound to the mast. He hears the Sirens and survives.',
     source: 'Homer — Odyssey XII',
@@ -207,7 +207,7 @@ export const mythScenes: MythScene[] = [
       'A priest named Maron gives the traveller a powerful wine that will matter again inside a Cyclops’s cave.',
       'The people of this Thracian city fought as allies of Troy and return with inland reinforcements.',
     ],
-    options: ['Odysseus and the Cicones', 'The Sack of Thebes', 'Jason at Lemnos', 'The Return of Menelaus'],
+    options: ['Odysseus and the Lotus-Eaters', 'Odysseus among the Phaeacians', 'Odysseus and the Cicones', 'Odysseus and Aeolus'],
     reveal:
       'After leaving Troy, Odysseus sacks Ismaros but cannot make his crew depart. Reinforced Cicones drive the raiders back to sea, making this the voyage’s first costly failure of restraint.',
     source: 'Homer — Odyssey IX.39–66, 193–211',
@@ -234,7 +234,7 @@ export const mythScenes: MythScene[] = [
       'The captain drags the affected scouts back by force and binds them beneath the rowing benches.',
       'This encounter follows the storm that drives the fleet away from Cape Malea.',
     ],
-    options: ['Demeter at Eleusis', 'Odysseus and the Lotus-Eaters', 'Heracles in the Garden', 'Dionysus and the Pirates'],
+    options: ['Odysseus and the Cicones', 'Odysseus and the Lotus-Eaters', 'Odysseus and Aeolus', 'Odysseus and Calypso'],
     reveal:
       'The lotus does not kill Odysseus’s scouts; it makes them forget the purpose of their voyage. Odysseus forces them aboard before the rest of the crew can taste it.',
     source: 'Homer — Odyssey IX.82–104',
@@ -261,7 +261,7 @@ export const mythScenes: MythScene[] = [
       'Within sight of home, the crew mistake the closed gift for treasure and open it while their captain sleeps.',
       'The second arrival at the bronze-walled island ends in rejection rather than another rescue.',
     ],
-    options: ['Odysseus and Aeolus', 'Poseidon and Minos', 'Boreas and Oreithyia', 'Jason and the Clashing Rocks'],
+    options: ['Odysseus and Aeolus', 'Odysseus and the Lotus-Eaters', 'Odysseus and the Laestrygonians', 'Odysseus and the Sirens'],
     reveal:
       'Aeolus gives Odysseus a bag containing the contrary winds. The suspicious crew open it almost at Ithaca, and the released storm carries the ship all the way back to Aeolia.',
     source: 'Homer — Odyssey X.1–79',
@@ -288,7 +288,7 @@ export const mythScenes: MythScene[] = [
       'The inhabitants are giant cannibals who destroy ships by hurling rocks from above.',
       'Only the vessel tied outside the harbour escapes when its captain cuts the cable.',
     ],
-    options: ['The Giants against Olympus', 'Odysseus and the Laestrygonians', 'Heracles and Cacus', 'Perseus and Atlas'],
+    options: ['Odysseus and the Cicones', 'Odysseus and Polyphemus', 'Odysseus and the Laestrygonians', 'Scylla and Charybdis'],
     reveal:
       'The Laestrygonians trap the fleet inside Telepylus and smash every ship but Odysseus’s with boulders. His caution in mooring outside the harbour saves the final vessel.',
     source: 'Homer — Odyssey X.80–132',
@@ -314,7 +314,7 @@ export const mythScenes: MythScene[] = [
       'The cave entrance is sealed by a stone that only its giant owner can move.',
       'The survivors escape beneath the flock instead of walking beside it.',
     ],
-    options: ['Theseus and the Minotaur', 'Odysseus and Polyphemus', 'Jason and the Harpies', 'Heracles and Cacus'],
+    options: ['Odysseus and the Laestrygonians', 'Odysseus and Polyphemus', 'Odysseus and Circe', 'Odysseus and the Sirens'],
     reveal:
       'Odysseus blinds the Cyclops after naming himself “Nobody,” then escapes by fastening his companions beneath Polyphemus’s rams. His later boast brings Poseidon’s anger upon the voyage.',
     source: 'Homer — Odyssey IX',
@@ -340,7 +340,7 @@ export const mythScenes: MythScene[] = [
       'The missing crew have not left the palace; their shapes have been changed.',
       'The enchantress later warns the crew about the Sirens and the two dangers of the strait.',
     ],
-    options: ['Medea and the Argonauts', 'Calypso and Odysseus', 'Odysseus and Circe', 'Demeter and Metaneira'],
+    options: ['Odysseus and Circe', 'Odysseus and Calypso', 'Odysseus and the Lotus-Eaters', 'Odysseus in the Underworld'],
     reveal:
       'Circe transforms Odysseus’s companions into swine, but Hermes’s moly protects the hero from her potion. She restores the crew and later becomes their guide to the dangers ahead.',
     source: 'Homer — Odyssey X–XII',
@@ -366,7 +366,7 @@ export const mythScenes: MythScene[] = [
       'One threat lives high in a cave; the other swallows and releases the sea.',
       'Sailors still describe impossible choices as being caught between these two names.',
     ],
-    options: ['The Symplegades', 'Poseidon and Minos', 'The Flood of Deucalion', 'Scylla and Charybdis'],
+    options: ['Odysseus and the Sirens', 'Scylla and Charybdis', 'Odysseus and the Cattle of Helios', 'Odysseus and the Laestrygonians'],
     reveal:
       'Odysseus steers closer to Scylla because Charybdis could destroy the entire ship. The passage costs six companions, making the episode one of the poem’s starkest choices between unequal disasters.',
     source: 'Homer — Odyssey XII',
@@ -393,7 +393,7 @@ export const mythScenes: MythScene[] = [
       'Tiresias foretells the dangers still waiting on the voyage and warns against harming the Sun’s cattle.',
       'Elpenor asks for burial, and the traveller also meets the shade of his mother Anticleia.',
     ],
-    options: ['Orpheus and Eurydice', 'Odysseus in the Underworld', 'Heracles Captures Cerberus', 'Aeneas in the Underworld'],
+    options: ['Odysseus and Circe', 'Odysseus in the Underworld', 'Odysseus and the Cattle of Helios', 'Odysseus and Calypso'],
     reveal:
       'Following Circe’s instructions, Odysseus crosses Oceanus and performs a rite for the dead. Tiresias reveals the conditions of the homeward voyage, while encounters with Elpenor, Anticleia, and fallen heroes turn the journey into a reckoning with memory and mortality.',
     source: 'Homer — Odyssey X.488–XI.640',
@@ -420,7 +420,7 @@ export const mythScenes: MythScene[] = [
       'While their captain sleeps, the starving sailors sacrifice the finest animals and try to disguise the act as worship.',
       'Lampetia reports the crime; after the ship leaves, Zeus destroys it with a thunderbolt.',
     ],
-    options: ['Jason and the Bronze Bulls', 'Heracles and Geryon', 'Odysseus and the Cattle of Helios', 'The Sacrifice at Aulis'],
+    options: ['Scylla and Charybdis', 'Odysseus and the Cattle of Helios', 'Odysseus and the Sirens', 'Odysseus and Aeolus'],
     reveal:
       'Despite repeated warnings, Eurylochus persuades the starving crew to kill Helios’s sacred cattle. Zeus answers the Sun’s demand for justice by wrecking the ship, leaving Odysseus as the voyage’s sole survivor.',
     source: 'Homer — Odyssey XII.260–419',
@@ -447,7 +447,7 @@ export const mythScenes: MythScene[] = [
       'Hermes arrives with Zeus’s command that the captive traveller must be released.',
       'After seven years, he fells trees and builds the raft that will carry him toward the Phaeacians.',
     ],
-    options: ['Odysseus and Calypso', 'Theseus and Ariadne', 'Jason and Medea', 'Paris and Oenone'],
+    options: ['Odysseus and Circe', 'Odysseus and Calypso', 'Odysseus among the Phaeacians', 'The Return of Odysseus'],
     reveal:
       'Calypso shelters Odysseus on Ogygia and offers him immortality, yet he chooses the uncertain mortal journey back to Ithaca. Only Zeus’s order, delivered by Hermes, finally compels her to help him leave.',
     source: 'Homer — Odyssey V',
@@ -474,7 +474,7 @@ export const mythScenes: MythScene[] = [
       'At King Alcinous’s court, the bard Demodocus sings of Troy until the concealed guest begins to weep.',
       'The hosts carry the sleeping traveller home in a ship that knows its own way across the sea.',
     ],
-    options: ['Perseus on Seriphos', 'Theseus on Naxos', 'Orestes in Tauris', 'Odysseus among the Phaeacians'],
+    options: ['Odysseus and Calypso', 'Odysseus among the Phaeacians', 'The Return of Odysseus', 'Odysseus and the Lotus-Eaters'],
     reveal:
       'Nausicaa’s kindness leads Odysseus to the court of Alcinous and Arete, where he finally tells the adventures that form much of the Odyssey. The Phaeacians then carry him, asleep, to Ithaca.',
     source: 'Homer — Odyssey VI–VIII; XIII.1–187',
@@ -501,7 +501,7 @@ export const mythScenes: MythScene[] = [
       'Penelope declares that she will marry whoever can string the absent king’s bow and shoot through twelve axe heads.',
       'A secret known only to husband and wife—their bed built around a rooted olive tree—proves his identity.',
     ],
-    options: ['The Murder of Agamemnon', 'The Return of Odysseus', 'Orestes Avenges Agamemnon', 'The Return of Menelaus'],
+    options: ['Odysseus among the Phaeacians', 'The Return of Odysseus', 'Odysseus and Calypso', 'Odysseus in the Underworld'],
     reveal:
       'Back on Ithaca, Odysseus tests allies and enemies before winning Penelope’s bow contest and revealing himself. The final recognition rests not on glory but on shared knowledge of the olive-root bed at the centre of their household.',
     source: 'Homer — Odyssey XVII–XXIII',

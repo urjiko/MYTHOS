@@ -34,7 +34,7 @@ describe('MYTHOS game decks', () => {
     ]))
   })
 
-  it('draws a six-scene general journey without duplicates', () => {
+  it('draws a five-scene general journey without duplicates', () => {
     const deck = createGameDeck('all', () => 0)
 
     expect(deck).toHaveLength(DEFAULT_ROUND_COUNT)
@@ -43,11 +43,14 @@ describe('MYTHOS game decks', () => {
 
   it('keeps the route game entirely inside the Odyssey cycle', () => {
     const deck = createGameDeck('odyssey', () => 0.37)
-    const odysseyCount = mythScenes.filter((scene) => scene.category === 'odyssey').length
+    const odysseyScenes = mythScenes.filter((scene) => scene.category === 'odyssey')
+    const odysseyCount = odysseyScenes.length
+    const odysseyTitles = new Set(odysseyScenes.map((scene) => scene.title))
 
     expect(odysseyCount).toBe(13)
     expect(deck).toHaveLength(odysseyCount)
     expect(deck.every((scene) => scene.category === 'odyssey')).toBe(true)
+    expect(deck.every((scene) => scene.options.every((option) => odysseyTitles.has(option)))).toBe(true)
   })
 
   it('builds the six-scene Trojan chronicle without pulling in the horse', () => {

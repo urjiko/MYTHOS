@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mythScenes } from './data'
-import { localiseMythTitle, resolveLocale, ui } from './i18n'
+import { hasExplicitTurkishMythTitle, localiseMythTitle, resolveLocale, ui } from './i18n'
 
 function leafPaths(value: unknown, prefix = ''): string[] {
   if (typeof value !== 'object' || value === null) return [prefix]
@@ -32,6 +32,15 @@ describe('MYTHOS locale resolution', () => {
   it('has an explicit Turkish title for every playable scene', () => {
     mythScenes.forEach((scene) => {
       expect(localiseMythTitle(scene.title, 'tr')).not.toBe(scene.title)
+    })
+  })
+
+  it('has an explicit Turkish title for every correct and distractor option', () => {
+    const allOptions = new Set(mythScenes.flatMap((scene) => scene.options))
+
+    expect(allOptions.size).toBeGreaterThan(mythScenes.length)
+    allOptions.forEach((option) => {
+      expect(hasExplicitTurkishMythTitle(option), option).toBe(true)
     })
   })
 

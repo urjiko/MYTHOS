@@ -53,6 +53,7 @@ import {
 } from './scoring'
 import { readStoredNumber, writeStoredValue } from './storage'
 import { MythMap } from './AncientMap'
+import { MythStory } from './MythStory'
 import { Logo } from './ui'
 
 const SphereViewer = lazy(() => import('./SphereViewer').then((module) => ({ default: module.SphereViewer })))
@@ -108,6 +109,7 @@ export default function Game({
     initialSession?.roundStarted && !initialSession.result && !initialSession.finished,
   ))
   const [pageVisible, setPageVisible] = useState(() => document.visibilityState === 'visible')
+  const [mobileMythOpen, setMobileMythOpen] = useState(false)
   const [mobileMapOpen, setMobileMapOpen] = useState(false)
   const deadlineRef = useRef<number | null>(initialSession?.deadlineMs ?? null)
   const discardSessionRef = useRef(false)
@@ -116,11 +118,12 @@ export default function Game({
   const guidePrimaryRef = useRef<HTMLButtonElement>(null)
   const roundResultRef = useRef<HTMLDivElement>(null)
   const finalResultRef = useRef<HTMLElement>(null)
+  const mobileMythLaunchRef = useRef<HTMLButtonElement>(null)
+  const mobileMythCloseRef = useRef<HTMLButtonElement>(null)
   const mobileMapLaunchRef = useRef<HTMLButtonElement>(null)
   const mobileMapCloseRef = useRef<HTMLButtonElement>(null)
   const scene = scenes[round]
   const sceneClues = localiseSceneClues(scene, locale)
-  const scenePresentation = localiseScenePresentation(scene, locale)
   const modeCopy = mode === 'odyssey'
     ? { bestScoreKey: 'mythos-best-score-odyssey', journeyLabel: copy.game.odyssey, completionLabel: copy.game.odysseyComplete }
     : mode === 'iliad'
@@ -222,6 +225,45 @@ export default function Game({
   }, [roundReady])
 
   useEffect(() => {
+    if (!mobileMythOpen) return
+
+    const previousBodyOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const frame = window.requestAnimationFrame(() => mobileMythCloseRef.current?.focus())
+    const keepFocusInsideMyth = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setMobileMythOpen(false)
+        return
+      }
+      if (event.key !== 'Tab') return
+
+      const sheet = document.getElementById('mobile-myth-sheet')
+      if (!sheet) return
+      const focusable = Array.from(sheet.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+      )).filter((element) => !element.hasAttribute('disabled'))
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', keepFocusInsideMyth)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      document.removeEventListener('keydown', keepFocusInsideMyth)
+      document.body.style.overflow = previousBodyOverflow
+      window.requestAnimationFrame(() => mobileMythLaunchRef.current?.focus({ preventScroll: true }))
+    }
+  }, [mobileMythOpen])
+
+  useEffect(() => {
     if (!mobileMapOpen) return
 
     const previousBodyOverflow = document.body.style.overflow
@@ -314,6 +356,7 @@ export default function Game({
       if (index === null) return
       event.preventDefault()
       setAnswer(scene.options[index])
+      setMobileMythOpen(false)
     }
 
     document.addEventListener('keydown', selectAnswer)
@@ -355,6 +398,7 @@ export default function Game({
 
   function resolveRound(expired = false) {
     if (result || (!expired && (!guess || !answer))) return
+    setMobileMythOpen(false)
     setMobileMapOpen(false)
     setTimedOut(expired)
     setResult(scoreRound({
@@ -398,6 +442,7 @@ export default function Game({
     setShowRestoreNotice(false)
     setConfirmFresh(false)
     setRestoringRound(false)
+    setMobileMythOpen(false)
     setMobileMapOpen(false)
   }
 
@@ -421,6 +466,7 @@ export default function Game({
     setShowRestoreNotice(false)
     setConfirmFresh(false)
     setRestoringRound(false)
+    setMobileMythOpen(false)
     setMobileMapOpen(false)
   }
 
@@ -611,6 +657,7 @@ export default function Game({
         </div>
         <span
           className={`game-timer ${roundStarted && seconds < 16 ? 'is-urgent' : ''} ${!roundStarted ? 'is-paused' : ''}`}
+          style={{ '--timer-progress': `${Math.max(0, Math.min(100, (seconds / ROUND_DURATION_SECONDS) * 100))}%` } as React.CSSProperties}
           role="timer"
           aria-label={roundStarted
             ? copy.game.timeRemaining(seconds)
@@ -626,7 +673,11 @@ export default function Game({
         <strong className="game-score">{formatScore(total, locale)} <small>OP</small></strong>
         <button
           className="game-help"
-          onClick={() => setGuideMode('help')}
+          onClick={() => {
+            setMobileMythOpen(false)
+            setMobileMapOpen(false)
+            setGuideMode('help')
+          }}
           aria-label={copy.game.help}
           title={copy.game.help}
         ><CircleHelp size={16} /></button>
@@ -736,14 +787,69 @@ export default function Game({
           </aside>
         )}
 
+        {!result && (
+          <div className={`mobile-game-dock ${answer ? 'has-answer' : ''}`}>
+            {answer && (
+              <button
+                ref={mobileMythLaunchRef}
+                type="button"
+                className="mobile-answer-chip"
+                aria-controls="mobile-myth-sheet"
+                aria-expanded={mobileMythOpen}
+                disabled={!roundPlayable}
+                onClick={() => setMobileMythOpen(true)}
+              >
+                <Check size={17} aria-hidden="true" />
+                <span><small>{copy.game.mobileMythStep}</small><strong>{localiseMythTitle(answer, locale)}</strong></span>
+              </button>
+            )}
+            <button
+              ref={answer ? mobileMapLaunchRef : mobileMythLaunchRef}
+              type="button"
+              className="mobile-primary-action"
+              aria-controls={answer ? 'mobile-map-sheet' : 'mobile-myth-sheet'}
+              aria-expanded={answer ? mobileMapOpen : mobileMythOpen}
+              disabled={!roundPlayable}
+              onClick={() => answer ? setMobileMapOpen(true) : setMobileMythOpen(true)}
+            >
+              <span>{answer ? copy.game.mobileMapStep : copy.game.mobileMythStep}</span>
+              <strong>{answer
+                ? guess ? copy.game.mobileChangeMap : copy.game.mobileOpenMap
+                : copy.game.inside}</strong>
+              {answer ? <Map size={20} aria-hidden="true" /> : <Compass size={20} aria-hidden="true" />}
+            </button>
+          </div>
+        )}
+
         <aside className={`guess-panel ${result ? 'guess-panel--result' : ''}`}>
           {!result ? (
             <div className="oracle-workbench">
-              <section className="oracle-card oracle-card--myth">
+              {mobileMythOpen && (
+                <button
+                  type="button"
+                  className="mobile-sheet-scrim"
+                  aria-label={copy.game.mobileSceneBack}
+                  onClick={() => setMobileMythOpen(false)}
+                />
+              )}
+              <section
+                id="mobile-myth-sheet"
+                className={`oracle-card oracle-card--myth ${mobileMythOpen ? 'is-mobile-myth-open' : ''}`}
+                role={mobileMythOpen ? 'dialog' : undefined}
+                aria-modal={mobileMythOpen ? true : undefined}
+                aria-labelledby={mobileMythOpen ? 'myth-choice-title' : undefined}
+              >
                 <div className="guess-panel__head">
                   <span className="kicker guess-panel__desktop-kicker"><Compass size={14} /> {copy.game.make}</span>
                   <span className="kicker mobile-myth-step"><Compass size={14} /> {copy.game.mobileMythStep}</span>
-                  <strong>{formatScore(ROUND_MAX_SCORE, locale)} OP</strong>
+                  <strong className="guess-panel__points">{formatScore(ROUND_MAX_SCORE, locale)} OP</strong>
+                  <button
+                    ref={mobileMythCloseRef}
+                    type="button"
+                    className="mobile-myth-sheet__close"
+                    onClick={() => setMobileMythOpen(false)}
+                    aria-label={copy.game.mobileSceneBack}
+                  ><X size={19} aria-hidden="true" /> {copy.game.mobileSceneBack}</button>
                 </div>
                 <div className="myth-choice" role="group" aria-labelledby="myth-choice-title">
                   <h2 id="myth-choice-title">{copy.game.inside}</h2>
@@ -757,7 +863,10 @@ export default function Game({
                           key={option}
                           aria-pressed={answer === option}
                           aria-keyshortcuts={shortcut}
-                          onClick={() => setAnswer(option)}
+                          onClick={() => {
+                            setAnswer(option)
+                            setMobileMythOpen(false)
+                          }}
                         >
                           <span>{shortcut}</span>{localiseMythTitle(option, locale)}
                         </button>
@@ -766,20 +875,6 @@ export default function Game({
                   </div>
                 </div>
               </section>
-
-              <button
-                ref={mobileMapLaunchRef}
-                type="button"
-                className="mobile-map-launch"
-                aria-controls="mobile-map-sheet"
-                aria-expanded={mobileMapOpen}
-                disabled={!roundPlayable}
-                onClick={() => setMobileMapOpen(true)}
-              >
-                <span>{copy.game.mobileMapStep}</span>
-                <strong>{guess ? copy.game.mobileChangeMap : copy.game.mobileOpenMap}</strong>
-                <Map size={20} aria-hidden="true" />
-              </button>
 
               <section
                 id="mobile-map-sheet"
@@ -828,15 +923,7 @@ export default function Game({
                   {timedOut ? copy.game.timeExpired : result.recognition ? copy.game.correct : copy.game.wrong}
                 </span>
                 <h2 id="round-result-title">{localiseMythTitle(scene.title, locale)}</h2>
-                <p className="round-result__place"><Map size={15} /> {scenePresentation.location} · {scenePresentation.cycle}</p>
-                {timedOut && <p className="round-result__timeout">{copy.game.timeoutNote}</p>}
-                <p>{scenePresentation.reveal}</p>
-                <small>
-                  {scenePresentation.geographyNote}<br />
-                  {copy.game.fullCredit(scene.accuracyRadiusKm)}<br />
-                  {scenePresentation.source}<br />{scenePresentation.sourceNote}
-                  {scene.pleiadesUrl && <><br /><a href={scene.pleiadesUrl} target="_blank" rel="noreferrer">{copy.game.pleiades}</a></>}
-                </small>
+                <MythStory scene={scene} locale={locale} />
               </div>
               <MythMap
                 guess={guess}
