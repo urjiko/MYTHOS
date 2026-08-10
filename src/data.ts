@@ -1338,6 +1338,33 @@ export const mythScenes: MythScene[] = [
     sourceNote: 'Ancient authors do not agree on every stage of Io’s route. The pin marks the Bosporus passage named in this Aeschylean itinerary.',
     symbol: '♉',
   },
+  {
+    id: 'ganymedes-zeus',
+    title: 'Zeus and Ganymedes',
+    eyebrow: 'House of Tros',
+    cycle: 'Trojan Origins',
+    category: 'gods',
+    location: 'Mount Ida and the Troad',
+    coordinates: { lat: 39.6927, lng: 26.8192 },
+    accuracyRadiusKm: 55,
+    mapConfidence: 'traditional',
+    geographyNote: 'The early poems make Ganymedes a son of the Trojan king Tros but do not identify one secure capture site. Mount Ida is used as a traditional Troad setting; Strabo records other placements near Dardanos and Harpagia.',
+    pleiadesUrl: 'https://pleiades.stoa.org/places/550592',
+    image: './assets/scene-ganymedes-zeus.webp',
+    fallback: 'linear-gradient(126deg, #1b262b 0%, #5f6859 45%, #c79a59 100%)',
+    prompt: 'Find the Trojan shepherd-prince, the descending eagle, a golden serving bowl, and the extraordinary horses that will console his father.',
+    clues: [
+      'On Olympus the Trojan prince receives immortality and takes the golden bowl as cupbearer of the gods.',
+      'Tros mourns the disappearance of his son until Zeus takes pity on the Trojan king.',
+      'Hermes brings magnificent immortal horses as compensation and tells Tros that his son will never age.',
+    ],
+    options: ['Europa and the Bull', 'Zeus and Ganymedes', 'Leda and the Swan', 'Io’s Flight'],
+    reveal:
+      'Zeus notices Ganymedes, a son of King Tros, while the Trojan prince tends his father’s herds. The god sends a great eagle to carry him to Olympus.',
+    source: 'Homer — Iliad XX.231–235; Homeric Hymn to Aphrodite 202–217; Apollodorus — Bibliotheca III.12.2; Strabo — Geography XIII.1.11',
+    sourceNote: 'Homer supplies the Trojan genealogy and divine cupbearer; the Hymn adds Tros’s grief, Hermes and the horses; Pseudo-Apollodorus explicitly makes the eagle Zeus’s agent.',
+    symbol: '♒',
+  },
 ]
 
 export type AtlasPlace = Point & {

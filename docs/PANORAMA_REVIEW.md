@@ -17,6 +17,10 @@ The source hash, measured seam value, and decision for every current threshold c
 
 The five new route panoramas were generated as environment-first 2:1 equirectangular scenes and inspected in their flat source form before delivery at 4096×2048. Their seam measurements remain below the 14 MAE projection-review threshold: Admete’s request 7.51, Paros 11.80, Mygdon 9.68, Hera among the Amazons 7.85, and Hesione 8.38. The existing 9.52 MAE Themiskyra panorama remains the peaceful centre of the six-scene route.
 
+## Ganymedes art pass
+
+The Mount Ida panorama was inspected as front, right, seam, left, zenith, and nadir projections after 4096×2048 delivery processing. Ganymedes and the divine eagle remain readable across the front and zenith views, while the horses, herds, shepherd camp, and golden bowl reward turning and looking down. The ground and sky remain continuous, the seam view is coherent, and the measured seam MAE is 11.31—below the mandatory review threshold.
+
 ## Decision queue
 
 | Priority | Asset | Finding | Decision |
