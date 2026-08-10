@@ -1,0 +1,33 @@
+/* Targeted interaction/layout refinements layered after the main stylesheet. */
+
+.scene-viewer {
+  touch-action: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .myth-character-dossier {
+    right: auto;
+    bottom: auto;
+  }
+}
+
+@media (max-width: 760px), (max-height: 560px) and (pointer: coarse) {
+  .hero {
+    min-height: auto;
+  }
+
+  .hero__visual {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    width: 100%;
+    min-height: clamp(390px, 104vw, 440px);
+    flex: 0 0 auto;
+    margin-top: clamp(32px, 8vw, 48px);
+  }
+
+  .fate-disk {
+    width: min(88vw, 420px);
+  }
+}
