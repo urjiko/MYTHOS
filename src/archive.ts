@@ -1,3 +1,4 @@
+import './registerDaidalosIkaros'
 import { mythScenes, type MythScene } from './data'
 import { figureProfiles } from './figures'
 
