@@ -1,4 +1,3 @@
-import { catalogSummary, collections } from './catalogSummary'
 import { mythScenes, type MythScene } from './data'
 import { mythCharacters, type MythCharacter } from './mythCharacters'
 import { sceneCluesTr, sceneDetailsTr } from './sceneCopy'
@@ -92,10 +91,4 @@ const extraCharacters: MythCharacter[] = [
 const mutableCharacters = mythCharacters as MythCharacter[]
 for (const character of extraCharacters) {
   if (!mutableCharacters.some((item) => item.id === character.id)) mutableCharacters.push(character)
-}
-
-;(catalogSummary as unknown as { mythScenes: number }).mythScenes = mythScenes.length
-const heroesCollection = collections.find((collection) => collection.title === 'Heroes')
-if (heroesCollection) {
-  ;(heroesCollection as unknown as { count: number }).count += 1
 }
