@@ -1,5 +1,6 @@
 import './registerDaidalosIkaros'
 import './registerPrometheusBound'
+import './registerFiveIconicMyths'
 import { mythScenes, type MythScene } from './data'
 import { figureProfiles } from './figures'
 
