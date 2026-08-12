@@ -4,7 +4,7 @@ import { createGameDeck, DEFAULT_ROUND_COUNT, HIPPOLYTA_ROUTE_IDS } from './game
 
 describe('MYTHOS game decks', () => {
   it('keeps the expanded archive complete', () => {
-    expect(mythScenes).toHaveLength(51)
+    expect(mythScenes).toHaveLength(52)
     expect(mythScenes.map((scene) => scene.id)).toEqual(expect.arrayContaining([
       'echo',
       'pegasus-birth',
@@ -38,6 +38,7 @@ describe('MYTHOS game decks', () => {
       'io-flight',
       'ganymedes-zeus',
       'daidalos-ikaros',
+      'prometheus-bound',
     ]))
   })
 
