@@ -647,6 +647,7 @@ const sceneTitleTr: Record<string, string> = {
   'The War of the Giants': 'Gigantlar Savaşı',
   'The Seven against Thebes': 'Thebai’ye Karşı Yediler',
   'Prometheus Steals Fire': 'Prometheus Ateşi Çalıyor',
+  'Prometheus Bound': 'Zincire Vurulmuş Prometheus',
   'The Fall of Hephaestus': 'Hephaistos’un Düşüşü',
   'Psyche’s Trials': 'Psykhe’nin Sınavları',
   'The Birth of Dionysus': 'Dionysos’un Doğuşu',
