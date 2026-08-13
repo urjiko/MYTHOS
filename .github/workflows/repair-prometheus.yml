@@ -34,7 +34,7 @@ jobs:
 
           repairs = {
               'part02.txt': [('VA4bxxaardSM', 'VA4bxxoardSM')],
-              'part03.txt': [('CZWsnL/XETmlloa4I', 'CZWsnL/XETmtloa4I')],
+              'part03.txt': [('CZWsnL/XETmloa4I', 'CZWsnL/XETmtoa4I')],
               'part07.txt': [('KFMkdAEj4adJymiOPF', 'KFMkdAEj4adJnymiOPF')],
           }
           chunks = []
