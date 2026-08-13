@@ -32,14 +32,17 @@ jobs:
           if len(parts) != 12:
               raise SystemExit(f'Expected 12 panorama chunks, found {len(parts)}')
 
+          repairs = {
+              'part02.txt': [('VA4bxxaardSM', 'VA4bxxoardSM')],
+              'part03.txt': [('CZWsnL/XETmlloa4I', 'CZWsnL/XETmtloa4I')],
+              'part07.txt': [('KFMkdAEj4adJymiOPF', 'KFMkdAEj4adJnymiOPF')],
+          }
           chunks = []
           for p in parts:
               chunk = p.read_text().strip()
-              if p.name == 'part07.txt' and len(chunk) == 5999:
-                  broken = 'KFMkdAEj4adJymiOPF'
-                  fixed = 'KFMkdAEj4adJnymiOPF'
+              for broken, fixed in repairs.get(p.name, []):
                   if broken not in chunk:
-                      raise SystemExit('Known chunk repair point not found')
+                      raise SystemExit(f'Known repair point missing in {p.name}: {broken}')
                   chunk = chunk.replace(broken, fixed, 1)
               chunks.append(chunk)
 
