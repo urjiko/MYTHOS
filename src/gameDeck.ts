@@ -1,6 +1,5 @@
 import './registerDaidalosIkaros'
 import './registerPrometheusBound'
-import './registerFiveIconicMyths'
 import { mythScenes, type MythScene } from './data'
 import { DEFAULT_ROUND_COUNT, HIPPOLYTA_ROUTE_IDS, TROJAN_ROUTE_IDS, type GameMode } from './gameConfig'
 
