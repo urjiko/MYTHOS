@@ -1,0 +1,60 @@
+name: Install MYTHOS generated assets
+
+on:
+  push:
+    branches:
+      - agent/fix-ikaros-add-realworld-myths
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/fix-ikaros-add-realworld-myths
+          fetch-depth: 0
+      - name: Rebuild generated images when ready
+        shell: bash
+        run: |
+          if [ ! -f .myth-assets-ready ]; then
+            echo "Chunks still being uploaded; nothing to do."
+            exit 0
+          fi
+          python - <<'PY'
+          from pathlib import Path
+          import base64, hashlib
+
+          expected = {
+            'scene-daidalos-ikaros.jpg': 'fd0c1059b0f1eec200d6195104092bcf673b1747acf234eb510cd542d9c20bce',
+            'scene-europa-white-bull.jpg': 'e0e8ceeb1ffb4a20306f47cd15e85d04f64a79bff0918cd880bbe6fba30f8f6c',
+            'scene-golden-fleece.jpg': '0df059d5cd9a4717afe0e17edcebb7631bd35d32b6a2bade0d054d084a4aeffc',
+            'scene-persephone-abduction.jpg': '92671ef09bac94a3d544957d42a4cefd2d64ce341fb2be88f568e1e2c8124995',
+            'scene-perseus-andromeda.jpg': '536993f5049cac9c0ce328f3d2d3be9103cbea4126fae7f33ce480031691a49c',
+          }
+          root = Path('.myth-asset-chunks')
+          assets = Path('public/assets')
+          assets.mkdir(parents=True, exist_ok=True)
+          for filename, wanted in expected.items():
+              stem = filename.rsplit('.', 1)[0]
+              parts = sorted((root / stem).glob('*.txt'))
+              if len(parts) != 2:
+                  raise SystemExit(f'{filename}: expected 2 chunks, got {len(parts)}')
+              payload = ''.join(p.read_text().strip() for p in parts)
+              raw = base64.b64decode(payload, validate=True)
+              got = hashlib.sha256(raw).hexdigest()
+              if got != wanted:
+                  raise SystemExit(f'{filename}: SHA mismatch {got}')
+              (assets / filename).write_bytes(raw)
+              print(filename, len(raw), got)
+          PY
+
+          rm -rf .myth-asset-chunks .myth-assets-ready
+          rm -f .github/workflows/install-myth-assets.yml
+          git config user.name "MYTHOS asset bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Install high-resolution MYTHOS scene assets"
+          git push origin HEAD:agent/fix-ikaros-add-realworld-myths
