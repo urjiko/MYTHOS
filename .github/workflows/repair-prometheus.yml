@@ -1,0 +1,62 @@
+name: Repair Prometheus panorama
+
+on:
+  push:
+    branches:
+      - agent/fix-prometheus-quality-title-v2
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: ${{ hashFiles('.prometheus-ready') != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/fix-prometheus-quality-title-v2
+          fetch-depth: 0
+      - name: Rebuild asset and patch scene
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+
+          parts = sorted(Path('.prometheus-parts').glob('part*.txt'))
+          if not parts:
+              raise SystemExit('No panorama chunks found')
+          payload = ''.join(p.read_text().strip() for p in parts)
+          asset = Path('public/assets/scene-prometheus-bound.avif')
+          asset.write_bytes(base64.b64decode(payload))
+
+          register = Path('src/registerPrometheusBound.ts')
+          text = register.read_text()
+          text = text.replace("import prometheusBoundPanorama from './prometheusBoundPanorama'\n", '')
+          text = text.replace("location: 'The Caucasus, mythic eastern frontier',", "location: 'The Caucasus, traditional ancient placement',")
+          text = text.replace("mapConfidence: 'mythic',", "mapConfidence: 'traditional',")
+          text = text.replace("image: `data:image/jpeg;base64,${prometheusBoundPanorama}`", "image: './assets/scene-prometheus-bound.avif'")
+          text = text.replace("location: 'Kafkaslar, mitolojik doğu sınırı',", "location: 'Kafkaslar, geleneksel antik yerleştirme',")
+          register.write_text(text)
+
+          i18n = Path('src/i18n.ts')
+          text = i18n.read_text()
+          needle = "  'Prometheus Steals Fire': 'Prometheus Ateşi Çalıyor',\n"
+          addition = needle + "  'Prometheus Bound': 'Zincire Vurulmuş Prometheus',\n"
+          if "'Prometheus Bound': 'Zincire Vurulmuş Prometheus'" not in text:
+              if needle not in text:
+                  raise SystemExit('Prometheus translation insertion point not found')
+              text = text.replace(needle, addition, 1)
+          i18n.write_text(text)
+          PY
+
+          rm -f src/prometheusBoundPanorama.ts .prometheus-ready
+          rm -rf .prometheus-parts
+          rm -f .github/workflows/repair-prometheus.yml
+
+          git config user.name "MYTHOS repair bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix Prometheus panorama quality and Turkish title"
+          git push origin HEAD:agent/fix-prometheus-quality-title-v2
