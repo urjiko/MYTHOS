@@ -22,6 +22,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import base64
+          import hashlib
 
           marker = Path('.prometheus-ready')
           if not marker.exists():
@@ -30,9 +31,27 @@ jobs:
           parts = sorted(Path('.prometheus-parts').glob('part*.txt'))
           if len(parts) != 12:
               raise SystemExit(f'Expected 12 panorama chunks, found {len(parts)}')
-          payload = ''.join(p.read_text().strip() for p in parts)
+
+          chunks = []
+          for p in parts:
+              chunk = p.read_text().strip()
+              if p.name == 'part07.txt' and len(chunk) == 5999:
+                  broken = 'KFMkdAEj4adJymiOPF'
+                  fixed = 'KFMkdAEj4adJnymiOPF'
+                  if broken not in chunk:
+                      raise SystemExit('Known chunk repair point not found')
+                  chunk = chunk.replace(broken, fixed, 1)
+              chunks.append(chunk)
+
+          payload = ''.join(chunks)
+          raw = base64.b64decode(payload, validate=True)
+          expected_sha256 = 'd3b828c22438544fdb38ed11c47b159a41a407ff0e284c973e6fcdcecd00a1b6'
+          actual_sha256 = hashlib.sha256(raw).hexdigest()
+          if actual_sha256 != expected_sha256:
+              raise SystemExit(f'Panorama SHA mismatch: {actual_sha256}')
+
           asset = Path('public/assets/scene-prometheus-bound.avif')
-          asset.write_bytes(base64.b64decode(payload, validate=True))
+          asset.write_bytes(raw)
 
           register = Path('src/registerPrometheusBound.ts')
           text = register.read_text()
