@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   patch:
-    if: ${{ hashFiles('.realworld-i18n-ready') != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,6 +19,10 @@ jobs:
       - name: Add explicit Turkish myth titles
         shell: bash
         run: |
+          if [ ! -f .realworld-i18n-ready ]; then
+            echo "Localization marker is not present; nothing to patch."
+            exit 0
+          fi
           python - <<'PY'
           from pathlib import Path
 
