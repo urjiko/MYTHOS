@@ -43,35 +43,40 @@ async function inspectSceneImage(filename) {
     return
   }
 
-  assert(info.format === 'webp', `${filename} must be WebP; received ${info.format}`)
+  assert(info.format === 'heif', `${filename} must be AVIF/HEIF; received ${info.format}`)
   assert(info.space === 'srgb', `${filename} must use sRGB; received ${info.space}`)
   assert(info.width === 4096 && info.height === 2048, `${filename} must be 4096×2048; received ${info.width}×${info.height}`)
-  assert(bytes >= 250 * 1024, `${filename} is suspiciously small at ${bytes} bytes`)
-  assert(bytes <= 2.5 * 1024 * 1024, `${filename} exceeds the 2.5 MiB source budget`)
+  assert(bytes >= 96 * 1024, `${filename} is suspiciously small at ${bytes} bytes`)
+  assert(bytes <= 1024 * 1024, `${filename} exceeds the 1 MiB source budget`)
   assert(info.seamMae <= 22, `${filename} has a left/right seam MAE of ${info.seamMae.toFixed(2)}; maximum is 22`)
 }
 
-const registerFiles = (await readdir(SRC_DIR))
-  .filter((name) => /^register.*\.ts$/.test(name))
-  .sort()
+const registrationRoots = ['archive.ts', 'gameDeck.ts']
+const activeRegisterFiles = new Set()
+for (const root of registrationRoots) {
+  const source = await readFile(path.join(SRC_DIR, root), 'utf8')
+  for (const match of source.matchAll(/import\s+['"]\.\/(register[^'"]+)['"]/g)) {
+    activeRegisterFiles.add(`${match[1]}.ts`)
+  }
+}
 
 const referenced = new Set()
-for (const filename of registerFiles) {
+for (const filename of [...activeRegisterFiles].sort()) {
   const source = await readFile(path.join(SRC_DIR, filename), 'utf8')
-  assert(!/image\s*:\s*`?data:image/i.test(source), `${filename} embeds a data:image asset; registered scenes must use static high-resolution files`)
+  assert(!/image\s*:\s*`?data:image/i.test(source), `${filename} embeds a data:image asset; active registered scenes must use static high-resolution files`)
 
   const scenes = [...source.matchAll(/id:\s*'([^']+)'[\s\S]*?image:\s*'([^']+)'/g)]
   for (const [, id, imagePath] of scenes) {
-    if (id === 'prometheus-bound') continue // Legacy AVIF is already quality-reviewed separately.
-    const expected = `./assets/registered/scene-${id}.webp`
-    assert(imagePath === expected, `${filename}:${id} must reference ${expected}; received ${imagePath}`)
-    if (imagePath === expected) referenced.add(`scene-${id}.webp`)
+    if (id === 'prometheus-bound') continue // Existing Prometheus AVIF follows its earlier reviewed asset path.
+    const expectedPath = `./assets/registered/scene-${id}.avif`
+    assert(imagePath === expectedPath, `${filename}:${id} must reference ${expectedPath}; received ${imagePath}`)
+    if (imagePath === expectedPath) referenced.add(`scene-${id}.avif`)
   }
 }
 
 let files = []
 try {
-  files = (await readdir(ASSET_DIR)).filter((name) => /^scene-[a-z0-9-]+\.webp$/.test(name)).sort()
+  files = (await readdir(ASSET_DIR)).filter((name) => /^scene-[a-z0-9-]+\.avif$/.test(name)).sort()
 } catch (error) {
   errors.push(`Registered asset directory is missing or unreadable: ${error instanceof Error ? error.message : String(error)}`)
 }
