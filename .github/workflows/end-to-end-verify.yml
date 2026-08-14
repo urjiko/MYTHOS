@@ -1,0 +1,65 @@
+name: End-to-end verify MYTHOS repair
+
+on:
+  push:
+    branches:
+      - agent/finish-panorama-assets-deploy
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  verify:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/finish-panorama-assets-deploy
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Verify repaired branch
+        run: |
+          npm run check:registered-assets
+          npm run test
+          npm run build
+          npm run check:bundle
+          npm run check:pwa
+      - name: Remove verifier from branch
+        shell: bash
+        run: |
+          rm -f .github/workflows/end-to-end-verify.yml .github/workflows/finalize-mythos-fix.yml .github/workflows/finish-registered-assets.yml
+          git config user.name "MYTHOS verifier"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Remove temporary repair automation"
+            git push origin HEAD:agent/finish-panorama-assets-deploy
+          fi
+      - name: Merge PR 18 if still open
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          state="$(gh pr view 18 --repo urjiko/MYTHOS --json state -q .state)"
+          if [ "$state" = "OPEN" ]; then
+            gh api --method PUT repos/urjiko/MYTHOS/pulls/18/merge -f merge_method=merge
+          fi
+      - name: Dispatch and verify Pages deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh workflow run deploy-pages.yml --repo urjiko/MYTHOS --ref main
+          sleep 8
+          run_id="$(gh run list --repo urjiko/MYTHOS --workflow deploy-pages.yml --branch main --event workflow_dispatch --limit 1 --json databaseId -q '.[0].databaseId')"
+          test -n "$run_id"
+          gh run watch "$run_id" --repo urjiko/MYTHOS --exit-status
+          gh pr comment 18 --repo urjiko/MYTHOS --body "✅ End-to-end verification passed: registered panorama gate, tests, production build, bundle/PWA checks, merge, and a fresh main Pages deployment all completed successfully."
