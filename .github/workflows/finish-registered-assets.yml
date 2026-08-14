@@ -1,0 +1,124 @@
+name: Finish registered panorama assets
+
+on:
+  push:
+    branches:
+      - agent/finish-panorama-assets-deploy
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  finish:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/finish-panorama-assets-deploy
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Rebuild registered panoramas as 4K AVIF
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs')
+          const path = require('node:path')
+          const sharp = require('sharp')
+
+          const dir = path.join(process.cwd(), 'public', 'assets', 'registered')
+          const names = [
+            'daidalos-ikaros',
+            'persephone-abduction',
+            'golden-fleece',
+            'perseus-andromeda',
+            'europa-white-bull',
+          ]
+
+          async function makeSeamSafe(name) {
+            const src = path.join(dir, `scene-${name}.webp`)
+            const out = path.join(dir, `scene-${name}.avif`)
+            if (!fs.existsSync(src)) throw new Error(`Missing source: ${src}`)
+
+            const base = await sharp(src)
+              .resize(4096, 2048, { fit: 'fill', kernel: sharp.kernel.lanczos3 })
+              .sharpen({ sigma: 1.1, m1: 0.7, m2: 1.2 })
+              .removeAlpha()
+              .toColourspace('srgb')
+              .raw()
+              .toBuffer({ resolveWithObject: true })
+
+            const { data, info } = base
+            const channels = info.channels
+            const width = info.width
+            const height = info.height
+            const blend = 320
+
+            for (let y = 0; y < height; y += 1) {
+              for (let x = 0; x < blend; x += 1) {
+                const t = x / (blend - 1)
+                const leftX = x
+                const rightX = width - blend + x
+                const li = (y * width + leftX) * channels
+                const ri = (y * width + rightX) * channels
+                const edgeMix = 0.5 - 0.5 * Math.cos(Math.PI * t)
+                for (let c = 0; c < Math.min(3, channels); c += 1) {
+                  const l = data[li + c]
+                  const r = data[ri + c]
+                  const avg = (l + r) / 2
+                  const edgeStrength = Math.min(t, 1 - t) * 2
+                  const keep = 0.72 * edgeStrength
+                  data[li + c] = Math.round(avg * (1 - keep) + l * keep)
+                  data[ri + c] = Math.round(avg * (1 - keep) + r * keep)
+                }
+              }
+            }
+
+            await sharp(data, { raw: { width, height, channels } })
+              .toColourspace('srgb')
+              .avif({ quality: 72, effort: 9, chromaSubsampling: '4:4:4' })
+              .toFile(out)
+          }
+
+          ;(async () => {
+            for (const name of names) await makeSeamSafe(name)
+          })().catch((err) => {
+            console.error(err)
+            process.exit(1)
+          })
+          NODE
+
+          python <<'PY'
+          from pathlib import Path
+          files = [Path('src/registerDaidalosIkaros.ts'), Path('src/registerRealWorldMyths.ts')]
+          for file in files:
+              text = file.read_text()
+              text = text.replace('.webp\'', '.avif\'').replace('.webp"', '.avif"')
+              file.write_text(text)
+          PY
+
+          rm -f public/assets/registered/*.webp
+          rm -rf .registered-asset-chunks .asset-repair
+      - name: Validate complete project
+        run: |
+          npm run check:registered-assets
+          npm run test
+          npm run build
+          npm run check:bundle
+          npm run check:pwa
+      - name: Commit finished assets
+        shell: bash
+        run: |
+          rm -f .github/workflows/finish-registered-assets.yml
+          git config user.name "MYTHOS asset repair"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Finish high-resolution registered panorama assets"
+          git push origin HEAD:agent/finish-panorama-assets-deploy
