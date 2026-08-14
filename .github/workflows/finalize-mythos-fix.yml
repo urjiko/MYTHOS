@@ -1,0 +1,102 @@
+name: Finalize MYTHOS panorama repair
+
+on:
+  push:
+    branches:
+      - agent/finish-panorama-assets-deploy
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  finalize:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/finish-panorama-assets-deploy
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Ensure 4096x2048 AVIF assets exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs')
+          const path = require('node:path')
+          const sharp = require('sharp')
+          const dir = path.join(process.cwd(), 'public', 'assets', 'registered')
+          const names = ['daidalos-ikaros','persephone-abduction','golden-fleece','perseus-andromeda','europa-white-bull']
+          async function rebuild(name) {
+            const avif = path.join(dir, `scene-${name}.avif`)
+            if (fs.existsSync(avif)) {
+              const m = await sharp(avif).metadata()
+              if (m.width === 4096 && m.height === 2048) return
+            }
+            const webp = path.join(dir, `scene-${name}.webp`)
+            if (!fs.existsSync(webp)) throw new Error(`No usable source for ${name}`)
+            const { data, info } = await sharp(webp)
+              .resize(4096, 2048, { fit: 'fill', kernel: sharp.kernel.lanczos3 })
+              .sharpen({ sigma: 1.15, m1: 0.7, m2: 1.25 })
+              .removeAlpha().toColourspace('srgb').raw()
+              .toBuffer({ resolveWithObject: true })
+            const width = info.width, height = info.height, channels = info.channels, blend = 320
+            for (let y=0; y<height; y++) for (let x=0; x<blend; x++) {
+              const t=x/(blend-1), edge=Math.min(t,1-t)*2, keep=.72*edge
+              const li=(y*width+x)*channels, ri=(y*width+(width-blend+x))*channels
+              for (let c=0;c<Math.min(3,channels);c++) {
+                const l=data[li+c], r=data[ri+c], avg=(l+r)/2
+                data[li+c]=Math.round(avg*(1-keep)+l*keep)
+                data[ri+c]=Math.round(avg*(1-keep)+r*keep)
+              }
+            }
+            await sharp(data,{raw:{width,height,channels}}).toColourspace('srgb')
+              .avif({quality:72,effort:9,chromaSubsampling:'4:4:4'}).toFile(avif)
+          }
+          ;(async()=>{ for (const n of names) await rebuild(n) })().catch(e=>{console.error(e);process.exit(1)})
+          NODE
+          python <<'PY'
+          from pathlib import Path
+          for file in [Path('src/registerDaidalosIkaros.ts'), Path('src/registerRealWorldMyths.ts')]:
+              s=file.read_text().replace('.webp\'', '.avif\'').replace('.webp"', '.avif"')
+              file.write_text(s)
+          PY
+          rm -f public/assets/registered/*.webp
+          rm -rf .registered-asset-chunks .asset-repair
+      - name: Run every release gate
+        run: |
+          npm run check:registered-assets
+          npm run test
+          npm run build
+          npm run check:bundle
+          npm run check:pwa
+      - name: Commit clean branch state
+        shell: bash
+        run: |
+          rm -f .github/workflows/finish-registered-assets.yml .github/workflows/finalize-mythos-fix.yml
+          git config user.name "MYTHOS asset repair"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Complete registered panorama repair"
+            git push origin HEAD:agent/finish-panorama-assets-deploy
+          fi
+      - name: Merge validated PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method PUT repos/urjiko/MYTHOS/pulls/18/merge -f merge_method=merge
+      - name: Deploy repaired main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sleep 5
+          gh workflow run deploy-pages.yml --repo urjiko/MYTHOS --ref main
