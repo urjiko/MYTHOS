@@ -648,6 +648,7 @@ const sceneTitleTr: Record<string, string> = {
   'The Seven against Thebes': 'Thebai’ye Karşı Yediler',
   'Prometheus Steals Fire': 'Prometheus Ateşi Çalıyor',
   'Prometheus Bound': 'Zincire Vurulmuş Prometheus',
+  'Daidalos and Ikaros': 'Daidalos ve Ikaros',
   'The Fall of Hephaestus': 'Hephaistos’un Düşüşü',
   'Psyche’s Trials': 'Psykhe’nin Sınavları',
   'The Birth of Dionysus': 'Dionysos’un Doğuşu',
@@ -707,6 +708,7 @@ const sceneTitleTr: Record<string, string> = {
   'Bellerophon and the Chimera': 'Bellerophon ve Khimaira',
   'Heracles and the Nemean Lion': 'Herakles ve Nemea Aslanı',
   'Perseus and the Sea Monster': 'Perseus ve Deniz Canavarı',
+  'Perseus and Andromeda': 'Perseus ve Andromeda',
   'The Judgement of Paris': 'Paris’in Yargısı',
   'Atalanta’s Race': 'Atalanta’nın Yarışı',
   'Peleus and Thetis': 'Peleus ve Thetis',
@@ -737,6 +739,7 @@ const sceneTitleTr: Record<string, string> = {
   'Perseus and the Gorgons': 'Perseus ve Gorgonlar',
   'Heracles and the Lernaean Hydra': 'Herakles ve Lerna Hydra’sı',
   'Jason and the Colchian Dragon': 'Iason ve Kolkhis Ejderhası',
+  'Jason and the Golden Fleece': 'Iason ve Altın Post',
   'Midas and the Golden Touch': 'Midas ve Altın Dokunuş',
   'Tantalus Tests the Gods': 'Tantalos Tanrıları Sınıyor',
   'The Treasure of Polycrates': 'Polykrates’in Hazinesi',
@@ -776,6 +779,7 @@ const sceneTitleTr: Record<string, string> = {
   'Leda and the Swan': 'Leda ve Kuğu',
   'Adonis and Aphrodite': 'Adonis ve Aphrodite',
   'Europa and the Bull': 'Europa ve Boğa',
+  'Europa and the White Bull': 'Europa ve Beyaz Boğa',
   'The Wanderings of Leto': 'Leto’nun Yolculukları',
 }
 
