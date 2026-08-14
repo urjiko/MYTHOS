@@ -15,6 +15,7 @@
     "review:panoramas": "node scripts/generate-panorama-review.mjs",
     "preview": "vite preview",
     "check:assets": "node scripts/check-panorama-assets.mjs",
+    "check:registered-assets": "node scripts/check-registered-scene-assets.mjs",
     "check:bundle": "node scripts/check-bundle-size.mjs",
     "check:pwa": "node scripts/check-pwa.mjs",
     "check": "tsc -b --pretty false",

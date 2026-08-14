@@ -1,6 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './registerDaidalosIkarosSummary'
+import './registerPrometheusBoundSummary'
+import './registerRealWorldMythsSummary'
 import App from './App'
 import { registerMythosServiceWorker } from './pwa'
 import { applyTurkishCopyPolish } from './turkishCopyPolish'

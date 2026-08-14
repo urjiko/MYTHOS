@@ -1,21 +1,6 @@
 import { mythScenes, type MythScene } from './data'
 import { mythCharacters, type MythCharacter } from './mythCharacters'
 import { sceneCluesTr, sceneDetailsTr } from './sceneCopy'
-import panoramaPart0 from './daidalosIkarosPanorama/part0'
-import panoramaPart1 from './daidalosIkarosPanorama/part1'
-import panoramaPart2 from './daidalosIkarosPanorama/part2'
-import panoramaPart3 from './daidalosIkarosPanorama/part3'
-import panoramaPart4 from './daidalosIkarosPanorama/part4'
-import panoramaPart5 from './daidalosIkarosPanorama/part5'
-
-const panorama = `data:image/webp;base64,${[
-  panoramaPart0,
-  panoramaPart1,
-  panoramaPart2,
-  panoramaPart3,
-  panoramaPart4,
-  panoramaPart5,
-].join('')}`
 
 const scene: MythScene = {
   id: 'daidalos-ikaros',
@@ -29,7 +14,7 @@ const scene: MythScene = {
   mapConfidence: 'traditional',
   geographyNote: 'The escape belongs to the mythic cycle of Minos and the labyrinth. Knossos is used as the Cretan anchor for the story, not as a claim for an exact historical launch point.',
   pleiadesUrl: 'https://pleiades.stoa.org/places/589872',
-  image: panorama,
+  image: './assets/registered/scene-daidalos-ikaros.webp',
   fallback: 'linear-gradient(126deg, #6e7f8f 0%, #c7924a 48%, #1b5f79 100%)',
   prompt: 'Find the feathered wings, softened wax, the labyrinth below, and the brilliant sun pulling one flyer dangerously higher.',
   clues: [

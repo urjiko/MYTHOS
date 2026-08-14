@@ -27,6 +27,7 @@ jobs:
       - run: npm ci
       - run: npm run generate:panorama-assets
       - run: npm run check:assets
+      - run: npm run check:registered-assets
       - run: npm run test
       - run: npm run build
       - run: npm run check:bundle
