@@ -26,7 +26,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p public/assets/registered
-          cat .daidalos-transfer/part*.txt | tr -d '\r\n' | base64 --decode > public/assets/registered/scene-daidalos-ikaros-native.webp
+          {
+            cat .daidalos-native2/part00.txt
+            cat .daidalos-native2/part01.txt
+            cat .daidalos-transfer/a.txt
+            cat .daidalos-native/chunk00.txt
+            cat .daidalos-transfer/b0.txt
+            cat .daidalos-transfer/b1.txt
+            cat .daidalos-transfer/b2.txt
+            cat .daidalos-native/chunk01.txt
+            cat .daidalos-transfer/c0.txt
+            cat .daidalos-transfer/c1.txt
+            cat .daidalos-transfer/c2.txt
+            cat .daidalos-native/chunk02.txt
+            cat .daidalos-transfer/d0.txt
+            cat .daidalos-transfer/d1.txt
+            cat .daidalos-transfer/d2.txt
+            head -c 19984 .daidalos-native/chunk03.txt
+          } | tr -d '\r\n' | base64 --decode > public/assets/registered/scene-daidalos-ikaros-native.webp
           echo 'd4f963db8f14a7ec7db24b4bd2f23e1965de6ec9b3f861fe4d8eccbada46708c  public/assets/registered/scene-daidalos-ikaros-native.webp' | sha256sum -c -
           test "$(stat -c%s public/assets/registered/scene-daidalos-ikaros-native.webp)" = "189892"
       - name: Validate complete release state
