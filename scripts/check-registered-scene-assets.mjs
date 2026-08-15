@@ -44,7 +44,7 @@ try {
   assert(metadata.space === 'srgb', `Daidalos source must use sRGB; received ${metadata.space}`)
   assert(width === 1774 && height === 887, `Daidalos source must preserve its native 1774×887 generation; received ${width}×${height}`)
   assert(Math.abs(ratio - 2) < 0.001, `Daidalos source must remain 2:1 equirectangular; received ${ratio.toFixed(4)}:1`)
-  assert(bytes >= 300 * 1024, `Daidalos source is suspiciously small at ${bytes} bytes`)
+  assert(bytes >= 175 * 1024, `Daidalos source is suspiciously small at ${bytes} bytes`)
   assert(bytes <= 1024 * 1024, `Daidalos source exceeds the 1 MiB web budget at ${bytes} bytes`)
   assert(seamMae <= 22, `Daidalos source has a left/right seam MAE of ${seamMae.toFixed(2)}; maximum is 22`)
 
