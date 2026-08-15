@@ -42,7 +42,7 @@ jobs:
             cat .daidalos-transfer/d0.txt
             cat .daidalos-transfer/d1.txt
             cat .daidalos-transfer/d2.txt
-            head -c 19984 .daidalos-native/chunk03.txt
+            tail -c 19984 .daidalos-native/chunk03.txt
           } | tr -d '\r\n' | base64 --decode > public/assets/registered/scene-daidalos-ikaros-native.webp
           echo 'd4f963db8f14a7ec7db24b4bd2f23e1965de6ec9b3f861fe4d8eccbada46708c  public/assets/registered/scene-daidalos-ikaros-native.webp' | sha256sum -c -
           test "$(stat -c%s public/assets/registered/scene-daidalos-ikaros-native.webp)" = "189892"
