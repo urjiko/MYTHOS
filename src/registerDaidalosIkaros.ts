@@ -14,7 +14,7 @@ const scene: MythScene = {
   mapConfidence: 'traditional',
   geographyNote: 'The escape belongs to the mythic cycle of Minos and the labyrinth. Knossos is used as the Cretan anchor for the story, not as a claim for an exact historical launch point.',
   pleiadesUrl: 'https://pleiades.stoa.org/places/589872',
-  image: './assets/registered/scene-daidalos-ikaros.webp',
+  image: './assets/registered/scene-daidalos-ikaros-native.webp',
   fallback: 'linear-gradient(126deg, #6e7f8f 0%, #c7924a 48%, #1b5f79 100%)',
   prompt: 'Find the feathered wings, softened wax, the labyrinth below, and the brilliant sun pulling one flyer dangerously higher.',
   clues: [
