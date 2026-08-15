@@ -1,0 +1,55 @@
+name: Finalize Daidalos native panorama binary
+
+on:
+  push:
+    branches: [agent/fix-daidalos-live-640]
+    paths: [.daidalos-native-ready]
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/fix-daidalos-live-640
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Reconstruct exact native panorama
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets/registered
+          cat .daidalos-transfer/part*.txt | tr -d '\r\n' | base64 --decode > public/assets/registered/scene-daidalos-ikaros-native.webp
+          echo 'd4f963db8f14a7ec7db24b4bd2f23e1965de6ec9b3f861fe4d8eccbada46708c  public/assets/registered/scene-daidalos-ikaros-native.webp' | sha256sum -c -
+          test "$(stat -c%s public/assets/registered/scene-daidalos-ikaros-native.webp)" = "189892"
+      - name: Validate complete release state
+        run: |
+          npm run generate:panorama-assets
+          npm run check:assets
+          npm run check:registered-assets
+          npm run test
+          npm run build
+          npm run check:bundle
+          npm run check:pwa
+      - name: Commit validated binary and remove repair scaffolding
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .daidalos-transfer .daidalos-native .daidalos-native2 .daidalos-hq-transfer .daidalos-q20 .daidalos-safe .probe
+          rm -f .daidalos-native-ready
+          rm -f .github/workflows/finalize-daidalos-binary.yml
+          rm -f .github/workflows/finalize-daidalos-native.yml
+          rm -f .github/workflows/finalize-daidalos-hq.yml
+          rm -f .github/workflows/emergency-finalize.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Commit Daidalos native panorama binary'
+          git push origin HEAD:agent/fix-daidalos-live-640
