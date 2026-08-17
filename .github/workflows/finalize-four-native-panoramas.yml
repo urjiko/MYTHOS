@@ -27,12 +27,12 @@ jobs:
           set -euo pipefail
           mkdir -p public/assets/registered
           for slug in golden-fleece europa-white-bull persephone-abduction perseus-andromeda; do
-            cat ".four-myth-transfer/$slug"/part*.txt | tr -d '\r\n' | base64 --decode > "public/assets/registered/scene-$slug-native.webp"
+            cat ".four-myth-transfer-avif/$slug"/part*.txt | tr -d '\r\n' | base64 --decode > "public/assets/registered/scene-$slug-native.avif"
           done
-          echo '700a0eeccd3c95d1db651e04dd609f49238a866549d332113b6b96035dd51d38  public/assets/registered/scene-golden-fleece-native.webp' | sha256sum -c -
-          echo '5bd773f618c0b125b5e12c8f2326a918accf9fe7954dba0c5fae32e48c7006ca  public/assets/registered/scene-europa-white-bull-native.webp' | sha256sum -c -
-          echo '9975475d5beab016b9b58bf476071b89925f70fd11637da43b994b79dff2e636  public/assets/registered/scene-persephone-abduction-native.webp' | sha256sum -c -
-          echo 'e8572f0050d18af23369cd8faa0a2cb7ab0908c40bddbf1d63a2d2fa9b3048b5  public/assets/registered/scene-perseus-andromeda-native.webp' | sha256sum -c -
+          echo 'f5b7925b0f3f28cc409a8e92f1fd8ad8c048712f40c604b6412874ef806e695b  public/assets/registered/scene-golden-fleece-native.avif' | sha256sum -c -
+          echo 'b8b163d608583fe84e7b66bbbd33bca54a7b14045d9c02fdab71d4bc1cd00629  public/assets/registered/scene-europa-white-bull-native.avif' | sha256sum -c -
+          echo 'f832920b134511ace93fbcc1e4853634603789b27294977a33de4d2cc2a6bb18  public/assets/registered/scene-persephone-abduction-native.avif' | sha256sum -c -
+          echo '682bea2089510987ed1aeb6189f8bd2d3abfab1dfcd375399e90b2de9dd98190  public/assets/registered/scene-perseus-andromeda-native.avif' | sha256sum -c -
       - name: Validate native dimensions, file weight and panorama seam
         shell: bash
         run: |
@@ -43,14 +43,14 @@ jobs:
           const names = ['golden-fleece','europa-white-bull','persephone-abduction','perseus-andromeda']
           ;(async () => {
             for (const name of names) {
-              const file = `public/assets/registered/scene-${name}-native.webp`
+              const file = `public/assets/registered/scene-${name}-native.avif`
               const bytes = fs.statSync(file).size
               const img = sharp(file)
               const meta = await img.metadata()
-              if (meta.format !== 'webp' || meta.width !== 1774 || meta.height !== 887 || meta.space !== 'srgb') {
-                throw new Error(`${name}: expected native 1774x887 sRGB WebP, got ${meta.format} ${meta.width}x${meta.height} ${meta.space}`)
+              if (meta.format !== 'heif' || meta.width !== 1774 || meta.height !== 887 || meta.space !== 'srgb') {
+                throw new Error(`${name}: expected native 1774x887 sRGB AVIF, got ${meta.format} ${meta.width}x${meta.height} ${meta.space}`)
               }
-              if (bytes < 140 * 1024 || bytes > 1024 * 1024) throw new Error(`${name}: suspicious size ${bytes}`)
+              if (bytes < 60 * 1024 || bytes > 1024 * 1024) throw new Error(`${name}: suspicious size ${bytes}`)
               const { data, info } = await img.removeAlpha().raw().toBuffer({ resolveWithObject: true })
               let diff = 0, samples = 0
               for (let y = 0; y < info.height; y += 4) {
@@ -74,7 +74,7 @@ jobs:
           p = Path('src/registerRealWorldMyths.ts')
           s = p.read_text()
           for slug in ['golden-fleece','europa-white-bull','persephone-abduction','perseus-andromeda']:
-              s = s.replace(f'./assets/registered/scene-{slug}.webp', f'./assets/registered/scene-{slug}-native.webp')
+              s = s.replace(f'./assets/registered/scene-{slug}.webp', f'./assets/registered/scene-{slug}-native.avif')
           p.write_text(s)
           PY
           rm -f public/assets/registered/scene-golden-fleece.webp \
@@ -94,7 +94,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf .four-myth-transfer
+          rm -rf .four-myth-transfer .four-myth-transfer-avif
           rm -f .four-myth-native-ready
           rm -f .github/workflows/finalize-four-native-panoramas.yml
           git config user.name 'github-actions[bot]'
