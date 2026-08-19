@@ -27,12 +27,16 @@ jobs:
           set -euo pipefail
           mkdir -p public/assets/registered
           for slug in golden-fleece europa-white-bull persephone-abduction perseus-andromeda; do
-            cat ".four-myth-transfer-avif/$slug"/part*.txt | tr -d '\r\n' | base64 --decode > "public/assets/registered/scene-$slug-native.avif"
+            cat ".four-myth-transfer-v2/$slug"/part*.txt | tr -d '\r\n' | base64 --decode > "public/assets/registered/scene-$slug-native.avif"
           done
-          echo 'f5b7925b0f3f28cc409a8e92f1fd8ad8c048712f40c604b6412874ef806e695b  public/assets/registered/scene-golden-fleece-native.avif' | sha256sum -c -
-          echo 'b8b163d608583fe84e7b66bbbd33bca54a7b14045d9c02fdab71d4bc1cd00629  public/assets/registered/scene-europa-white-bull-native.avif' | sha256sum -c -
-          echo 'f832920b134511ace93fbcc1e4853634603789b27294977a33de4d2cc2a6bb18  public/assets/registered/scene-persephone-abduction-native.avif' | sha256sum -c -
-          echo '682bea2089510987ed1aeb6189f8bd2d3abfab1dfcd375399e90b2de9dd98190  public/assets/registered/scene-perseus-andromeda-native.avif' | sha256sum -c -
+          echo '931783d7c43bca68df6b9554529b8c7f84bf7d0bcdff38dd8f5d67278e2d25f1  public/assets/registered/scene-golden-fleece-native.avif' | sha256sum -c -
+          echo 'fa2e491c3021025afde017ea11ead06c01fdbaaeb8a7e42cc266c608718df0c0  public/assets/registered/scene-europa-white-bull-native.avif' | sha256sum -c -
+          echo 'ed436b70eea450bf64fe77fa32d90a09f9c750baff9f7c0e0dff8f1848624b4e  public/assets/registered/scene-persephone-abduction-native.avif' | sha256sum -c -
+          echo '36f872251d137fd0dafdc2cf6ee992ec3fa701001c48f989f7c94f7707008d66  public/assets/registered/scene-perseus-andromeda-native.avif' | sha256sum -c -
+          test "$(stat -c%s public/assets/registered/scene-golden-fleece-native.avif)" = "133963"
+          test "$(stat -c%s public/assets/registered/scene-europa-white-bull-native.avif)" = "153203"
+          test "$(stat -c%s public/assets/registered/scene-persephone-abduction-native.avif)" = "146526"
+          test "$(stat -c%s public/assets/registered/scene-perseus-andromeda-native.avif)" = "135270"
       - name: Validate native dimensions, file weight and panorama seam
         shell: bash
         run: |
@@ -50,7 +54,7 @@ jobs:
               if (meta.format !== 'heif' || meta.width !== 1774 || meta.height !== 887 || meta.space !== 'srgb') {
                 throw new Error(`${name}: expected native 1774x887 sRGB AVIF, got ${meta.format} ${meta.width}x${meta.height} ${meta.space}`)
               }
-              if (bytes < 60 * 1024 || bytes > 1024 * 1024) throw new Error(`${name}: suspicious size ${bytes}`)
+              if (bytes < 120 * 1024 || bytes > 1024 * 1024) throw new Error(`${name}: suspicious size ${bytes}`)
               const { data, info } = await img.removeAlpha().raw().toBuffer({ resolveWithObject: true })
               let diff = 0, samples = 0
               for (let y = 0; y < info.height; y += 4) {
@@ -94,7 +98,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf .four-myth-transfer .four-myth-transfer-avif
+          rm -rf .four-myth-transfer .four-myth-transfer-avif .four-myth-transfer-v2
           rm -f .four-myth-native-ready
           rm -f .github/workflows/finalize-four-native-panoramas.yml
           git config user.name 'github-actions[bot]'
