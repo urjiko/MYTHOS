@@ -1,0 +1,108 @@
+name: Finalize four generated myth panoramas
+
+on:
+  push:
+    branches: [agent/ship-four-native-myth-panoramas]
+    paths: [.four-myth-native-ready]
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/ship-four-native-myth-panoramas
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Reconstruct the four generated panoramas
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets/registered
+          for slug in golden-fleece europa-white-bull persephone-abduction perseus-andromeda; do
+            cat ".four-myth-transfer-v2/$slug"/part*.txt | tr -d '\r\n' | base64 --decode > "public/assets/registered/scene-$slug-native.avif"
+          done
+          echo '931783d7c43bca68df6b9554529b8c7f84bf7d0bcdff38dd8f5d67278e2d25f1  public/assets/registered/scene-golden-fleece-native.avif' | sha256sum -c -
+          echo 'fa2e491c3021025afde017ea11ead06c01fdbaaeb8a7e42cc266c608718df0c0  public/assets/registered/scene-europa-white-bull-native.avif' | sha256sum -c -
+          echo 'ed436b70eea450bf64fe77fa32d90a09f9c750baff9f7c0e0dff8f1848624b4e  public/assets/registered/scene-persephone-abduction-native.avif' | sha256sum -c -
+          echo '36f872251d137fd0dafdc2cf6ee992ec3fa701001c48f989f7c94f7707008d66  public/assets/registered/scene-perseus-andromeda-native.avif' | sha256sum -c -
+          test "$(stat -c%s public/assets/registered/scene-golden-fleece-native.avif)" = "133963"
+          test "$(stat -c%s public/assets/registered/scene-europa-white-bull-native.avif)" = "153203"
+          test "$(stat -c%s public/assets/registered/scene-persephone-abduction-native.avif)" = "146526"
+          test "$(stat -c%s public/assets/registered/scene-perseus-andromeda-native.avif)" = "135270"
+      - name: Validate native dimensions, file weight and panorama seam
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const sharp = require('sharp')
+          const fs = require('fs')
+          const names = ['golden-fleece','europa-white-bull','persephone-abduction','perseus-andromeda']
+          ;(async () => {
+            for (const name of names) {
+              const file = `public/assets/registered/scene-${name}-native.avif`
+              const bytes = fs.statSync(file).size
+              const img = sharp(file)
+              const meta = await img.metadata()
+              if (meta.format !== 'heif' || meta.width !== 1774 || meta.height !== 887 || meta.space !== 'srgb') {
+                throw new Error(`${name}: expected native 1774x887 sRGB AVIF, got ${meta.format} ${meta.width}x${meta.height} ${meta.space}`)
+              }
+              if (bytes < 120 * 1024 || bytes > 1024 * 1024) throw new Error(`${name}: suspicious size ${bytes}`)
+              const { data, info } = await img.removeAlpha().raw().toBuffer({ resolveWithObject: true })
+              let diff = 0, samples = 0
+              for (let y = 0; y < info.height; y += 4) {
+                const left = y * info.width * info.channels
+                const right = left + (info.width - 1) * info.channels
+                for (let c = 0; c < Math.min(3, info.channels); c++) {
+                  diff += Math.abs(data[left + c] - data[right + c]); samples++
+                }
+              }
+              const seam = samples ? diff / samples : 0
+              if (seam > 10) throw new Error(`${name}: seam MAE ${seam.toFixed(2)} > 10`)
+              console.log(`${name}: ${meta.width}x${meta.height}, ${(bytes/1024).toFixed(0)} KiB, seam ${seam.toFixed(2)}`)
+            }
+          })().catch(err => { console.error(err); process.exit(1) })
+          NODE
+      - name: Point the four myths at the native generated art
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          p = Path('src/registerRealWorldMyths.ts')
+          s = p.read_text()
+          for slug in ['golden-fleece','europa-white-bull','persephone-abduction','perseus-andromeda']:
+              s = s.replace(f'./assets/registered/scene-{slug}.webp', f'./assets/registered/scene-{slug}-native.avif')
+          p.write_text(s)
+          PY
+          rm -f public/assets/registered/scene-golden-fleece.webp \
+                public/assets/registered/scene-europa-white-bull.webp \
+                public/assets/registered/scene-persephone-abduction.webp \
+                public/assets/registered/scene-perseus-andromeda.webp
+      - name: Validate the complete site
+        run: |
+          npm run generate:panorama-assets
+          npm run check:assets
+          npm run check:registered-assets
+          npm run test
+          npm run build
+          npm run check:bundle
+          npm run check:pwa
+      - name: Commit only the verified final state
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .four-myth-transfer .four-myth-transfer-avif .four-myth-transfer-v2
+          rm -f .four-myth-native-ready
+          rm -f .github/workflows/finalize-four-native-panoramas.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Ship native generated art for four myth scenes'
+          git push origin HEAD:agent/ship-four-native-myth-panoramas
